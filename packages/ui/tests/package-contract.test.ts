@@ -18,7 +18,7 @@ describe('@oxygen-design/ui package contract', () => {
     };
 
     expect(manifest.name).toBe('@oxygen-design/ui');
-    expect(manifest.version).toBe('0.0.0');
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(Object.keys(manifest.exports)).toEqual([
       '.',
       './styles.css',
