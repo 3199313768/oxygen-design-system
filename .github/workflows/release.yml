@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: oxygen-design-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          version: 11.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22.14.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify release candidate
+        run: pnpm verify && pnpm verify:package
+
+      - name: Create version pull request or publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          version: pnpm changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

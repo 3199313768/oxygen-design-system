@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@oxygen-design/ui": ["../../packages/ui/src/index.ts"]
+    },
+    "types": ["node", "vite/client"]
+  },
+  "include": [".storybook", "stories"]
+}

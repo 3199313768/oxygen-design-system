@@ -1,0 +1,34 @@
+{
+  "name": "oxygen-design-system",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "build": "pnpm --filter @oxygen-design/ui build",
+    "storybook": "pnpm build && pnpm --filter @oxygen-design/storybook storybook",
+    "storybook:build": "pnpm build && pnpm --filter @oxygen-design/storybook build-storybook",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "verify": "pnpm typecheck && pnpm test && pnpm build && pnpm storybook:build",
+    "verify:package": "node scripts/verify-package.mjs",
+    "verify:initial-release": "node scripts/verify-initial-release.mjs",
+    "release": "pnpm build && pnpm changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "8.3.5",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.5"
+  }
+}
