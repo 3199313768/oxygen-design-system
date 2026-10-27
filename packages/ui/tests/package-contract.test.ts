@@ -29,7 +29,7 @@ describe('@oxygen-design/ui package contract', () => {
       'react-dom': '>=18',
     });
     expect(manifest.publishConfig).toEqual({
-      access: 'restricted',
+      access: 'public',
       registry: 'https://registry.npmjs.org/',
     });
   });

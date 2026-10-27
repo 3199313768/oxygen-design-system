@@ -1,7 +1,8 @@
 # Oxygen Design System
 
-Private React design system for Oxygen projects. The publishable package is
-`@oxygen-design/ui`; Storybook remains a private workspace application.
+React design system for Oxygen projects. The GitHub repository and Storybook
+remain private; the publishable package is the public scoped package
+`@oxygen-design/ui`.
 
 ## Package Contents
 
@@ -33,12 +34,11 @@ pnpm verify:package
 
 ## Consumer Installation
 
-The npm Organization and first release must exist before installation. Configure
-the token outside source control, then install the exact pre-1.0 version:
+The npm Organization and first release must exist before installation. Because
+the package is public, consumers do not need an npm token:
 
 ```ini
 @oxygen-design:registry=https://registry.npmjs.org/
-//registry.npmjs.org/:_authToken=${NPM_TOKEN}
 ```
 
 ```bash
@@ -69,8 +69,8 @@ additions use minor changesets, and breaking API changes use major changesets.
 
 The release workflow creates a version pull request and runs `pnpm release`
 after it is merged. Prefer npm Trusted Publishing. If the npm account cannot use
-trusted publishing, configure a granular `NPM_TOKEN` restricted to
-`@oxygen-design/ui`. Never store token values in this repository.
+trusted publishing, configure a granular `NPM_TOKEN` outside this repository.
+The package is published with public access.
 
 No GitHub remote, npm Organization, trusted publisher, token, or package release
 is created by the local scaffold.
