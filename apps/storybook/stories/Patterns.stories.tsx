@@ -2,27 +2,30 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
   AppShell,
-  Button,
   EmptyState,
-  Files,
   PageHeader,
   StatusMessage,
-  Upload,
+} from '@oxygen-design/patterns';
+import {
+  Button,
+  Files,
+  Settings,
 } from '@oxygen-design/ui';
+import '@oxygen-design/patterns/styles.css';
 
 const meta = {
-  title: 'Patterns/Page Composition',
+  title: '布局/页面模式',
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const navigation = (
-  <nav aria-label="应用导航" className="story-stack">
-    <Button variant="ghost">所有文件</Button>
-    <Button variant="ghost">最近使用</Button>
-    <Button variant="ghost">回收站</Button>
-    <Button variant="ghost">团队小组</Button>
+  <nav aria-label="主导航" className="story-stack">
+    <Button variant="ghost">导航项一</Button>
+    <Button variant="ghost">导航项二</Button>
+    <Button variant="ghost">导航项三</Button>
+    <Button variant="ghost">更多导航项</Button>
   </nav>
 );
 
@@ -32,21 +35,21 @@ export const PageStates: Story = {
       <PageHeader
         actions={
           <Button>
-            <Upload aria-hidden="true" />
-            上传文件
+            <Settings aria-hidden="true" />
+            操作
           </Button>
         }
-        description="集中查看、检索并管理当前团队中的所有知识文件。"
-        title="团队知识库"
+        description="用于演示页面头部、操作和说明区域。"
+        title="页面标题"
       />
       <StatusMessage action={<Button size="sm">重试</Button>} tone="warning">
-        2 个文件仍在等待处理。
+        部分内容仍在处理中。
       </StatusMessage>
       <EmptyState
-        action={<Button>上传第一个文件</Button>}
-        description="支持 PDF 和 DOCX，上传后即可搜索内容。"
+        action={<Button>新增项</Button>}
+        description="当前没有可展示的数据。"
         icon={<Files aria-hidden="true" />}
-        title="暂无文件"
+        title="暂无数据"
       />
     </div>
   ),
@@ -59,13 +62,20 @@ export const ResponsiveShell: Story = {
   render: () => (
     <AppShell
       mobileNavigation={navigation}
+      navigationDescription="选择页面"
+      navigationTitle="页面导航"
+      navigationTriggerLabel="打开导航"
       sidebar={<div style={{ padding: 16 }}>{navigation}</div>}
-      title="Oxygen 知识库"
-      topbarActions={<Button size="icon" aria-label="账号菜单">O</Button>}
+      title="页面布局"
+      topbarActions={
+        <Button aria-label="更多操作" size="icon" variant="ghost">
+          <Settings aria-hidden="true" />
+        </Button>
+      }
     >
       <PageHeader
-        description="This layout keeps the same semantic content across desktop and iPhone widths."
-        title="所有文件"
+        description="在不同宽度下保持一致的页面结构。"
+        title="内容区域"
       />
     </AppShell>
   ),

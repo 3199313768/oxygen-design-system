@@ -1,0 +1,195 @@
+@layer components {
+  .oxygen-page-header {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--oxygen-space-4);
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .oxygen-page-header__copy {
+    display: grid;
+    gap: var(--oxygen-space-1);
+    min-width: 0;
+  }
+
+  .oxygen-page-header__title {
+    font-weight: var(--oxygen-font-weight-semibold);
+    color: var(--oxygen-color-text);
+    font-size: var(--oxygen-font-size-title);
+    line-height: var(--oxygen-line-height-title);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .oxygen-page-header__description,
+  .oxygen-empty-state__description {
+    color: var(--oxygen-color-text-muted);
+    font-size: var(--oxygen-font-size-body);
+    line-height: var(--oxygen-line-height-body);
+    overflow-wrap: anywhere;
+  }
+
+  .oxygen-page-header__actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: var(--oxygen-space-2);
+    justify-content: flex-end;
+  }
+
+  .oxygen-empty-state {
+    align-items: center;
+    color: var(--oxygen-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--oxygen-space-4);
+    justify-content: center;
+    min-height: 240px;
+    padding: var(--oxygen-space-8) var(--oxygen-space-4);
+    text-align: center;
+  }
+
+  .oxygen-empty-state__icon {
+    align-items: center;
+    color: var(--oxygen-color-text-muted);
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .oxygen-empty-state__icon svg {
+    height: 32px;
+    width: 32px;
+  }
+
+  .oxygen-empty-state__copy {
+    display: grid;
+    gap: var(--oxygen-space-2);
+    max-width: 520px;
+    min-width: 0;
+  }
+
+  .oxygen-empty-state__title {
+    font-weight: var(--oxygen-font-weight-semibold);
+    font-size: var(--oxygen-font-size-section);
+    line-height: var(--oxygen-line-height-section);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .oxygen-empty-state__action {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--oxygen-space-2);
+    justify-content: center;
+  }
+
+  .oxygen-status-message {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    display: flex;
+    gap: var(--oxygen-space-3);
+    justify-content: space-between;
+  }
+
+  .oxygen-status-message__copy {
+    display: grid;
+    gap: var(--oxygen-space-1);
+    min-width: 0;
+  }
+
+  .oxygen-status-message__action {
+    flex: 0 0 auto;
+  }
+
+  .oxygen-app-shell {
+    background: var(--oxygen-color-background);
+    color: var(--oxygen-color-text);
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    min-height: 100dvh;
+  }
+
+  .oxygen-app-shell__sidebar {
+    background: var(--oxygen-color-surface);
+    border-right: 1px solid var(--oxygen-color-border);
+    min-height: 100dvh;
+    min-width: 0;
+  }
+
+  .oxygen-app-shell__body {
+    min-width: 0;
+  }
+
+  .oxygen-app-shell__topbar {
+    align-items: center;
+    background: var(--oxygen-color-surface);
+    border-bottom: 1px solid var(--oxygen-color-border);
+    display: none;
+    gap: var(--oxygen-space-3);
+    min-height: 56px;
+    padding: var(--oxygen-space-2) var(--oxygen-space-4);
+  }
+
+  .oxygen-app-shell__title {
+    flex: 1 1 auto;
+    font-size: var(--oxygen-font-size-section);
+    font-weight: var(--oxygen-font-weight-semibold);
+    line-height: var(--oxygen-line-height-section);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .oxygen-app-shell__actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--oxygen-space-2);
+  }
+
+  .oxygen-app-shell__content {
+    margin: 0 auto;
+    max-width: 1440px;
+    min-width: 0;
+    padding: var(--oxygen-space-6);
+    width: 100%;
+  }
+
+  .oxygen-app-shell__mobile-navigation {
+    margin-top: var(--oxygen-space-6);
+  }
+}
+
+@media (max-width: 1100px) {
+  .oxygen-app-shell__content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 820px) {
+  .oxygen-app-shell {
+    display: block;
+  }
+
+  .oxygen-app-shell__sidebar {
+    display: none;
+  }
+
+  .oxygen-app-shell__topbar {
+    display: flex;
+  }
+
+  .oxygen-app-shell__content {
+    padding: var(--oxygen-space-4);
+  }
+
+  .oxygen-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .oxygen-page-header__actions {
+    justify-content: flex-start;
+  }
+}

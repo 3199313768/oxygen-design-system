@@ -1,78 +1,119 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
-  Button,
   Checkbox,
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  RefreshCw,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+  Field,
+  FieldControl,
+  FieldLabel,
+  Form,
+  Input,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Textarea,
+  Typography,
 } from '@oxygen-design/ui';
 
 const meta = {
-  title: 'Components/Interactive Controls',
+  title: '数据录入/表单控件',
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const AllStates: Story = {
+export const CheckboxStates: Story = {
   render: () => (
-    <TooltipProvider delayDuration={0}>
-      <div className="story-stack">
-        <div className="story-row">
-          <Checkbox aria-label="选择产品方案" />
-          <span>选择产品方案</span>
-          <Checkbox aria-label="已选择的文件" defaultChecked />
-          <span>已选择的文件</span>
-          <Checkbox aria-label="不可选择" disabled />
+    <section className="story-section">
+      <h2 className="story-section__title">
+        复选框
+      </h2>
+      <p className="story-section__description">展示未选中、已选中、半选和禁用状态。</p>
+      <div className="story-row">
+        <label className="story-choice">
+          <Checkbox aria-label="未选中" /> 未选中
+        </label>
+        <label className="story-choice">
+          <Checkbox aria-label="已选中" defaultChecked /> 已选中
+        </label>
+        <label className="story-choice">
+          <Checkbox aria-label="半选" defaultChecked="indeterminate" /> 半选
+        </label>
+        <label className="story-choice">
+          <Checkbox aria-label="禁用" disabled /> 禁用
+        </label>
+      </div>
+    </section>
+  ),
+};
+
+export const FormLayout: Story = {
+  render: () => (
+    <section className="story-section">
+      <h2 className="story-section__title">
+        表单布局
+      </h2>
+      <p className="story-section__description">展示标签、帮助文本和错误状态。</p>
+      <Form layout="vertical">
+        <Form.Item help="请输入内容" label="文本" name="text" required>
+          <Input placeholder="请输入内容" />
+        </Form.Item>
+        <Form.Item help="内容格式不正确" label="多行文本" validateStatus="error">
+          <Textarea placeholder="请输入内容" />
+        </Form.Item>
+      </Form>
+      <Field>
+        <FieldLabel>基础字段</FieldLabel>
+        <FieldControl>
+          <Input placeholder="请输入内容" />
+        </FieldControl>
+      </Field>
+    </section>
+  ),
+};
+
+export const SelectionControls: Story = {
+  render: () => (
+    <section className="story-section">
+      <h2 className="story-section__title">
+        选择控件
+      </h2>
+      <p className="story-section__description">展示单选、开关和下拉选择。</p>
+      <div className="story-control-grid">
+        <div className="story-section">
+          <Typography.Text strong>单选</Typography.Text>
+          <RadioGroup aria-label="单选项" defaultValue="a">
+            <label className="story-choice">
+              <RadioGroupItem aria-label="选项一" value="a" /> 选项一
+            </label>
+            <label className="story-choice">
+              <RadioGroupItem aria-label="选项二" value="b" /> 选项二
+            </label>
+          </RadioGroup>
         </div>
-        <Tabs defaultValue="all">
-          <TabsList aria-label="文件状态">
-            <TabsTrigger value="all">全部 18</TabsTrigger>
-            <TabsTrigger value="processing">处理中 3</TabsTrigger>
-            <TabsTrigger value="failed">失败 1</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all">全部文件</TabsContent>
-          <TabsContent value="processing">正在处理的文件</TabsContent>
-          <TabsContent value="failed">处理失败的文件</TabsContent>
-        </Tabs>
-        <div className="story-row">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary">账号菜单</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuLabel>oxygen@example.com</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem checked>
-                接收处理通知
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>退出当前设备</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button aria-label="刷新文件" size="icon" variant="ghost">
-                <RefreshCw aria-hidden="true" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>重新加载文件</TooltipContent>
-          </Tooltip>
+        <div className="story-section">
+          <Typography.Text strong>开关</Typography.Text>
+          <label className="story-choice">
+            <Switch aria-label="启用" defaultChecked /> 启用
+          </label>
+        </div>
+        <div className="story-section">
+          <Typography.Text strong>下拉选择</Typography.Text>
+          <Select defaultValue="one">
+            <SelectTrigger aria-label="下拉选择">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="one">选项一</SelectItem>
+              <SelectItem value="two">选项二</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-    </TooltipProvider>
+    </section>
   ),
 };

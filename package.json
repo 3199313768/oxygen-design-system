@@ -2,14 +2,17 @@
   "name": "oxygen-design-system",
   "private": true,
   "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.22.2"
+  },
   "scripts": {
-    "build": "pnpm --filter @oxygen-design/ui build",
+    "build": "pnpm --filter @oxygen-design/ui build && pnpm --filter @oxygen-design/patterns build",
     "storybook": "pnpm build && pnpm --filter @oxygen-design/storybook storybook",
     "storybook:build": "pnpm build && pnpm --filter @oxygen-design/storybook build-storybook",
     "test": "pnpm -r --if-present test",
     "typecheck": "pnpm -r --if-present typecheck",
     "verify": "pnpm typecheck && pnpm test && pnpm build && pnpm storybook:build",
-    "verify:package": "node scripts/verify-package.mjs",
+    "verify:package": "node scripts/verify-package.mjs && node scripts/verify-patterns-package.mjs",
     "verify:initial-release": "node scripts/verify-initial-release.mjs",
     "release": "pnpm build && pnpm changeset publish"
   },

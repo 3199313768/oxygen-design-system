@@ -1,19 +1,22 @@
 import type { ReactNode } from 'react';
 
-import { Menu } from '../Icons';
-import { Button } from '../components/Button';
 import {
+  Button,
+  Menu,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '../components/Sheet';
+} from '@oxygen-design/ui';
 
 export interface AppShellProps {
   children: ReactNode;
   mobileNavigation: ReactNode;
+  navigationDescription?: string;
+  navigationTitle?: string;
+  navigationTriggerLabel?: string;
   sidebar: ReactNode;
   title: string;
   topbarActions?: ReactNode;
@@ -22,10 +25,15 @@ export interface AppShellProps {
 export function AppShell({
   children,
   mobileNavigation,
+  navigationDescription = '请选择页面',
+  navigationTitle,
+  navigationTriggerLabel = '打开导航',
   sidebar,
   title,
   topbarActions,
 }: AppShellProps) {
+  const resolvedNavigationTitle = navigationTitle ?? `${title}导航`;
+
   return (
     <div className="oxygen-app-shell">
       <aside className="oxygen-app-shell__sidebar">{sidebar}</aside>
@@ -33,14 +41,14 @@ export function AppShell({
         <header className="oxygen-app-shell__topbar">
           <Sheet>
             <SheetTrigger asChild>
-              <Button aria-label="打开导航" size="icon" variant="ghost">
+              <Button aria-label={navigationTriggerLabel} size="icon" variant="ghost">
                 <Menu aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
               <SheetHeader>
-                <SheetTitle>{title}导航</SheetTitle>
-                <SheetDescription>选择要打开的页面</SheetDescription>
+                <SheetTitle>{resolvedNavigationTitle}</SheetTitle>
+                <SheetDescription>{navigationDescription}</SheetDescription>
               </SheetHeader>
               <div className="oxygen-app-shell__mobile-navigation">
                 {mobileNavigation}

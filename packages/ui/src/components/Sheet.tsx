@@ -4,6 +4,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 
 import { X } from '../Icons';
 import { cn } from '../lib/cn';
+import { useOxygenLocale } from './ConfigProvider';
 
 export const Sheet = DialogPrimitive.Root;
 export const SheetTrigger = DialogPrimitive.Trigger;
@@ -36,31 +37,38 @@ const sheetVariants = cva('oxygen-sheet', {
 
 export interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
+    VariantProps<typeof sheetVariants> {
+  closeLabel?: string;
+}
 
 export const SheetContent = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   SheetContentProps
->(({ children, className, side, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <DialogPrimitive.Content
-      className={cn(sheetVariants({ side }), className)}
-      ref={ref}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close
-        aria-label="关闭"
-        className="oxygen-sheet__close"
-        data-oxygen-control="true"
-        data-oxygen-icon-button="true"
+>(({ children, className, closeLabel, side, ...props }, ref) => {
+  const { common } = useOxygenLocale();
+  const accessibleCloseLabel = closeLabel || common.close;
+
+  return (
+    <SheetPortal>
+      <SheetOverlay />
+      <DialogPrimitive.Content
+        className={cn(sheetVariants({ side }), className)}
+        ref={ref}
+        {...props}
       >
-        <X aria-hidden="true" />
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </SheetPortal>
-));
+        {children}
+        <DialogPrimitive.Close
+          aria-label={accessibleCloseLabel}
+          className="oxygen-sheet__close"
+          data-oxygen-control="true"
+          data-oxygen-icon-button="true"
+        >
+          <X aria-hidden="true" />
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </SheetPortal>
+  );
+});
 SheetContent.displayName = DialogPrimitive.Content.displayName;
 
 export const SheetHeader = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (

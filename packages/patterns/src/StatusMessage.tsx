@@ -5,7 +5,7 @@ import {
   AlertDescription,
   AlertTitle,
   type AlertTone,
-} from '../components/Alert';
+} from '@oxygen-design/ui';
 
 export interface StatusMessageProps {
   action?: ReactNode;
