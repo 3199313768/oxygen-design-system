@@ -1,16 +1,19 @@
 import {
   forwardRef,
   useEffect,
+  useId,
   useRef,
   useState,
   type ChangeEvent,
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
+import { FileText, Inbox, Upload as UploadIcon } from 'lucide-react';
 
 import { cn } from '../lib/cn';
 import type { UploadFile } from './shared';
 import { useOxygenLocale } from './ConfigProvider';
+import { Progress } from './Progress';
 
 export interface UploadRequestHandlers {
   onError: (error?: Error) => void;
@@ -79,6 +82,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
     ref,
   ) => {
     const locale = useOxygenLocale();
+    const hintId = useId();
     const inputRef = useRef<HTMLInputElement>(null);
     const [uncontrolledFiles, setUncontrolledFiles] = useState(defaultFileList);
     const fileList = fileListProp ?? uncontrolledFiles;
@@ -215,6 +219,8 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
           type="file"
         />
         <button
+          aria-label={children == null ? locale.common.browse : undefined}
+          aria-describedby={drag && children == null ? hintId : undefined}
           className={cn('oxygen-upload__trigger', drag && 'oxygen-upload__trigger--drag')}
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
@@ -230,29 +236,47 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
           }}
           type="button"
         >
-          {children ?? locale.common.browse}
+          {children ?? (
+            <>
+              {drag ? <Inbox aria-hidden="true" className="oxygen-upload__trigger-icon" /> : <UploadIcon aria-hidden="true" className="oxygen-upload__trigger-icon" />}
+              <span className="oxygen-upload__trigger-label">{locale.common.browse}</span>
+              {drag ? <span className="oxygen-upload__hint" id={hintId}>{locale.upload.dragHint ?? locale.common.browse}</span> : null}
+            </>
+          )}
         </button>
         {showUploadList ? (
           <ul className="oxygen-upload__list">
             {fileList.map((file) => (
-              <li className="oxygen-upload__item" key={file.id}>
-                <button
-                  className="oxygen-upload__name"
-                  onClick={() => onPreview?.(file)}
-                  type="button"
-                >
-                  {file.name}
-                </button>
-                <span
-                  className={cn(
-                    'oxygen-upload__status',
-                    file.status === 'error' && 'oxygen-upload__status--error',
-                  )}
-                >
-                  {file.status === 'uploading' && file.percent !== undefined
-                    ? `${locale.upload.uploading} ${file.percent}%`
-                    : locale.upload[file.status]}
-                </span>
+              <li className="oxygen-upload__item" data-status={file.status} key={file.id}>
+                <FileText aria-hidden="true" className="oxygen-upload__file-icon" />
+                <div className="oxygen-upload__details">
+                  {onPreview ? <button
+                    className="oxygen-upload__name"
+                    onClick={() => onPreview?.(file)}
+                    type="button"
+                  >
+                    {file.name}
+                  </button> : <span className="oxygen-upload__name">{file.name}</span>}
+                  <span
+                    className={cn(
+                      'oxygen-upload__status',
+                      file.status === 'error' && 'oxygen-upload__status--error',
+                    )}
+                  >
+                    {file.status === 'uploading' && file.percent !== undefined
+                      ? `${locale.upload.uploading} ${file.percent}%`
+                      : locale.upload[file.status]}
+                  </span>
+                  {file.status === 'uploading' ? (
+                    <Progress
+                      aria-label={file.name}
+                      className="oxygen-upload__progress"
+                      percent={file.percent}
+                      showInfo={false}
+                      status="active"
+                    />
+                  ) : null}
+                </div>
                 <button
                   aria-label={`${locale.common.remove} ${file.name}`}
                   className="oxygen-upload__remove"

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  Button, Checkbox, ColorPicker, DatePicker, Field, FieldControl, FieldDescription,
+  Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, ColorPicker, DatePicker, Field, FieldControl, FieldDescription,
   FieldLabel, Form, Input, InputNumber, RadioGroup, RadioGroupItem, Search, Select,
   SelectContent, SelectItem, SelectTrigger, SelectValue, Steps, Switch, Table,
-  Textarea, TimePicker, Transfer, Tree, Typography, Upload,
+  Tabs, TabsContent, TabsList, TabsTrigger, Tag, Textarea, TimePicker, Transfer, Tree, Typography, Upload,
 } from '@oxygen-design/ui';
 
 const meta = { title: '通用/样式验收' } satisfies Meta;
@@ -45,12 +45,12 @@ export const AlignmentReference: Story = {
       </section>
       <section className="story-reference__panel">
         <Typography.Title level={3}>标签、帮助与校验</Typography.Title>
-        <Form>
+        <Form className="story-reference__form">
           <Form.Item label="项目名称" help="2–30 个字符，便于团队识别。"><Input placeholder="输入项目名称" /></Form.Item>
           <Form.Item label="项目说明" validateStatus="error" help="请补充说明后再保存。"><Textarea defaultValue="内容过短" /></Form.Item>
         </Form>
         <ColorPicker aria-label="示例颜色" defaultValue="#336699" />
-        <Upload fileList={[
+        <Upload className="story-reference__upload" fileList={[
           { file: new File([], '等待上传.pdf'), id: 'pending', name: '等待上传.pdf', status: 'pending' },
           { file: new File([], '设计稿.fig'), id: 'uploading', name: '设计稿.fig', status: 'uploading', percent: 45 },
           { file: new File([], '已完成.png'), id: 'done', name: '已完成.png', status: 'done' },
@@ -63,6 +63,42 @@ export const AlignmentReference: Story = {
         <Steps current={1} items={[{ key: 1, title: '准备', description: '确认内容' }, { key: 2, title: '处理', description: '正在处理' }, { key: 3, title: '完成', description: '查看结果' }]} />
       </section>
     </div>
+  ),
+};
+
+export const SemanticStates: Story = {
+  name: '颜色层级与状态辨识',
+  render: () => (
+    <section className="story-reference">
+      <h2 className="story-section__title">颜色层级与状态辨识</h2>
+      <p className="story-section__description">品牌色、语义色和中性色各自承担明确角色；状态同时通过文字、图标与底色表达。</p>
+      <div className="story-reference__palette">
+        {[
+          ['primary', '品牌与选中', '主要操作、选中项'],
+          ['success', '成功', '已完成、校验通过'],
+          ['warning', '警告', '需要关注、可继续'],
+          ['error', '错误', '操作失败、需要修正'],
+        ].map(([tone, title, description]) => (
+          <dl className="story-reference__swatch" key={tone}>
+            <div aria-hidden="true" className="story-reference__swatch-color" style={{ background: `var(--oxygen-color-${tone})` }} />
+            <dt>{title}</dt><dd>{description}</dd>
+          </dl>
+        ))}
+      </div>
+      <div className="story-reference__alerts">
+        <Alert><AlertTitle>信息提示</AlertTitle><AlertDescription>保存后将同步更新当前内容。</AlertDescription></Alert>
+        <Alert tone="success"><AlertTitle>保存成功</AlertTitle><AlertDescription>内容已保存，可以继续操作。</AlertDescription></Alert>
+        <Alert tone="warning"><AlertTitle>请检查内容</AlertTitle><AlertDescription>部分信息尚未补充，提交前请再次确认。</AlertDescription></Alert>
+        <Alert tone="error"><AlertTitle>保存失败</AlertTitle><AlertDescription>请检查标记的字段后重试。</AlertDescription></Alert>
+      </div>
+      <div className="story-row"><Tag tone="primary">已选中</Tag><Tag tone="success">已完成</Tag><Tag tone="warning">待确认</Tag><Tag tone="error">需修正</Tag><Tag disabled>不可用</Tag><Badge variant="secondary">草稿</Badge></div>
+      <div className="story-row"><Button>保存更改</Button><Button variant="secondary">取消</Button><Button variant="ghost">更多操作</Button><Button variant="link">查看说明</Button><Button loading>正在保存</Button><Button disabled>暂不可用</Button></div>
+      <Upload drag aria-label="拖拽上传示例" />
+      <Tabs defaultValue="general" orientation="vertical">
+        <TabsList aria-label="设置分类"><TabsTrigger value="general">常规设置</TabsTrigger><TabsTrigger value="advanced">高级设置</TabsTrigger><TabsTrigger disabled value="unavailable">暂不可用</TabsTrigger></TabsList>
+        <TabsContent value="general">常规设置内容。使用上下方向键切换分类，Tab 进入内容区域。</TabsContent><TabsContent value="advanced">高级设置内容。</TabsContent>
+      </Tabs>
+    </section>
   ),
 };
 

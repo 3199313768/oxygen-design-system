@@ -7,6 +7,7 @@ export interface FieldContextValue {
   hasDescription: boolean;
   hasError: boolean;
   invalid: boolean;
+  required?: boolean;
 }
 
 const FieldContext = createContext<FieldContextValue | null>(null);

@@ -1,6 +1,7 @@
 import {
   Children,
   forwardRef,
+  useId,
   type FormHTMLAttributes,
   type HTMLAttributes,
   type ReactElement,
@@ -58,6 +59,8 @@ export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(
     },
     ref,
   ) => {
+    const generatedId = useId();
+    const controlId = (children.props as { id?: string }).id ?? name ?? generatedId;
     const fieldHelp = validateStatus === 'error' ? undefined : help;
     const fieldError = validateStatus === 'error' ? help : undefined;
 
@@ -66,14 +69,15 @@ export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(
         className={cn('oxygen-form-item', className)}
         description={fieldHelp}
         error={fieldError}
-        id={name}
+        id={controlId}
         invalid={validateStatus === 'error'}
+        required={required}
         ref={ref}
         data-status={validateStatus}
         {...props}
       >
         {label ? (
-          <FieldLabel>
+          <FieldLabel id={`${controlId}-label`}>
             {required ? (
               <>
                 <span aria-hidden="true" className="oxygen-form-item__required">
@@ -86,7 +90,7 @@ export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(
             )}
           </FieldLabel>
         ) : null}
-        <FieldControl aria-required={required ? true : undefined}>
+        <FieldControl aria-labelledby={label ? `${controlId}-label` : undefined} aria-required={required ? true : undefined}>
           {Children.only(children)}
         </FieldControl>
       </Field>

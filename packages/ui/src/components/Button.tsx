@@ -2,6 +2,8 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   forwardRef,
+  cloneElement,
+  isValidElement,
   type ButtonHTMLAttributes,
   type ReactElement,
   type Ref,
@@ -61,6 +63,7 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
     disabled,
     loading = false,
     onClick,
+    onClickCapture,
     size,
     variant,
     ...props
@@ -93,8 +96,33 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
           ref={ref}
           {...dataProps}
           {...props}
+          onClickCapture={(event) => {
+            if (disabled || loading) {
+              event.preventDefault();
+              event.stopPropagation();
+              return;
+            }
+            onClickCapture?.(event as React.MouseEvent<HTMLButtonElement>);
+          }}
+          tabIndex={disabled || loading ? -1 : props.tabIndex}
+          onKeyDownCapture={disabled || loading ? (event) => {
+            if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
+            event.stopPropagation();
+          } : props.onKeyDownCapture as React.KeyboardEventHandler<HTMLElement>}
+          onKeyUpCapture={disabled || loading ? (event) => {
+            if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
+            event.stopPropagation();
+          } : props.onKeyUpCapture as React.KeyboardEventHandler<HTMLElement>}
         >
-          {children}
+          {(disabled || loading) && isValidElement<React.HTMLAttributes<HTMLElement>>(children)
+            ? cloneElement(children, {
+              tabIndex: -1,
+              // Slot composes child handlers first, so remove them before capture guards run.
+              onClickCapture: undefined,
+              onKeyDownCapture: undefined,
+              onKeyUpCapture: undefined,
+            })
+            : children}
         </Slot>
       );
     }
@@ -104,6 +132,7 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
         className={classes}
         disabled={disabled || loading}
         onClick={handleClick}
+        onClickCapture={onClickCapture}
         ref={ref as Ref<HTMLButtonElement>}
         {...dataProps}
         {...props}

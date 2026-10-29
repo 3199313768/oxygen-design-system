@@ -1,6 +1,10 @@
 import { Slot } from '@radix-ui/react-slot';
 import {
+  Children,
+  Fragment,
+  cloneElement,
   forwardRef,
+  isValidElement,
   useId,
   type ComponentPropsWithoutRef,
   type ElementRef,
@@ -13,7 +17,33 @@ import { Label, type LabelProps } from './Label';
 import { FieldContextProvider, useFieldContext } from './field-context';
 
 function hasContent(value: ReactNode) {
-  return value !== undefined && value !== null && value !== false && value !== '';
+  if (Array.isArray(value)) return value.some(hasContent);
+  if (isValidElement<{ children?: ReactNode }>(value) && value.type === Fragment) {
+    return hasContent(value.props.children);
+  }
+  return value !== undefined && value !== null && typeof value !== 'boolean' && value !== '';
+}
+
+function prepareMessages(children: ReactNode, controlId: string) {
+  const selected: { description?: string; error?: string } = {};
+  const counts = { description: 0, error: 0 };
+  function visit(nodes: ReactNode): ReactNode {
+    return Children.map(nodes, (child) => {
+      if (!isValidElement<HTMLAttributes<HTMLParagraphElement>>(child)) return child;
+      if (child.type === Fragment) return cloneElement(child, undefined, visit(child.props.children));
+      const kind = child.type === FieldDescription ? 'description' : child.type === FieldError ? 'error' : undefined;
+      if (!kind) return child;
+      const index = counts[kind]++;
+      // Every declaration owns its ID, including hidden or supplemental messages.
+      // Prop-based messages keep the unsuffixed ID and remain authoritative.
+      const id = child.props.id ?? `${controlId}-${kind}-${index}`;
+      if (selected[kind] === undefined && !child.props.hidden && hasContent(child.props.children)) {
+        selected[kind] = id;
+      }
+      return cloneElement(child, { id });
+    });
+  }
+  return { children: visit(children), selected };
 }
 
 export interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'id'> {
@@ -21,6 +51,7 @@ export interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'id'> {
   error?: ReactNode;
   id?: string;
   invalid?: boolean;
+  required?: boolean;
 }
 
 export const Field = forwardRef<HTMLDivElement, FieldProps>(
@@ -32,29 +63,34 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(
       error,
       id,
       invalid = false,
+      required = false,
       ...props
     },
     ref,
   ) => {
     const generatedId = useId();
     const controlId = id ?? `${generatedId}-control`;
+    const hasDescriptionProp = hasContent(description);
+    const hasErrorProp = hasContent(error);
+    const messages = prepareMessages(children, controlId);
     const value = {
       controlId,
-      descriptionId: `${controlId}-description`,
-      errorId: `${controlId}-error`,
-      hasDescription: hasContent(description),
-      hasError: hasContent(error),
+      descriptionId: hasDescriptionProp ? `${controlId}-description` : messages.selected.description ?? `${controlId}-description`,
+      errorId: hasErrorProp ? `${controlId}-error` : messages.selected.error ?? `${controlId}-error`,
+      hasDescription: hasDescriptionProp || messages.selected.description !== undefined,
+      hasError: hasErrorProp || messages.selected.error !== undefined,
       invalid,
+      required,
     };
 
     return (
       <FieldContextProvider value={value}>
         <div className={cn('oxygen-field', className)} ref={ref} {...props}>
-          {children}
-          {value.hasDescription ? (
+          {messages.children}
+          {hasDescriptionProp ? (
             <FieldDescription>{description}</FieldDescription>
           ) : null}
-          {value.hasError ? <FieldError>{error}</FieldError> : null}
+          {hasErrorProp ? <FieldError>{error}</FieldError> : null}
         </div>
       </FieldContextProvider>
     );

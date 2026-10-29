@@ -5,6 +5,7 @@ import { Button } from './Button';
 import { useOxygenLocale } from './ConfigProvider';
 import { Input } from './Input';
 import { Popover, PopoverContent, PopoverTrigger } from './Popover';
+import { useFieldContext } from './field-context';
 
 export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
   defaultOpen?: boolean;
@@ -25,12 +26,17 @@ const normalizeColor = (value: string | undefined) => COLOR_PATTERN.test(value ?
 export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(function ColorPicker(allProps, ref) {
   const {
     'aria-label': ariaLabelProp,
+    'aria-labelledby': ariaLabelledBy,
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
+    'aria-required': ariaRequired,
     className,
     defaultDraftValue,
     defaultOpen = false,
     defaultValue,
     disabled = false,
     loading = false,
+    id,
     onChange,
     onOpenChange,
     open: openProp,
@@ -38,6 +44,7 @@ export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(funct
     ...props
   } = allProps;
   const locale = useOxygenLocale();
+  const field = useFieldContext();
   const ariaLabel = ariaLabelProp ?? locale.colorPicker.label;
   const errorId = useId();
   const controlled = 'value' in allProps;
@@ -70,10 +77,15 @@ export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(funct
       <Popover open={open && !disabled && !loading} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
-            aria-label={ariaLabel}
+            aria-label={ariaLabelProp ?? (field ? undefined : ariaLabel)}
+            aria-labelledby={ariaLabelledBy}
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
+            aria-required={ariaRequired}
             className="oxygen-color-picker__trigger"
             data-oxygen-control="true"
             disabled={disabled || loading}
+            id={id}
             ref={ref}
             type="button"
           >

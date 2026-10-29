@@ -1,5 +1,5 @@
 import * as SliderPrimitive from '@radix-ui/react-slider';
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useId, useMemo, useState } from 'react';
 
 import { cn } from '../lib/cn';
 
@@ -29,8 +29,8 @@ function bounds(minProp: number, maxProp: number, stepProp: number) {
 function snap(value: number, min: number, max: number, step: number) {
   const safeValue = Number.isFinite(value) ? value : min;
   const next = min + Math.round((safeValue - min) / step) * step;
-  const precision = Math.max(0, (String(step).split('.')[1] ?? '').length);
-  return Number(Math.min(max, Math.max(min, Number(next.toFixed(precision)))).toFixed(precision));
+  // Significant digits preserve fractional minima and scientific-notation steps.
+  return Math.min(max, Math.max(min, Number(next.toPrecision(15))));
 }
 
 function normalizeValue(value: SliderValue | number[] | undefined, range: boolean, min: number, max: number, step: number): number[] {
@@ -50,25 +50,37 @@ function outputValue(values: number[], range: boolean): SliderValue {
 export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, SliderProps>(function Slider(allProps, ref) {
   const {
     'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
+    'aria-required': ariaRequired,
     className,
     defaultValue,
     disabled = false,
+    form,
     loading = false,
     max: maxProp = 100,
     min: minProp = 0,
+    name,
     onChange,
     onValueChange,
+    onValueCommit,
     range: rangeProp,
     step: stepProp = 1,
     value: valueProp,
     ...props
   } = allProps;
+  const thumbLabelId = useId();
   const range = rangeProp ?? Array.isArray(valueProp ?? defaultValue);
   const { min, max, step } = bounds(minProp, maxProp, stepProp);
   const controlled = 'value' in allProps;
   const initial = useMemo(() => normalizeValue(defaultValue ?? (range ? [min, max] : min), range, min, max, step), [defaultValue, max, min, range, step]);
   const [uncontrolledValue, setUncontrolledValue] = useState(initial);
   const values = normalizeValue(controlled ? valueProp : uncontrolledValue, range, min, max, step);
+  // Radix rounds using step precision, which loses a fractional minimum's offset.
+  // Give it step positions; keep all public values in the caller's actual units.
+  const toPosition = (value: number) => Number(((value - min) / step).toPrecision(15));
+  const toActual = (position: number) => Math.min(max, Math.max(min, Number((min + position * step).toPrecision(15))));
 
   function emit(nextValues: number[]) {
     const next = outputValue(nextValues, range);
@@ -87,12 +99,14 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
       data-disabled={disabled || loading ? 'true' : undefined}
       data-range={range ? 'true' : undefined}
       disabled={disabled || loading}
-      max={max}
-      min={min}
-      onValueChange={(next) => emit(normalizeValue(range ? [next[0] ?? min, next[1] ?? max] as [number, number] : next[0] ?? min, range, min, max, step))}
+      form={form}
+      max={toPosition(max)}
+      min={0}
+      onValueChange={(next) => emit(next.map(toActual))}
+      onValueCommit={(next) => onValueCommit?.(next.map(toActual))}
       ref={ref}
-      step={step}
-      value={values}
+      step={1}
+      value={values.map(toPosition)}
     >
       <SliderPrimitive.Track className="oxygen-slider__track">
         <SliderPrimitive.Range className="oxygen-slider__range" />
@@ -100,10 +114,22 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
       {values.map((_, index) => (
         <SliderPrimitive.Thumb
           aria-label={range && ariaLabel ? `${ariaLabel} ${index === 0 ? '最小值' : '最大值'}` : ariaLabel}
+          aria-labelledby={range && ariaLabelledBy ? `${ariaLabelledBy} ${thumbLabelId}-${index}` : ariaLabelledBy}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          aria-required={ariaRequired}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={values[index]}
           className="oxygen-slider__thumb"
           key={index}
-        />
+        >
+          {range && ariaLabelledBy ? <span className="oxygen-visually-hidden" id={`${thumbLabelId}-${index}`}>{index === 0 ? '最小值' : '最大值'}</span> : null}
+        </SliderPrimitive.Thumb>
       ))}
+      {name ? values.map((value, index) => (
+        <input disabled={disabled || loading} form={form} key={`value-${index}`} name={range ? `${name}[]` : name} type="hidden" value={value} />
+      )) : null}
     </SliderPrimitive.Root>
   );
 });

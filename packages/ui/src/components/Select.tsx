@@ -3,6 +3,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 
 import { Check, ChevronDown } from '../Icons';
 import { cn } from '../lib/cn';
+import { useFieldContext } from './field-context';
 
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -15,10 +16,21 @@ export type SelectTriggerProps = React.ComponentPropsWithoutRef<
 export const SelectTrigger = forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
->(({ className, children, ...props }, ref) => (
+>(({ className, children, id, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy, 'aria-required': ariaRequired, ...props }, ref) => {
+  const field = useFieldContext();
+  const describedBy = [
+    field?.hasDescription ? field.descriptionId : null,
+    field?.hasError ? field.errorId : null,
+  ].filter(Boolean).join(' ');
+
+  return (
   <SelectPrimitive.Trigger
+    aria-describedby={ariaDescribedBy !== undefined ? ariaDescribedBy : describedBy || undefined}
+    aria-invalid={ariaInvalid ?? (field?.invalid ? true : undefined)}
+    aria-required={ariaRequired ?? (field?.required ? true : undefined)}
     className={cn('oxygen-select__trigger', className)}
     data-oxygen-control="true"
+    id={id ?? field?.controlId}
     ref={ref}
     {...props}
   >
@@ -27,7 +39,8 @@ export const SelectTrigger = forwardRef<
       <ChevronDown />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
-));
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 export type SelectContentProps = React.ComponentPropsWithoutRef<

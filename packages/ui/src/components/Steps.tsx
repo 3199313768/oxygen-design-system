@@ -29,7 +29,7 @@ export const Steps = forwardRef<HTMLOListElement, StepsProps>(
 
     return (
       <ol className={cn('oxygen-steps', className)} data-direction={direction} ref={ref} {...props}>
-        {items.length === 0 ? <li className="oxygen-display-empty" role="none">{emptyText ?? locale.common.empty}</li> : items.map((item, index) => {
+        {items.length === 0 ? <li className="oxygen-display-empty">{emptyText ?? locale.common.empty}</li> : items.map((item, index) => {
           const itemStatus = item.status ?? (index < current ? 'finish' : index === current ? status : 'wait');
           return (
             <li aria-current={index === current ? 'step' : undefined} className="oxygen-steps__item" data-status={itemStatus} key={item.key}>

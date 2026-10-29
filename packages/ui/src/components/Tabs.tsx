@@ -3,7 +3,17 @@ import { forwardRef } from 'react';
 
 import { cn } from '../lib/cn';
 
-export const Tabs = TabsPrimitive.Root;
+export const Tabs = forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Root
+    className={cn('oxygen-tabs', className)}
+    ref={ref}
+    {...props}
+  />
+));
+Tabs.displayName = TabsPrimitive.Root.displayName;
 
 export const TabsList = forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,

@@ -9,11 +9,15 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ className, variant = 'rectangle', ...props }, ref) => (
+  ({ 'aria-label': ariaLabel, 'aria-labelledby': ariaLabelledBy, className, role, variant = 'rectangle', ...props }, ref) => (
     <div
+      aria-hidden={!ariaLabel && !ariaLabelledBy && !role ? true : undefined}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
       className={cn('oxygen-skeleton', `oxygen-skeleton--${variant}`, className)}
       data-variant={variant}
       ref={ref}
+      role={role ?? (ariaLabel || ariaLabelledBy ? 'img' : undefined)}
       {...props}
     />
   ),

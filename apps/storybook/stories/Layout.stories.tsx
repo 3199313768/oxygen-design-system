@@ -21,13 +21,13 @@ export const Composition: Story = {
         布局组合
       </h2>
       <p className="story-section__description">展示页头、侧栏、内容和页脚的组合关系。</p>
-      <Layout hasSider style={{ minHeight: 360, border: '1px solid var(--oxygen-color-border)' }}>
+      <Layout className="story-layout-demo" hasSider style={{ minHeight: 360, border: '1px solid var(--oxygen-color-border-subtle)' }}>
         <Layout.Sider style={{ padding: 16 }}>
           <Typography.Text strong>侧栏区域</Typography.Text>
         </Layout.Sider>
         <Layout>
           <Layout.Header style={{ borderBottom: '1px solid var(--oxygen-color-border)' }}>
-            <Space>
+            <Space wrap style={{ justifyContent: 'space-between', width: '100%' }}>
               <Typography.Title level={4}>页头区域</Typography.Title>
               <Button size="sm" variant="secondary">次要操作</Button>
             </Space>

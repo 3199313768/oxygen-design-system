@@ -1,4 +1,4 @@
-import { forwardRef, useId, useMemo, useState, type HTMLAttributes, type Key, type ReactNode } from 'react';
+import { forwardRef, useId, useMemo, useRef, useState, type HTMLAttributes, type Key, type ReactNode } from 'react';
 
 import { ChevronDown } from '../Icons';
 import { cn } from '../lib/cn';
@@ -34,6 +34,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
     const controlled = value !== undefined;
     const openValues = useMemo(() => (controlled ? toValues(value, type) : uncontrolledValue), [controlled, type, uncontrolledValue, value]);
     const id = useId();
+    const triggers = useRef<(HTMLButtonElement | null)[]>([]);
 
     const update = (itemKey: Key) => {
       if (disabled) return;
@@ -52,7 +53,6 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
 
     return (
       <div
-        aria-multiselectable={type === 'multiple' ? true : undefined}
         className={cn('oxygen-accordion', className)}
         ref={ref}
         {...props}
@@ -65,9 +65,19 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
           const triggerId = `${id}-trigger-${index}`;
           const reactKey = `${typeof itemKey}:${String(itemKey)}`;
           const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+            if (disabled || item.disabled) return;
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
-              if (!item.disabled) update(itemKey);
+              update(itemKey);
+            } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+              event.preventDefault();
+              const enabled = triggers.current.slice(0, items.length).filter(
+                (trigger): trigger is HTMLButtonElement => trigger !== null && !trigger.disabled,
+              );
+              const currentIndex = enabled.indexOf(event.currentTarget);
+              const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? enabled.length - 1
+                : (currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + enabled.length) % enabled.length;
+              enabled[nextIndex]?.focus();
             }
           };
 
@@ -83,6 +93,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
                   id={triggerId}
                   onClick={() => update(itemKey)}
                   onKeyDown={handleKeyDown}
+                  ref={(trigger) => { triggers.current[index] = trigger; }}
                   type="button"
                 >
                   <span>{item.title}</span>

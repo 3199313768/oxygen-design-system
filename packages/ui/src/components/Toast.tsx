@@ -2,6 +2,8 @@ import * as ToastPrimitive from '@radix-ui/react-toast';
 import { forwardRef } from 'react';
 
 import { cn } from '../lib/cn';
+import { X } from '../Icons';
+import { useOxygenLocale } from './ConfigProvider';
 
 export const ToastProvider = ToastPrimitive.Provider;
 
@@ -78,12 +80,19 @@ ToastAction.displayName = ToastPrimitive.Action.displayName;
 export const ToastClose = forwardRef<
   React.ElementRef<typeof ToastPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Close>
->(({ className, ...props }, ref) => (
-  <ToastPrimitive.Close
-    className={cn('oxygen-toast__close', className)}
-    data-oxygen-control="true"
-    ref={ref}
-    {...props}
-  />
-));
+>(({ children, className, 'aria-label': ariaLabel, ...props }, ref) => {
+  const locale = useOxygenLocale();
+  return (
+    <ToastPrimitive.Close
+      aria-label={ariaLabel ?? (children == null ? locale.common.close : undefined)}
+      className={cn('oxygen-toast__close', className)}
+      data-oxygen-control="true"
+      data-oxygen-icon-button={children == null ? 'true' : undefined}
+      ref={ref}
+      {...props}
+    >
+      {children ?? <X aria-hidden="true" />}
+    </ToastPrimitive.Close>
+  );
+});
 ToastClose.displayName = ToastPrimitive.Close.displayName;

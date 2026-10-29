@@ -154,7 +154,7 @@ export function Tree<T extends TreeKey = string>({
     });
   }
 
-  return <ul {...props} aria-disabled={disabled || undefined} aria-multiselectable={multiple || undefined} className={cn('oxygen-tree', className)} role="tree">
+  return <ul {...props} aria-disabled={disabled || undefined} aria-multiselectable={treeData.length && multiple ? true : undefined} className={cn('oxygen-tree', className)} role={treeData.length ? 'tree' : 'group'}>
     {treeData.length ? renderNodes(treeData) : <li className="oxygen-tree__empty" role="none">{emptyContent ?? locale.common.empty}</li>}
   </ul>;
 }

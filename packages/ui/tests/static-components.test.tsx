@@ -109,7 +109,7 @@ describe('static components', () => {
     expect(screen.getByText('Current')).toBeInTheDocument();
     rerender(<Steps items={[]} emptyText="暂无步骤" />);
     expect(screen.getByText('暂无步骤')).toBeInTheDocument();
-    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+    expect(screen.getByRole('listitem')).toHaveTextContent('暂无步骤');
   });
 
   it('renders timeline labels, content, and readable status including pending work', () => {

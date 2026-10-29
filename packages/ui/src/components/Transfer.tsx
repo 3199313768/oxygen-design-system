@@ -154,6 +154,7 @@ function TransferInner<T>({
   ) {
     const selectable = visible.filter((option) => !option.disabled);
     const allSelected = selectable.length > 0 && selectable.every((option) => includes(selected, option.value));
+    const partiallySelected = !allSelected && selectable.some((option) => includes(selected, option.value));
     return (
       <section className="oxygen-transfer__panel">
         <div className="oxygen-transfer__header">
@@ -177,7 +178,7 @@ function TransferInner<T>({
         <div className="oxygen-transfer__select-all">
           <Checkbox
             aria-label={`${optionText(title)}全选`}
-            checked={allSelected}
+            checked={partiallySelected ? 'indeterminate' : allSelected}
             disabled={disabled || loading || selectable.length === 0}
             onCheckedChange={(checked) => selectAll(direction, checked === true)}
           />

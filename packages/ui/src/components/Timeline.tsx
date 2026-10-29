@@ -26,8 +26,8 @@ export const Timeline = forwardRef<HTMLOListElement, TimelineProps>(
 
     return (
       <ol aria-busy={loading || undefined} className={cn('oxygen-timeline', className)} ref={ref} {...props}>
-        {loading ? <li role="none"><span role="status">{loadingText ?? locale.common.loading}</span></li> : items.length === 0 ? (
-          <li className="oxygen-display-empty" role="none">{emptyText ?? locale.common.empty}</li>
+        {loading ? <li><span role="status">{loadingText ?? locale.common.loading}</span></li> : items.length === 0 ? (
+          <li className="oxygen-display-empty">{emptyText ?? locale.common.empty}</li>
         ) : items.map(({ children, dot, key, label, status = 'default' }) => (
           <li className="oxygen-timeline__item" data-status={status} key={key}>
             <span aria-hidden="true" className="oxygen-timeline__dot">{dot ?? (status === 'success' ? '✓' : status === 'error' ? '×' : status === 'warning' ? '!' : status === 'pending' ? '…' : '•')}</span>

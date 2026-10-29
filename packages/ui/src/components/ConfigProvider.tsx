@@ -8,7 +8,7 @@ import type { PropsBase } from 'react-day-picker';
 
 export interface OxygenLocale {
   colorPicker?: { label: string; invalid: string; nativePicker: string; cancel: string; confirm: string };
-  upload?: { pending: string; uploading: string; done: string; error: string };
+  upload?: { dragHint?: string; pending: string; uploading: string; done: string; error: string };
   transfer?: { toTarget: string; toSource: string };
   steps: {
     wait: string;
@@ -46,6 +46,7 @@ export interface OxygenLocale {
     selectRow: (row: number) => string;
     total: (total: number) => string;
     previous: string;
+    progress?: string;
     pageSize: string;
     selected: string;
     upload: string;
@@ -56,7 +57,7 @@ type ResolvedOxygenLocale = OxygenLocale & Required<Pick<OxygenLocale, 'colorPic
 
 export const defaultLocale: ResolvedOxygenLocale = {
   colorPicker: { label: '颜色', invalid: '请输入有效的六位十六进制颜色，例如 #1677FF', nativePicker: '颜色选择器', cancel: '取消', confirm: '确定' },
-  upload: { pending: '待上传', uploading: '上传中', done: '已完成', error: '上传失败' },
+  upload: { dragHint: '点击或拖拽文件到此处上传', pending: '待上传', uploading: '上传中', done: '已完成', error: '上传失败' },
   transfer: { toTarget: '移至目标列表', toSource: '移至源列表' },
   steps: { wait: '等待中', process: '进行中', finish: '已完成', error: '错误' },
   timeline: { default: '记录', success: '成功', warning: '警告', error: '错误', pending: '进行中' },
@@ -80,6 +81,7 @@ export const defaultLocale: ResolvedOxygenLocale = {
     selectRow: (row) => `选择第 ${row} 行`,
     total: (total) => `共 ${total} 条`,
     previous: '上一页',
+    progress: '进度',
     pageSize: '每页条数',
     selected: '已选择',
     upload: '上传',
