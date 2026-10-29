@@ -74,14 +74,25 @@ export const SemanticStates: Story = {
       <p className="story-section__description">品牌色、语义色和中性色各自承担明确角色；状态同时通过文字、图标与底色表达。</p>
       <div className="story-reference__palette">
         {[
-          ['primary', '品牌与选中', '主要操作、选中项'],
-          ['success', '成功', '已完成、校验通过'],
-          ['warning', '警告', '需要关注、可继续'],
-          ['error', '错误', '操作失败、需要修正'],
-        ].map(([tone, title, description]) => (
+          { tone: 'primary', title: '品牌与选中', description: '主要操作、选中项', surface: 'var(--oxygen-color-primary-subtle)', border: 'var(--oxygen-color-primary-border)', text: 'var(--oxygen-color-primary-hover)' },
+          { tone: 'success', title: '成功', description: '已完成、校验通过', surface: 'var(--oxygen-color-success-subtle)', border: 'var(--oxygen-color-success-border)', text: 'var(--oxygen-color-success-text)' },
+          { tone: 'warning', title: '警告', description: '需要关注、可继续', surface: 'var(--oxygen-color-warning-subtle)', border: 'var(--oxygen-color-warning-border)', text: 'var(--oxygen-color-warning-text)' },
+          { tone: 'error', title: '错误', description: '操作失败、需要修正', surface: 'var(--oxygen-color-error-subtle)', border: 'var(--oxygen-color-error-border)', text: 'var(--oxygen-color-error-text)' },
+        ].map(({ tone, title, description, surface, border, text }) => (
           <dl className="story-reference__swatch" key={tone}>
-            <div aria-hidden="true" className="story-reference__swatch-color" style={{ background: `var(--oxygen-color-${tone})` }} />
-            <dt>{title}</dt><dd>{description}</dd>
+            <div aria-hidden="true" className="story-reference__swatch-color" style={{ background: surface, borderColor: border, color: text }}>
+              <span>{title}</span>
+              <span>Aa</span>
+            </div>
+            <dt>{title}</dt>
+            <dd>{description}</dd>
+            <dd>
+              <ul className="story-reference__swatch-roles">
+                <li className="story-reference__swatch-role"><span aria-hidden="true" className="story-reference__swatch-role-sample" style={{ background: surface }} />底色</li>
+                <li className="story-reference__swatch-role"><span aria-hidden="true" className="story-reference__swatch-role-sample" style={{ background: surface, borderColor: border }} />边框</li>
+                <li className="story-reference__swatch-role"><span aria-hidden="true" className="story-reference__swatch-role-sample story-reference__swatch-role-sample--text" style={{ color: text }}>Aa</span>文字与图标</li>
+              </ul>
+            </dd>
           </dl>
         ))}
       </div>

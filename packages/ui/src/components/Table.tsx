@@ -1,5 +1,7 @@
 import {
   forwardRef,
+  useEffect,
+  useRef,
   useState,
   type Key,
   type ReactElement,
@@ -62,6 +64,8 @@ function TableInner<T>(
   ref: React.ForwardedRef<HTMLTableElement>,
 ) {
   const locale = useOxygenLocale();
+  const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const [hasOverflowRight, setHasOverflowRight] = useState(false);
   const [uncontrolledSelectedKeys, setUncontrolledSelectedKeys] = useState<Key[]>(
     rowSelection?.defaultSelectedRowKeys ?? [],
   );
@@ -72,6 +76,25 @@ function TableInner<T>(
   const selectedCount = selectableKeys.filter((key) => selectedKeys.includes(key)).length;
   const allSelected = selectableKeys.length > 0 && selectedCount === selectableKeys.length;
   const partiallySelected = selectedCount > 0 && !allSelected;
+
+  useEffect(() => {
+    const node = tableWrapperRef.current;
+    if (!node) return undefined;
+
+    const updateOverflow = () => {
+      const remainingScroll = node.scrollWidth - node.clientWidth - node.scrollLeft;
+      setHasOverflowRight(node.scrollWidth > node.clientWidth + 1 && remainingScroll > 1);
+    };
+
+    updateOverflow();
+    node.addEventListener('scroll', updateOverflow, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(updateOverflow);
+    observer?.observe(node);
+    return () => {
+      node.removeEventListener('scroll', updateOverflow);
+      observer?.disconnect();
+    };
+  }, [columns.length, dataSource.length]);
 
   function toggleRow(record: T, index: number) {
     const key = getRecordKey(record, index, rowKey);
@@ -96,7 +119,7 @@ function TableInner<T>(
   }
 
   return (
-    <div className="oxygen-table">
+    <div className="oxygen-table" data-overflow-right={hasOverflowRight ? 'true' : undefined} ref={tableWrapperRef}>
       <table
         aria-busy={loading || undefined}
         className={cn('oxygen-table__element', className)}

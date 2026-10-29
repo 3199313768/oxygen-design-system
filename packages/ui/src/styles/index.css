@@ -752,7 +752,7 @@
   button.oxygen-upload__name { color: var(--oxygen-color-primary); cursor: pointer; justify-self: start; }
   .oxygen-upload__progress { max-width: 320px; }
   .oxygen-upload__progress .oxygen-progress__track { height: 4px; }
-  .oxygen-upload__remove { flex-shrink: 0; }
+  .oxygen-upload__remove { justify-self: end; min-width: 56px; }
 
   .oxygen-upload__list {
     display: grid;
@@ -765,8 +765,9 @@
   .oxygen-upload__item {
     align-items: center;
     border-radius: var(--oxygen-radius-control);
-    display: flex;
+    display: grid;
     gap: var(--oxygen-space-3);
+    grid-template-columns: var(--oxygen-icon-size) minmax(0, 1fr) minmax(56px, auto);
     min-height: 44px;
     min-width: 0;
     padding: var(--oxygen-space-2);
@@ -1310,7 +1311,20 @@
   .oxygen-table {
     min-width: 0;
     overflow-x: auto;
+    position: relative;
     width: 100%;
+  }
+
+  @media (max-width: 600px) {
+    .oxygen-table[data-overflow-right='true']::after {
+      background: linear-gradient(90deg, transparent, var(--oxygen-color-background));
+      content: '';
+      inset-block: 0;
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+      width: 24px;
+    }
   }
 
   .oxygen-table__element {

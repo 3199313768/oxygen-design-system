@@ -66,6 +66,25 @@ describe('UI refinement semantics', () => {
     rerender(<Table columns={columns} dataSource={[record]} rowSelection={{ selectedRowKeys: ['a'], onChange }} />);
     expect(screen.getByRole('checkbox', { name: '选择第 1 行' })).toBeChecked();
   });
+  it('tracks a right-side scroll cue for wide tables', () => {
+    render(
+      <Table
+        columns={[{ key: 'label', dataIndex: 'label', title: '标签' }]}
+        dataSource={[{ label: '第一项' }]}
+      />,
+    );
+    const tableWrapper = document.querySelector('.oxygen-table') as HTMLDivElement;
+    Object.defineProperty(tableWrapper, 'scrollWidth', { configurable: true, value: 640 });
+    Object.defineProperty(tableWrapper, 'clientWidth', { configurable: true, value: 320 });
+    Object.defineProperty(tableWrapper, 'scrollLeft', { configurable: true, value: 0, writable: true });
+
+    fireEvent.scroll(tableWrapper);
+    expect(tableWrapper).toHaveAttribute('data-overflow-right', 'true');
+
+    Object.defineProperty(tableWrapper, 'scrollLeft', { configurable: true, value: 320, writable: true });
+    fireEvent.scroll(tableWrapper);
+    expect(tableWrapper).not.toHaveAttribute('data-overflow-right');
+  });
   it('renders semantic result and step SVGs and a radio dot', () => {
     const { container } = render(<><Result status="success" title="Saved" /><Result status="404" title="Missing" /><RadioGroup defaultValue="a"><RadioGroupItem value="a" aria-label="A" /></RadioGroup><Steps items={[{ key: 'a', title: 'Done', status: 'finish' }, { key: 'b', title: 'Error', status: 'error' }]} /></>);
     expect(container.querySelector('[data-status="success"] .oxygen-result__icon svg')).toBeInTheDocument();
