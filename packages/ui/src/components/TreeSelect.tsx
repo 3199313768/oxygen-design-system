@@ -7,7 +7,7 @@ import { Input } from './Input';
 import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 import type { TreeNode } from './shared';
 import { Tree } from './Tree';
-import { flattenTree, treeNodeText, type TreeKey } from './tree-utils';
+import { createTreeIndex, treeNodeText, type TreeKey } from './tree-utils';
 
 export interface TreeSelectProps<T extends TreeKey = string>
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'defaultValue' | 'onChange' | 'value'> {
@@ -36,11 +36,18 @@ export function TreeSelect<T extends TreeKey = string>(allProps: TreeSelectProps
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [searchExpandedKeys, setSearchExpandedKeys] = useState<T[]>();
-  const entries = useMemo(() => flattenTree(treeData), [treeData]);
-  const selectedNode = entries.find((entry) => entry.node.key === selectedValue)?.node;
-  const matches = entries.filter((entry) => treeNodeText(entry.node).toLocaleLowerCase().includes(query.toLocaleLowerCase()));
-  const visibleKeys = new Set(matches.flatMap((entry) => entry.path.map((node) => node.key)));
-  const expandedKeys = Array.from(new Set(matches.flatMap((entry) => entry.path.slice(0, -1).map((node) => node.key))));
+  const treeIndex = useMemo(() => createTreeIndex(treeData), [treeData]);
+  const { entries } = treeIndex;
+  const selectedNode = useMemo(() => entries.find((entry) => entry.node.key === selectedValue)?.node, [entries, selectedValue]);
+  const matches = useMemo(
+    () => entries.filter((entry) => treeNodeText(entry.node).toLocaleLowerCase().includes(query.toLocaleLowerCase())),
+    [entries, query],
+  );
+  const visibleKeys = useMemo(() => new Set(matches.flatMap((entry) => entry.path.map((node) => node.key))), [matches]);
+  const expandedKeys = useMemo(
+    () => Array.from(new Set(matches.flatMap((entry) => entry.path.slice(0, -1).map((node) => node.key)))),
+    [matches],
+  );
 
   function filter(nodes: TreeNode<T>[]): TreeNode<T>[] {
     return nodes.filter((node) => visibleKeys.has(node.key)).map((node) => ({
@@ -56,6 +63,8 @@ export function TreeSelect<T extends TreeKey = string>(allProps: TreeSelectProps
     setOpen(false);
     setQuery('');
   }
+
+  const filteredTreeData = useMemo(() => query ? filter(treeData) : treeData, [query, treeData, visibleKeys]);
 
   return <Popover open={open && !disabled} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(''); }}>
     <div className={cn('oxygen-hierarchy-select', className)}>
@@ -78,7 +87,7 @@ export function TreeSelect<T extends TreeKey = string>(allProps: TreeSelectProps
         onExpand={(keys) => { if (query) setSearchExpandedKeys(keys); }}
         onSelect={(keys) => change(keys[0])}
         selectedKeys={selectedValue === undefined ? [] : [selectedValue]}
-        treeData={query ? filter(treeData) : treeData}
+        treeData={filteredTreeData}
       />
     </PopoverContent>
   </Popover>;

@@ -27,8 +27,9 @@
 - 其他：QRCode 和预编译样式入口。
 
 `Upload` 只管理文件选择、校验、文件列表和状态，不发起网络请求或处理鉴权。调用方通过
-`customRequest(file, handlers)` 注入上传实现，并使用 `handlers.onProgress(percent)`、
-`handlers.onSuccess(url?)` 和 `handlers.onError(error?)` 回传进度与结果。
+`customRequest(file, handlers)` 注入上传实现，并使用 `handlers.signal` 响应移除或卸载时的
+取消信号，再通过 `handlers.onProgress(percent)`、`handlers.onSuccess(url?)` 和
+`handlers.onError(error?)` 回传进度与结果。
 
 `DateRangePicker` 的值是本地日期二元组 `[Date, Date]`；未选中或清空时，`value` 和
 `onChange` 使用 `undefined`。组件不输出时间范围，也不负责时区转换。
@@ -109,6 +110,9 @@ import { ConfigProvider } from '@oxygen-design/ui';
 
 React 和 React DOM 是 peerDependencies。使用方无需安装 Tailwind CSS，也无需访问
 本仓库的源文件。
+
+发布包提供 ESM 入口，使用 `import` 或 bundler 消费；当前不提供 CommonJS `require()`
+入口。组件包包含客户端交互边界，服务端组件框架请从客户端模块引入并按框架规则渲染。
 
 ## 发布流程
 

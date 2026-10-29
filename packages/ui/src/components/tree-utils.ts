@@ -10,6 +10,13 @@ export interface TreeEntry<T extends TreeKey> {
   path: TreeNode<T>[];
 }
 
+export interface TreeIndex<T extends TreeKey> {
+  childrenByNode: Map<TreeNode<T>, TreeEntry<T>[]>;
+  descendantsByNode: Map<TreeNode<T>, TreeEntry<T>[]>;
+  entryByNode: Map<TreeNode<T>, TreeEntry<T>>;
+  entries: TreeEntry<T>[];
+}
+
 // All consumers share this traversal so keys never round-trip through DOM strings.
 export function flattenTree<T extends TreeKey>(nodes: TreeNode<T>[]): TreeEntry<T>[] {
   const entries: TreeEntry<T>[] = [];
@@ -23,6 +30,30 @@ export function flattenTree<T extends TreeKey>(nodes: TreeNode<T>[]): TreeEntry<
   }
   visit(nodes, [], false);
   return entries;
+}
+
+export function createTreeIndex<T extends TreeKey>(nodes: TreeNode<T>[]): TreeIndex<T> {
+  const entries = flattenTree(nodes);
+  const childrenByNode = new Map<TreeNode<T>, TreeEntry<T>[]>();
+  const descendantsByNode = new Map<TreeNode<T>, TreeEntry<T>[]>();
+  const entryByNode = new Map<TreeNode<T>, TreeEntry<T>>();
+
+  for (const entry of entries) {
+    entryByNode.set(entry.node, entry);
+    const parent = entry.path.at(-2);
+    if (parent) {
+      const children = childrenByNode.get(parent) ?? [];
+      children.push(entry);
+      childrenByNode.set(parent, children);
+    }
+    for (const ancestor of entry.path.slice(0, -1)) {
+      const descendants = descendantsByNode.get(ancestor) ?? [];
+      descendants.push(entry);
+      descendantsByNode.set(ancestor, descendants);
+    }
+  }
+
+  return { childrenByNode, descendantsByNode, entryByNode, entries };
 }
 
 export function treeLabelText(label: ReactNode): string {

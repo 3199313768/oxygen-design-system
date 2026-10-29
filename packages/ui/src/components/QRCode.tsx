@@ -25,12 +25,12 @@ export function QRCode({
   error,
   fgColor,
   includeMargin,
-  label = '二维码',
+  label,
   value,
   ...props
 }: QRCodeProps & { ariaLabel?: string }) {
   const locale = useOxygenLocale();
-  const accessibleLabel = ariaLabelProp ?? ariaLabel ?? label;
+  const accessibleLabel = ariaLabelProp ?? ariaLabel ?? label ?? locale.common.qrcode;
 
   if (!value?.trim()) {
     return (

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useMemo, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useMemo, useState, type HTMLAttributes, type Key, type ReactNode } from 'react';
 
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
@@ -16,6 +16,7 @@ export interface TransferProps<T = string> extends Omit<HTMLAttributes<HTMLDivEl
   defaultTargetKeys?: T[];
   disabled?: boolean;
   filterOption?: (input: string, option: Option<T>) => boolean;
+  itemKey?: (option: Option<T>) => Key;
   loading?: boolean;
   onChange?: (targetKeys: T[], direction: TransferDirection, moveKeys: T[]) => void;
   onSearch?: (value: string, direction: TransferDirection) => void;
@@ -31,6 +32,51 @@ export interface TransferProps<T = string> extends Omit<HTMLAttributes<HTMLDivEl
 
 function same<T>(left: T, right: T) {
   return Object.is(left, right);
+}
+
+interface OptionIndex<T> {
+  negativeZero: Option<T>[];
+  values: Map<T, Option<T>[]>;
+}
+
+function isNegativeZero<T>(value: T) {
+  return typeof value === 'number' && Object.is(value, -0);
+}
+
+function createOptionIndex<T>(options: Option<T>[]): OptionIndex<T> {
+  const index: OptionIndex<T> = { negativeZero: [], values: new Map() };
+  options.forEach((option) => {
+    if (isNegativeZero(option.value)) {
+      index.negativeZero.push(option);
+      return;
+    }
+    const matchingOptions = index.values.get(option.value) ?? [];
+    matchingOptions.push(option);
+    index.values.set(option.value, matchingOptions);
+  });
+  return index;
+}
+
+function getIndexedOptions<T>(index: OptionIndex<T>, value: T) {
+  return isNegativeZero(value) ? index.negativeZero : index.values.get(value) ?? [];
+}
+
+interface ValueLookup<T> {
+  negativeZero: boolean;
+  values: Set<T>;
+}
+
+function createValueLookup<T>(values: T[]): ValueLookup<T> {
+  const lookup: ValueLookup<T> = { negativeZero: false, values: new Set() };
+  values.forEach((value) => {
+    if (isNegativeZero(value)) lookup.negativeZero = true;
+    else lookup.values.add(value);
+  });
+  return lookup;
+}
+
+function hasValue<T>(lookup: ValueLookup<T>, value: T) {
+  return isNegativeZero(value) ? lookup.negativeZero : lookup.values.has(value);
 }
 
 function includes<T>(values: T[], value: T) {
@@ -50,7 +96,7 @@ function optionText(label: ReactNode) {
 }
 
 function TransferInner<T>({
-  'aria-label': ariaLabel = '穿梭框',
+  'aria-label': ariaLabel,
   className,
   dataSource,
   defaultTargetKeys = [],
@@ -60,16 +106,18 @@ function TransferInner<T>({
   onChange,
   onSearch,
   onSelectChange,
-  renderEmpty = '暂无数据',
+  renderEmpty,
   showSearch = false,
   sourceItems,
-  sourceTitle = '源列表',
+  sourceTitle,
   targetKeys: targetKeysProp,
-  targetTitle = '目标列表',
+  targetTitle,
+  itemKey,
   titles,
   ...props
 }: TransferProps<T>, ref: React.ForwardedRef<HTMLDivElement>) {
   const locale = useOxygenLocale();
+  const ariaLabelText = ariaLabel ?? locale.transfer.label;
   const options = sourceItems ?? dataSource ?? [];
   const controlled = targetKeysProp !== undefined;
   const [uncontrolledTargetKeys, setUncontrolledTargetKeys] = useState<T[]>([...defaultTargetKeys]);
@@ -78,17 +126,29 @@ function TransferInner<T>({
   const [targetSelectedKeys, setTargetSelectedKeys] = useState<T[]>([]);
   const [sourceSearch, setSourceSearch] = useState('');
   const [targetSearch, setTargetSearch] = useState('');
-  const sourceLabel = titles?.[0] ?? sourceTitle;
-  const targetLabel = titles?.[1] ?? targetTitle;
+  const sourceLabel = titles?.[0] ?? sourceTitle ?? locale.transfer.source;
+  const targetLabel = titles?.[1] ?? targetTitle ?? locale.transfer.target;
 
+  function optionKey(option: Option<T>, index: number) {
+    if (itemKey) return itemKey(option);
+    if (typeof option.value === 'string' || typeof option.value === 'number') {
+      return `${typeof option.value}:${String(option.value)}`;
+    }
+    return `index:${index}`;
+  }
+
+  const optionIndex = useMemo(() => createOptionIndex(options), [options]);
+  const targetValueLookup = useMemo(() => createValueLookup(targetKeys), [targetKeys]);
   const sourceOptions = useMemo(
-    () => options.filter((option) => !includes(targetKeys, option.value)),
-    [options, targetKeys],
+    () => options.filter((option) => !hasValue(targetValueLookup, option.value)),
+    [options, targetValueLookup],
   );
   const targetOptions = useMemo(
-    () => targetKeys.flatMap((key) => options.filter((option) => same(option.value, key))),
-    [options, targetKeys],
+    () => targetKeys.flatMap((key) => getIndexedOptions(optionIndex, key)),
+    [optionIndex, targetKeys],
   );
+  const sourceOptionIndex = useMemo(() => createOptionIndex(sourceOptions), [sourceOptions]);
+  const targetOptionIndex = useMemo(() => createOptionIndex(targetOptions), [targetOptions]);
 
   function filterOptions(items: Option<T>[], query: string) {
     return items.filter((option) => filterOption
@@ -132,8 +192,8 @@ function TransferInner<T>({
   function move(direction: TransferDirection) {
     if (disabled || loading) return;
     const selected = direction === 'right' ? sourceSelectedKeys : targetSelectedKeys;
-    const source = direction === 'right' ? sourceOptions : targetOptions;
-    const moveKeys = selected.filter((key) => source.some((option) => same(option.value, key) && !option.disabled));
+    const sourceIndex = direction === 'right' ? sourceOptionIndex : targetOptionIndex;
+    const moveKeys = selected.filter((key) => getIndexedOptions(sourceIndex, key).some((option) => !option.disabled));
     if (moveKeys.length === 0) return;
     const nextKeys = direction === 'right'
       ? [...targetKeys, ...moveKeys.filter((key) => !includes(targetKeys, key))]
@@ -163,30 +223,30 @@ function TransferInner<T>({
         </div>
         {showSearch ? (
           <Input
-            aria-label={`${optionText(title)}搜索`}
+            aria-label={`${optionText(title)}${locale.common.search}`}
             onChange={(event) => {
               const next = event.currentTarget.value;
               if (direction === 'right') setSourceSearch(next);
               else setTargetSearch(next);
               onSearch?.(next, direction);
             }}
-            placeholder="搜索"
+            placeholder={locale.common.search}
             type="search"
             value={search}
           />
         ) : null}
         <div className="oxygen-transfer__select-all">
           <Checkbox
-            aria-label={`${optionText(title)}全选`}
+            aria-label={`${optionText(title)}${locale.transfer.selectAll}`}
             checked={partiallySelected ? 'indeterminate' : allSelected}
             disabled={disabled || loading || selectable.length === 0}
             onCheckedChange={(checked) => selectAll(direction, checked === true)}
           />
-          <span>全选</span>
+          <span>{locale.transfer.selectAll}</span>
         </div>
-        <div aria-busy={loading || undefined} aria-label={`${ariaLabel}-${optionText(title)}`} className="oxygen-transfer__list" role="group">
-          {loading ? <span className="oxygen-transfer__empty">加载中</span> : visible.length === 0 ? <span className="oxygen-transfer__empty">{items.length === 0 ? renderEmpty : '无匹配项'}</span> : visible.map((option) => (
-            <label className={cn('oxygen-transfer__item', option.disabled && 'oxygen-transfer__item--disabled')} key={`${typeof option.value}:${String(option.value)}`}>
+        <div aria-busy={loading || undefined} aria-label={`${ariaLabelText}-${optionText(title)}`} className="oxygen-transfer__list" role="group">
+          {loading ? <span className="oxygen-transfer__empty">{locale.common.loading}</span> : visible.length === 0 ? <span className="oxygen-transfer__empty">{items.length === 0 ? renderEmpty ?? locale.common.empty : locale.transfer.noMatch}</span> : visible.map((option, index) => (
+            <label className={cn('oxygen-transfer__item', option.disabled && 'oxygen-transfer__item--disabled')} key={optionKey(option, index)}>
               <Checkbox
                 aria-label={optionText(option.label) || undefined}
                 checked={includes(selected, option.value)}
@@ -202,7 +262,7 @@ function TransferInner<T>({
   }
 
   return (
-    <div {...props} aria-label={ariaLabel} className={cn('oxygen-transfer', className)} data-disabled={disabled || loading ? 'true' : undefined} ref={ref}>
+    <div {...props} aria-label={ariaLabelText} className={cn('oxygen-transfer', className)} data-disabled={disabled || loading ? 'true' : undefined} ref={ref}>
       {list('right', sourceLabel, sourceOptions, visibleSource, sourceSelectedKeys, sourceSearch)}
       <div className="oxygen-transfer__actions">
         <Button aria-label={locale.transfer.toTarget} disabled={disabled || loading || sourceSelectedKeys.length === 0} onClick={() => move('right')} size="sm"><ArrowRight aria-hidden="true" className="oxygen-transfer__arrow" size={16} /></Button>

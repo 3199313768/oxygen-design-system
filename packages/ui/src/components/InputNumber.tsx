@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenLocale } from './ConfigProvider';
 
 export interface InputNumberProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'defaultValue' | 'onChange' | 'type' | 'value'> {
@@ -28,6 +29,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
       onFocus, onKeyDown, parser, precision, readOnly, step = 1, value: valueProp,
       ...props
     } = allProps;
+    const locale = useOxygenLocale();
     const controlled = 'value' in allProps;
 
     function normalize(next: number | undefined) {
@@ -140,7 +142,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
         />
         <span className="oxygen-input-number__controls">
           <button
-            aria-label="增加"
+            aria-label={locale.common.increase}
             className="oxygen-input-number__button"
             disabled={disabled || readOnly || (max !== undefined && value !== undefined && value >= max)}
             onMouseDown={(event) => event.preventDefault()}
@@ -148,7 +150,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
             type="button"
           >+</button>
           <button
-            aria-label="减少"
+            aria-label={locale.common.decrease}
             className="oxygen-input-number__button"
             disabled={disabled || readOnly || (min !== undefined && value !== undefined && value <= min)}
             onMouseDown={(event) => event.preventDefault()}

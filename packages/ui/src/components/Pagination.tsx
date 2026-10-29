@@ -26,6 +26,19 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+function normalizeFinite(value: number, fallback: number) {
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function normalizePositive(value: number, fallback: number) {
+  const normalized = normalizeFinite(value, fallback);
+  return normalized > 0 ? normalized : fallback;
+}
+
+function normalizeNonNegative(value: number) {
+  return Math.max(0, normalizeFinite(value, 0));
+}
+
 function getPageItems(page: number, pageCount: number): Array<number | 'ellipsis'> {
   if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1);
   if (page <= 4) return [1, 2, 3, 4, 5, 'ellipsis', pageCount];
@@ -57,14 +70,15 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
     const locale = useOxygenLocale();
     const [uncontrolledCurrent, setUncontrolledCurrent] = useState(defaultCurrent);
     const [uncontrolledPageSize, setUncontrolledPageSize] = useState(
-      Math.max(1, pageSizeProp ?? 10),
+      normalizePositive(pageSizeProp ?? 10, 10),
     );
-    const pageSize = Math.max(1, pageSizeProp ?? uncontrolledPageSize);
+    const safeTotal = normalizeNonNegative(total);
+    const pageSize = normalizePositive(pageSizeProp ?? uncontrolledPageSize, 10);
 
-    const pageCount = Math.max(1, Math.ceil(Math.max(0, total) / pageSize));
-    const page = clamp(current ?? uncontrolledCurrent, 1, pageCount);
+    const pageCount = Math.max(1, Math.ceil(safeTotal / pageSize));
+    const page = clamp(normalizePositive(current ?? uncontrolledCurrent, 1), 1, pageCount);
     const resolvedPageSizeOptions = Array.from(
-      new Set([...(pageSizeOptions ?? [10, 20, 50]), pageSize].filter((option) => option > 0)),
+      new Set([...(pageSizeOptions ?? [10, 20, 50]), pageSize].filter((option) => Number.isFinite(option) && option > 0)),
     ).sort((a, b) => a - b);
     const pageItems = getPageItems(page, pageCount);
 
@@ -89,7 +103,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
         className={cn('oxygen-pagination', className)}
         data-disabled={disabled ? 'true' : undefined}
         data-page-size={pageSize}
-        data-total={total}
+        data-total={safeTotal}
         ref={ref}
         {...props}
       >
@@ -159,12 +173,12 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
           <span className="oxygen-pagination__total">
             {typeof showTotal === 'function'
               ? showTotal(
-                total,
-                total === 0
+                safeTotal,
+                safeTotal === 0
                   ? [0, 0]
-                  : [(page - 1) * pageSize + 1, Math.min(page * pageSize, total)],
+                  : [(page - 1) * pageSize + 1, Math.min(page * pageSize, safeTotal)],
               )
-              : locale.common.total(total)}
+              : locale.common.total(safeTotal)}
           </span>
         ) : null}
       </nav>

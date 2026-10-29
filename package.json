@@ -8,10 +8,13 @@
   "scripts": {
     "build": "pnpm --filter @oxygen-design/ui build && pnpm --filter @oxygen-design/patterns build",
     "storybook": "pnpm build && pnpm --filter @oxygen-design/storybook storybook",
-    "storybook:build": "pnpm build && pnpm --filter @oxygen-design/storybook build-storybook",
+    "storybook:build-only": "pnpm --filter @oxygen-design/storybook build-storybook",
+    "storybook:build": "pnpm build && pnpm storybook:build-only",
     "test": "pnpm -r --if-present test",
     "typecheck": "pnpm -r --if-present typecheck",
-    "verify": "pnpm typecheck && pnpm test && pnpm build && pnpm storybook:build",
+    "lint": "node scripts/quality-gate.mjs lint",
+    "test:coverage": "node scripts/quality-gate.mjs coverage",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:coverage && pnpm build && pnpm storybook:build-only",
     "verify:package": "node scripts/verify-package.mjs && node scripts/verify-patterns-package.mjs",
     "verify:initial-release": "node scripts/verify-initial-release.mjs",
     "release": "pnpm build && pnpm changeset publish"

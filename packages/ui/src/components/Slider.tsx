@@ -2,6 +2,7 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 import { forwardRef, useId, useMemo, useState } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenLocale } from './ConfigProvider';
 
 export type SliderValue = number | [number, number];
 
@@ -71,6 +72,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
     ...props
   } = allProps;
   const thumbLabelId = useId();
+  const locale = useOxygenLocale();
   const range = rangeProp ?? Array.isArray(valueProp ?? defaultValue);
   const { min, max, step } = bounds(minProp, maxProp, stepProp);
   const controlled = 'value' in allProps;
@@ -113,7 +115,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
       </SliderPrimitive.Track>
       {values.map((_, index) => (
         <SliderPrimitive.Thumb
-          aria-label={range && ariaLabel ? `${ariaLabel} ${index === 0 ? '最小值' : '最大值'}` : ariaLabel}
+          aria-label={range && ariaLabel ? `${ariaLabel} ${index === 0 ? locale.common.minimum : locale.common.maximum}` : ariaLabel}
           aria-labelledby={range && ariaLabelledBy ? `${ariaLabelledBy} ${thumbLabelId}-${index}` : ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
           aria-invalid={ariaInvalid}
@@ -124,7 +126,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
           className="oxygen-slider__thumb"
           key={index}
         >
-          {range && ariaLabelledBy ? <span className="oxygen-visually-hidden" id={`${thumbLabelId}-${index}`}>{index === 0 ? '最小值' : '最大值'}</span> : null}
+          {range && ariaLabelledBy ? <span className="oxygen-visually-hidden" id={`${thumbLabelId}-${index}`}>{index === 0 ? locale.common.minimum : locale.common.maximum}</span> : null}
         </SliderPrimitive.Thumb>
       ))}
       {name ? values.map((value, index) => (

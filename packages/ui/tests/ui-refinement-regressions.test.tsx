@@ -1,7 +1,7 @@
 import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { Checkbox, ColorPicker, ConfigProvider, Table, Transfer, Upload, Result, RadioGroup, RadioGroupItem, Steps } from '../src';
+import { Checkbox, ColorPicker, ConfigProvider, Image, InputNumber, QRCode, Slider, Table, Transfer, Upload, Result, RadioGroup, RadioGroupItem, Steps } from '../src';
 
 describe('UI refinement semantics', () => {
   it('distinguishes a mixed checkbox from a check and toggles uncontrolled mixed state', () => {
@@ -42,6 +42,41 @@ describe('UI refinement semantics', () => {
     fireEvent.click(screen.getByRole('button', { name: '移至源列表' }));
     expect(onChange).toHaveBeenLastCalledWith([], 'left', ['a']);
   });
+  it('uses ConfigProvider labels for transfer and numeric controls', () => {
+    render(
+      <ConfigProvider locale={{
+        common: {
+          decrease: 'Decrease',
+          empty: 'No options',
+          imageError: 'Image failed',
+          increase: 'Increase',
+          maximum: 'Maximum',
+          minimum: 'Minimum',
+          noOptions: 'No options',
+          qrcode: 'QR code',
+          search: 'Find',
+          selectAll: 'Select all',
+        },
+        transfer: { label: 'Transfer', noMatch: 'No matches', selectAll: 'Select all', source: 'Source', target: 'Target' },
+      }}>
+        <Transfer showSearch sourceItems={[]} />
+        <InputNumber />
+        <Slider aria-label="Price" range defaultValue={[10, 20]} />
+        <Image alt="Preview" src="/missing.png" />
+        <QRCode value="oxygen" />
+      </ConfigProvider>,
+    );
+    expect(screen.getAllByText('Select all')).toHaveLength(2);
+    expect(screen.getAllByPlaceholderText('Find')).toHaveLength(2);
+    expect(screen.getAllByText('No options')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Increase' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Decrease' })).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: 'Price Minimum' })).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: 'Price Maximum' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'QR code' })).toBeInTheDocument();
+    fireEvent.error(screen.getByRole('img', { name: 'Preview' }));
+    expect(screen.getByText('Image failed')).toBeInTheDocument();
+  });
   it('uses the shared checkbox and retains uncontrolled row selection and table ref', () => {
     const onChange = vi.fn(); const ref = createRef<HTMLTableElement>();
     const record = { key: 'a', name: 'Alpha' };
@@ -65,6 +100,42 @@ describe('UI refinement semantics', () => {
     expect(screen.getByRole('checkbox', { name: '选择第 1 行' })).not.toBeChecked();
     rerender(<Table columns={columns} dataSource={[record]} rowSelection={{ selectedRowKeys: ['a'], onChange }} />);
     expect(screen.getByRole('checkbox', { name: '选择第 1 行' })).toBeChecked();
+  });
+  it('uses indexed selection checks for large table selections', () => {
+    const selectedKeys = Array.from({ length: 1000 }, (_, index) => `selected-${index}`);
+    const includesSpy = vi.spyOn(selectedKeys, 'includes');
+    const records = Array.from({ length: 1200 }, (_, index) => ({ id: `selected-${index}`, label: `Row ${index}` }));
+
+    render(
+      <Table
+        columns={[{ key: 'label', dataIndex: 'label', title: 'Label' }]}
+        dataSource={records}
+        rowKey="id"
+        rowSelection={{ selectedRowKeys: selectedKeys }}
+      />,
+    );
+
+    expect(screen.getByText('已选择 1000 项')).toBeInTheDocument();
+    expect(includesSpy).not.toHaveBeenCalled();
+  });
+  it('indexes transfer option values instead of rescanning all options per target key', () => {
+    let valueReads = 0;
+    const options = Array.from({ length: 200 }, (_, index) => {
+      const option = { label: `Option ${index}` } as { label: string; value: string };
+      Object.defineProperty(option, 'value', {
+        configurable: true,
+        get: () => {
+          valueReads += 1;
+          return `value-${index}`;
+        },
+      });
+      return option;
+    });
+
+    render(<Transfer sourceItems={options} targetKeys={options.slice(0, 100).map((option) => option.value)} />);
+
+    expect(screen.getByRole('group', { name: '穿梭框-目标列表' })).toHaveTextContent('Option 99');
+    expect(valueReads).toBeLessThan(5000);
   });
   it('tracks a right-side scroll cue for wide tables', () => {
     render(
@@ -106,6 +177,30 @@ describe('UI refinement semantics', () => {
     fireEvent.click(selectAll);
     expect(onChange).toHaveBeenLastCalledWith(['one', 'two'], records);
     expect(screen.getByText('已选择 2 项')).toBeInTheDocument();
+  });
+  it('uses localized selected-count copy for table summaries', () => {
+    render(
+      <ConfigProvider locale={{ common: { selectedCount: (count) => `Selected ${count} records` } }}>
+        <Table
+          columns={[{ key: 'label', dataIndex: 'label', title: 'Label' }]}
+          dataSource={[{ id: 'one', label: 'One' }]}
+          rowKey="id"
+          rowSelection={{}}
+        />
+      </ConfigProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('checkbox', { name: '选择第 1 行' }));
+    expect(screen.getByText('Selected 1 records')).toBeInTheDocument();
+  });
+
+  it('keeps rows with object row keys distinct', () => {
+    const onChange = vi.fn();
+    const records = [{ id: { value: 'same' }, label: '第一项' }, { id: { value: 'same' }, label: '第二项' }];
+    render(<Table columns={[{ key: 'label', dataIndex: 'label', title: '标签' }]} dataSource={records} rowKey="id" rowSelection={{ onChange }} />);
+    fireEvent.click(screen.getByRole('checkbox', { name: '选择第 2 行' }));
+    expect(onChange).toHaveBeenLastCalledWith([1], [records[1]]);
+    expect(screen.getByText('已选择 1 项')).toBeInTheDocument();
   });
 
   it('exposes column alignment and compact density through public contracts', () => {

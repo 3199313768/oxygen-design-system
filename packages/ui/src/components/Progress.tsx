@@ -19,7 +19,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     const statusText = status === 'exception' ? locale.steps.error : status === 'success' ? locale.steps.finish : status === 'active' ? locale.steps.process : undefined;
     return (
       <div
-        aria-label={ariaLabel ?? (ariaLabelledBy ? undefined : locale.common.progress ?? '进度')}
+        aria-label={ariaLabel ?? (ariaLabelledBy ? undefined : locale.common.progress)}
         aria-labelledby={ariaLabelledBy}
         aria-valuemax={100}
         aria-valuemin={0}

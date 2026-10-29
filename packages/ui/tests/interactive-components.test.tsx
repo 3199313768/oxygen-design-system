@@ -702,6 +702,38 @@ describe('interactive components', () => {
     expect(screen.queryByRole('button', { name: '第 2 页' })).not.toBeInTheDocument();
   });
 
+  it('normalizes invalid pagination numbers to finite safe values', () => {
+    const { rerender } = render(
+      <Pagination
+        current={Number.NaN}
+        pageSize={Number.NaN}
+        pageSizeOptions={[Number.NaN, Number.POSITIVE_INFINITY, -1]}
+        showSizeChanger
+        showTotal
+        total={Number.POSITIVE_INFINITY}
+      />,
+    );
+
+    const navigation = screen.getByRole('navigation', { name: '分页' });
+    expect(navigation).toHaveAttribute('data-total', '0');
+    expect(screen.getByRole('button', { name: '第 1 页' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByText('共 0 条')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '10 / 页' })).toBeInTheDocument();
+    expect(screen.queryByText(/NaN|Infinity/)).not.toBeInTheDocument();
+
+    rerender(
+      <Pagination
+        current={-4}
+        pageSize={-10}
+        pageSizeOptions={[0, -5]}
+        showSizeChanger
+        total={-25}
+      />,
+    );
+    expect(screen.getByRole('navigation', { name: '分页' })).toHaveAttribute('data-total', '0');
+    expect(screen.getByRole('button', { name: '第 1 页' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('restores focus after an alert dialog closes', async () => {
     render(
       <AlertDialog>

@@ -34,14 +34,20 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Lint
+        run: pnpm lint
+
       - name: Test
         run: pnpm test
+
+      - name: Test coverage surface
+        run: pnpm test:coverage
 
       - name: Build package
         run: pnpm build
 
       - name: Build Storybook
-        run: pnpm storybook:build
+        run: pnpm storybook:build-only
 
       - name: Verify packed consumer
         run: pnpm verify:package

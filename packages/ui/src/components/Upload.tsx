@@ -16,6 +16,7 @@ import { useOxygenLocale } from './ConfigProvider';
 import { Progress } from './Progress';
 
 export interface UploadRequestHandlers {
+  signal: AbortSignal;
   onError: (error?: Error) => void;
   onProgress: (percent: number) => void;
   onSuccess: (url?: string) => void;
@@ -89,7 +90,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
 
     const latestFiles = useRef(fileList);
     const previousControlledFiles = useRef(fileListProp);
-    const requests = useRef(new Map<string, symbol>());
+    const requests = useRef(new Map<string, { controller: AbortController; token: symbol }>());
     const mounted = useRef(true);
     const latest = useRef({ disabled, fileListProp, onChange, onError, onProgress, onSuccess });
     latest.current = { disabled, fileListProp, onChange, onError, onProgress, onSuccess };
@@ -100,6 +101,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       for (const id of requests.current.keys()) {
         const previousFile = latestFiles.current.find((file) => file.id === id);
         if (!fileList.some((file) => file.id === id && file.file === previousFile?.file)) {
+          requests.current.get(id)?.controller.abort();
           requests.current.delete(id);
         }
       }
@@ -111,6 +113,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       mounted.current = true;
       return () => {
         mounted.current = false;
+        for (const request of requests.current.values()) request.controller.abort();
         requests.current.clear();
       };
     }, []);
@@ -119,7 +122,10 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       if (!mounted.current) return;
       latestFiles.current = nextFiles;
       for (const id of requests.current.keys()) {
-        if (!nextFiles.some((file) => file.id === id)) requests.current.delete(id);
+        if (!nextFiles.some((file) => file.id === id)) {
+          requests.current.get(id)?.controller.abort();
+          requests.current.delete(id);
+        }
       }
       if (latest.current.fileListProp === undefined) setUncontrolledFiles(nextFiles);
       latest.current.onChange?.(nextFiles);
@@ -128,10 +134,11 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
     function beginRequest(uploadFile: UploadFile) {
       if (!customRequest) return;
       const token = Symbol(uploadFile.id);
-      requests.current.set(uploadFile.id, token);
+      const controller = new AbortController();
+      requests.current.set(uploadFile.id, { controller, token });
 
       function setStatus(patch: Partial<UploadFile>, complete = false) {
-        if (!mounted.current || requests.current.get(uploadFile.id) !== token) return;
+        if (!mounted.current || requests.current.get(uploadFile.id)?.token !== token) return;
         const current = latestFiles.current.find(
           (file) => file.id === uploadFile.id && file.file === uploadFile.file,
         );
@@ -149,8 +156,9 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       setStatus({ status: 'uploading', percent: 0 });
       void Promise.resolve()
         .then(() => {
-          if (requests.current.get(uploadFile.id) !== token) return;
+          if (requests.current.get(uploadFile.id)?.token !== token) return;
           return customRequest(uploadFile.file, {
+            signal: controller.signal,
             onError: fail,
             onProgress: (percent) => {
               if (!Number.isFinite(percent)) return;
@@ -200,6 +208,8 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       try {
         const result = await onRemove?.(file);
         if (result === false || !mounted.current) return;
+        requests.current.get(file.id)?.controller.abort();
+        requests.current.delete(file.id);
         updateFiles(latestFiles.current.filter((item) => item.id !== file.id || item.file !== file.file));
       } catch (error) {
         latest.current.onError?.(file, error instanceof Error ? error : new Error(String(error)));

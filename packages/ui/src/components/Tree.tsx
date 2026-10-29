@@ -5,7 +5,7 @@ import { cn } from '../lib/cn';
 import { Checkbox } from './Checkbox';
 import { useOxygenLocale } from './ConfigProvider';
 import type { TreeNode } from './shared';
-import { flattenTree, treeNodeText, treeReactKey, type TreeKey } from './tree-utils';
+import { createTreeIndex, treeNodeText, treeReactKey, type TreeKey } from './tree-utils';
 
 export interface TreeProps<T extends TreeKey = string>
   extends Omit<HTMLAttributes<HTMLUListElement>, 'onSelect'> {
@@ -33,7 +33,8 @@ export function Tree<T extends TreeKey = string>({
 }: TreeProps<T>) {
   const locale = useOxygenLocale();
   const id = useId();
-  const entries = useMemo(() => flattenTree(treeData), [treeData]);
+  const treeIndex = useMemo(() => createTreeIndex(treeData), [treeData]);
+  const { childrenByNode, descendantsByNode, entryByNode, entries } = treeIndex;
   const labelIds = useMemo(() => new Map(entries.map(({ node }, index) => [node.key, `${id}-label-${index}`])), [entries, id]);
   const [internalExpanded, setInternalExpanded] = useState<T[]>(() => defaultExpandAll
     ? entries.filter(({ node }) => node.children?.length).map(({ node }) => node.key)
@@ -45,16 +46,24 @@ export function Tree<T extends TreeKey = string>({
   const expanded = expandedKeys ?? internalExpanded;
   const selected = selectedKeys ?? internalSelected;
   const rawChecked = checkedKeys ?? internalChecked;
-  const checked = new Set<T>();
-  for (const entry of entries) {
-    if (!entry.disabled && entry.path.some((node) => rawChecked.includes(node.key))) checked.add(entry.node.key);
-  }
-  for (const entry of [...entries].reverse()) {
-    const children = entries.filter((child) => !child.disabled && child.path.at(-2) === entry.node);
-    if (!entry.disabled && children.length && children.every((child) => checked.has(child.node.key))) checked.add(entry.node.key);
-  }
-  const visible = entries.filter((entry) => entry.path.slice(0, -1).every((node) => expanded.includes(node.key)));
-  const focusable = visible.filter((entry) => !disabled && !entry.disabled);
+  const expandedSet = useMemo(() => new Set(expanded), [expanded]);
+  const checked = useMemo(() => {
+    const rawCheckedSet = new Set(rawChecked);
+    const next = new Set<T>();
+    for (const entry of entries) {
+      if (!entry.disabled && entry.path.some((node) => rawCheckedSet.has(node.key))) next.add(entry.node.key);
+    }
+    for (const entry of [...entries].reverse()) {
+      const children = (childrenByNode.get(entry.node) ?? []).filter((child) => !child.disabled);
+      if (!entry.disabled && children.length && children.every((child) => next.has(child.node.key))) next.add(entry.node.key);
+    }
+    return next;
+  }, [childrenByNode, entries, rawChecked]);
+  const visible = useMemo(
+    () => entries.filter((entry) => entry.path.slice(0, -1).every((node) => expandedSet.has(node.key))),
+    [entries, expandedSet],
+  );
+  const focusable = useMemo(() => visible.filter((entry) => !disabled && !entry.disabled), [disabled, visible]);
   const focusKey = focusable.some(({ node }) => node.key === activeKey) ? activeKey : focusable[0]?.node.key;
 
   function expand(node: TreeNode<T>, next: boolean) {
@@ -73,14 +82,18 @@ export function Tree<T extends TreeKey = string>({
   function check(node: TreeNode<T>) {
     const next = new Set(checked);
     const remove = checked.has(node.key);
-    for (const entry of entries) {
-      if (!entry.disabled && entry.path.includes(node)) {
+    const relatedEntries = [
+      ...(entryByNode.has(node) ? [entryByNode.get(node)!] : []),
+      ...(descendantsByNode.get(node) ?? []),
+    ];
+    for (const entry of relatedEntries) {
+      if (!entry.disabled) {
         if (remove) next.delete(entry.node.key);
         else next.add(entry.node.key);
       }
     }
     for (const entry of [...entries].reverse()) {
-      const children = entries.filter((child) => !child.disabled && child.path.at(-2) === entry.node);
+      const children = (childrenByNode.get(entry.node) ?? []).filter((child) => !child.disabled);
       if (!entry.disabled && children.length) {
         if (children.every((child) => next.has(child.node.key))) next.add(entry.node.key);
         else next.delete(entry.node.key);
@@ -102,9 +115,9 @@ export function Tree<T extends TreeKey = string>({
     return nodes.map((node) => {
       const isDisabled = disabled || inheritedDisabled || !!node.disabled;
       const hasChildren = !!node.children?.length;
-      const isExpanded = expanded.includes(node.key);
+      const isExpanded = expandedSet.has(node.key);
       const labelId = labelIds.get(node.key);
-      const partial = !checked.has(node.key) && entries.some((entry) => !entry.disabled && entry.path.includes(node) && checked.has(entry.node.key));
+      const partial = !checked.has(node.key) && (descendantsByNode.get(node) ?? []).some((entry) => !entry.disabled && checked.has(entry.node.key));
       return (
         <li
           aria-checked={checkable ? partial ? 'mixed' : checked.has(node.key) : undefined}

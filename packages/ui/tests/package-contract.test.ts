@@ -9,6 +9,29 @@ import { defaultLocale } from '../src/components/ConfigProvider';
 const packageRoot = process.cwd();
 
 describe('@oxygen-design/ui package contract', () => {
+  it('marks client component package entries explicitly', async () => {
+    const [uiSource, patternsSource] = await Promise.all([
+      readFile(resolve(packageRoot, 'src/index.ts'), 'utf8'),
+      readFile(resolve(packageRoot, '../patterns/src/index.ts'), 'utf8'),
+    ]);
+    expect(uiSource.startsWith("'use client';")).toBe(true);
+    expect(patternsSource.startsWith("'use client';")).toBe(true);
+  });
+  it('keeps Storybook build separate from the package build', async () => {
+    const rootManifest = JSON.parse(
+      await readFile(resolve(packageRoot, '../../package.json'), 'utf8'),
+    ) as { scripts: Record<string, string> };
+
+    expect(rootManifest.scripts['storybook:build-only']).toBe(
+      'pnpm --filter @oxygen-design/storybook build-storybook',
+    );
+    expect(rootManifest.scripts['storybook:build']).toBe(
+      'pnpm build && pnpm storybook:build-only',
+    );
+    expect(rootManifest.scripts.verify).toContain('pnpm storybook:build-only');
+    expect(rootManifest.scripts.lint).toBe('node scripts/quality-gate.mjs lint');
+    expect(rootManifest.scripts['test:coverage']).toBe('node scripts/quality-gate.mjs coverage');
+  });
   it('does not expose page patterns from the base entry', async () => {
     expect(publicEntry).not.toHaveProperty('AppShell');
     expect(publicEntry).not.toHaveProperty('PageHeader');

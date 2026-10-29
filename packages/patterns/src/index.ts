@@ -1,3 +1,5 @@
+'use client';
+
 import './styles/index.css';
 
 export { AppShell } from './AppShell';

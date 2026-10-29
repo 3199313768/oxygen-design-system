@@ -29,6 +29,16 @@ describe('data-entry regressions', () => {
     expect(screen.getByText('b.txt')).toBeInTheDocument();
   });
 
+  it('aborts a custom upload when its file is removed', async () => {
+    let signal!: AbortSignal;
+    render(<Upload customRequest={(_file, handlers) => { signal = handlers.signal; }} />);
+    fireEvent.change(screen.getByLabelText('上传'), { target: { files: [new File(['a'], 'cancel.txt')] } });
+    await waitFor(() => expect(signal).toBeInstanceOf(AbortSignal));
+    expect(signal.aborted).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: '移除 cancel.txt' }));
+    await waitFor(() => expect(signal.aborted).toBe(true));
+  });
+
   it('merges async validation and removal against the latest list', async () => {
     const validation = deferred<boolean>();
     const removal = deferred<boolean>();

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type Key,
@@ -44,7 +45,7 @@ function getRecordKey<T>(record: T, index: number, rowKey?: TableProps<T>['rowKe
   if (typeof rowKey === 'function') return rowKey(record);
   if (rowKey) {
     const value = record[rowKey];
-    return typeof value === 'string' || typeof value === 'number' ? value : String(value);
+    return typeof value === 'string' || typeof value === 'number' ? value : index;
   }
   const candidate = (record as Record<string, unknown>).key;
   return typeof candidate === 'string' || typeof candidate === 'number' ? candidate : index;
@@ -70,10 +71,11 @@ function TableInner<T>(
     rowSelection?.defaultSelectedRowKeys ?? [],
   );
   const selectedKeys = rowSelection?.selectedRowKeys ?? uncontrolledSelectedKeys;
+  const selectedKeySet = useMemo(() => new Set(selectedKeys), [selectedKeys]);
   const selectionColumnCount = rowSelection ? 1 : 0;
   const columnCount = columns.length + selectionColumnCount;
   const selectableKeys = dataSource.map((record, index) => getRecordKey(record, index, rowKey));
-  const selectedCount = selectableKeys.filter((key) => selectedKeys.includes(key)).length;
+  const selectedCount = selectableKeys.filter((key) => selectedKeySet.has(key)).length;
   const allSelected = selectableKeys.length > 0 && selectedCount === selectableKeys.length;
   const partiallySelected = selectedCount > 0 && !allSelected;
 
@@ -98,11 +100,12 @@ function TableInner<T>(
 
   function toggleRow(record: T, index: number) {
     const key = getRecordKey(record, index, rowKey);
-    const nextKeys = selectedKeys.includes(key)
+    const nextKeys = selectedKeySet.has(key)
       ? selectedKeys.filter((selectedKey) => selectedKey !== key)
       : [...selectedKeys, key];
+    const nextKeySet = new Set(nextKeys);
     const selectedRows = dataSource.filter((item, itemIndex) =>
-      nextKeys.includes(getRecordKey(item, itemIndex, rowKey)),
+      nextKeySet.has(getRecordKey(item, itemIndex, rowKey)),
     );
 
     if (rowSelection?.selectedRowKeys === undefined) {
@@ -128,7 +131,7 @@ function TableInner<T>(
       >
         <thead>
           <tr>
-            {rowSelection ? <th aria-label="选择" className="oxygen-table__selection" scope="col">
+            {rowSelection ? <th aria-label={locale.common.selection} className="oxygen-table__selection" scope="col">
               {rowSelection.showSelectAll !== false && dataSource.length > 0 ? (
                 <Checkbox aria-label={locale.common.selectAll} checked={allSelected ? true : partiallySelected ? 'indeterminate' : false} onCheckedChange={toggleAll} />
               ) : null}
@@ -154,7 +157,7 @@ function TableInner<T>(
           ) : (
             dataSource.map((record, index) => {
               const recordKey = getRecordKey(record, index, rowKey);
-              const selected = selectedKeys.includes(recordKey);
+              const selected = selectedKeySet.has(recordKey);
               return (
                 <tr data-selected={selected ? 'true' : undefined} key={recordKey}>
                   {rowSelection ? (
@@ -182,7 +185,7 @@ function TableInner<T>(
           )}
         </tbody>
       </table>
-      {rowSelection && selectedCount > 0 ? <div className="oxygen-table__selection-summary" role="status">{locale.common.selected} {selectedCount} 项</div> : null}
+      {rowSelection && selectedCount > 0 ? <div className="oxygen-table__selection-summary" role="status">{locale.common.selectedCount(selectedCount)}</div> : null}
     </div>
   );
 }

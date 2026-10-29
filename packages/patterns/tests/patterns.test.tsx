@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Button } from '@oxygen-design/ui';
+import { Button, ConfigProvider } from '@oxygen-design/ui';
 import {
   AppShell,
   EmptyState,
@@ -10,6 +10,30 @@ import {
 } from '../src';
 
 describe('patterns', () => {
+  it('inherits AppShell navigation defaults from the UI locale', () => {
+    const locale = {
+      common: {
+        navigationDescription: 'Choose a page',
+        navigationTitle: (title: string) => `${title} menu`,
+        openNavigation: 'Open navigation',
+      },
+    } as Parameters<typeof ConfigProvider>[0]['locale'];
+    render(
+      <ConfigProvider locale={locale}>
+        <AppShell
+          mobileNavigation={<nav aria-label="Navigation">Items</nav>}
+          sidebar={<nav aria-label="Navigation">Items</nav>}
+          title="Workspace"
+        >
+          <p>Content</p>
+        </AppShell>
+      </ConfigProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
+    const dialog = screen.getByRole('dialog', { name: 'Workspace menu' });
+    expect(within(dialog).getByText('Choose a page')).toBeInTheDocument();
+  });
   it('uses Chinese generic defaults for mobile navigation', () => {
     render(
       <AppShell

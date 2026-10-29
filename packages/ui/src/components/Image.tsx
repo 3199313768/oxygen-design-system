@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useState, type ImgHTMLAttributes, type ReactNode } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenLocale } from './ConfigProvider';
 
 export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallback?: ReactNode;
@@ -8,6 +9,7 @@ export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 export const Image = forwardRef<HTMLImageElement, ImageProps>(
   ({ alt = '', className, fallback, onError, src, ...props }, ref) => {
+    const locale = useOxygenLocale();
     const [failed, setFailed] = useState(false);
     useEffect(() => setFailed(false), [src]);
 
@@ -19,7 +21,7 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
           className={cn('oxygen-image__fallback', className)}
           role={alt ? 'img' : undefined}
         >
-          {fallback !== undefined ? fallback : '图片加载失败'}
+          {fallback !== undefined ? fallback : locale.common.imageError}
         </span>
       );
     }

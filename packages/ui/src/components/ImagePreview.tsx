@@ -1,6 +1,7 @@
 import { forwardRef, useState, type ReactNode } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenLocale } from './ConfigProvider';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from './Dialog';
 import { Image, type ImageProps } from './Image';
 
@@ -17,13 +18,14 @@ export interface ImagePreviewProps extends Omit<ImageProps, 'className'> {
 
 export const ImagePreview = forwardRef<HTMLImageElement, ImagePreviewProps>(
   ({ alt = '', className, closeLabel, defaultOpen = false, disabled = false, onOpenChange, open: controlledOpen, previewClassName, previewTitle, ...imageProps }, ref) => {
+    const locale = useOxygenLocale();
     const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
     const open = controlledOpen ?? uncontrolledOpen;
     const handleOpenChange = (next: boolean) => {
       if (controlledOpen === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     };
-    const label = alt || '预览图片';
+    const label = alt || locale.common.previewImage;
 
     return (
       <Dialog onOpenChange={handleOpenChange} open={open}>

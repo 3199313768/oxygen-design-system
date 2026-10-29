@@ -9,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  useOxygenLocale,
 } from '@oxygen-design/ui';
 
 export interface AppShellProps {
@@ -25,14 +26,20 @@ export interface AppShellProps {
 export function AppShell({
   children,
   mobileNavigation,
-  navigationDescription = '请选择页面',
+  navigationDescription,
   navigationTitle,
-  navigationTriggerLabel = '打开导航',
+  navigationTriggerLabel,
   sidebar,
   title,
   topbarActions,
 }: AppShellProps) {
-  const resolvedNavigationTitle = navigationTitle ?? `${title}导航`;
+  const locale = useOxygenLocale();
+  const navigationTitleFormatter = (locale.common as typeof locale.common & {
+    navigationTitle?: (value: string) => string;
+  }).navigationTitle;
+  const resolvedNavigationTitle = navigationTitle ?? navigationTitleFormatter?.(title) ?? `${title}导航`;
+  const resolvedNavigationDescription = navigationDescription ?? locale.common.navigationDescription;
+  const resolvedNavigationTriggerLabel = navigationTriggerLabel ?? locale.common.openNavigation;
 
   return (
     <div className="oxygen-app-shell">
@@ -41,14 +48,14 @@ export function AppShell({
         <header className="oxygen-app-shell__topbar">
           <Sheet>
             <SheetTrigger asChild>
-              <Button aria-label={navigationTriggerLabel} size="icon" variant="ghost">
+              <Button aria-label={resolvedNavigationTriggerLabel} size="icon" variant="ghost">
                 <Menu aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
               <SheetHeader>
                 <SheetTitle>{resolvedNavigationTitle}</SheetTitle>
-                <SheetDescription>{navigationDescription}</SheetDescription>
+                <SheetDescription>{resolvedNavigationDescription}</SheetDescription>
               </SheetHeader>
               <div className="oxygen-app-shell__mobile-navigation">
                 {mobileNavigation}
