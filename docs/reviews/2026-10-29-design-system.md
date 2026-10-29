@@ -115,3 +115,15 @@ Patterns：PageHeader、EmptyState、StatusMessage、AppShell 均检查了内容
 - Field 自动识别直接或 Fragment 中的声明式说明，不穿透任意 DOM 容器或自定义包装组件；复杂组合可显式提供 aria-describedby。调用方提供的显式 ID 需自行保持唯一。
 - 本次无新依赖、无后端上传请求改动、无发布。包导出/类型契约随既有测试验证，没有重新安装外部消费项目进行集成验收。
 - Storybook 构建存在依赖的 use-client 打包提示及体积提示，构建退出成功；不把依赖提示称为零警告。
+
+## 第二轮优化（同日复核）
+
+基于控件组合、表格和紧凑后台场景继续调整：
+
+- 验收页外层标题提升为页面级 24/32，面板内组标题回到 18/26，避免子标题大于页面标题。
+- 筛选区按字段内容重新分配栅格，桌面保持单行，窄屏按 3 列 / 2 列收缩并将操作按钮独立换行。
+- Table 增加列 `width` / `align` / `ellipsis`，表头支持全选与半选，显示已选数量；新增长名称、金额右对齐和批量操作 Story。
+- ConfigProvider 增加 `density="default" | "compact"`，紧凑模式统一收紧控件、表单和容器间距，触屏目标策略不变。
+- 标题字号、动效时长和关键层级新增 token，Typography 与 disclosure 动效改用 token，降低局部硬编码。
+
+第二轮验证：UI 208 项、patterns 7 项测试通过，共 215 项；三处 TypeScript 检查、UI / patterns 构建、Storybook 构建通过；57 个 Story × 桌面/手机共 114 张截图，横向溢出 0，所运行 axe 规则违规 0。

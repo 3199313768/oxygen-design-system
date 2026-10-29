@@ -43,6 +43,7 @@ export interface OxygenLocale {
     pagination: string;
     remove: string;
     search: string;
+    selectAll: string;
     selectRow: (row: number) => string;
     total: (total: number) => string;
     previous: string;
@@ -78,6 +79,7 @@ export const defaultLocale: ResolvedOxygenLocale = {
     pagination: '分页',
     remove: '移除',
     search: '搜索',
+    selectAll: '选择全部',
     selectRow: (row) => `选择第 ${row} 行`,
     total: (total) => `共 ${total} 条`,
     previous: '上一页',
@@ -100,12 +102,13 @@ export type OxygenLocaleConfig = {
 
 export interface ConfigProviderProps {
   children: ReactNode;
+  density?: 'default' | 'compact';
   locale?: OxygenLocaleConfig;
 }
 
 const LocaleContext = createContext<ResolvedOxygenLocale>(defaultLocale);
 
-export function ConfigProvider({ children, locale }: ConfigProviderProps) {
+export function ConfigProvider({ children, density = 'default', locale }: ConfigProviderProps) {
   const resolvedLocale = useMemo<ResolvedOxygenLocale>(
     () => ({
       ...defaultLocale,
@@ -126,7 +129,7 @@ export function ConfigProvider({ children, locale }: ConfigProviderProps) {
 
   return (
     <LocaleContext.Provider value={resolvedLocale}>
-      {children}
+      <div data-oxygen-density={density} style={{ display: 'contents' }}>{children}</div>
     </LocaleContext.Provider>
   );
 }

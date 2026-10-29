@@ -13,14 +13,18 @@ import { Checkbox } from './Checkbox';
 import { useOxygenLocale } from './ConfigProvider';
 
 export interface TableColumn<T> {
+  align?: 'left' | 'center' | 'right';
   dataIndex?: keyof T;
+  ellipsis?: boolean;
   key: Key;
   render?: (value: unknown, record: T, index: number) => ReactNode;
   title: ReactNode;
+  width?: number | string;
 }
 
 export interface TableRowSelection<T> {
   defaultSelectedRowKeys?: Key[];
+  showSelectAll?: boolean;
   onChange?: (selectedRowKeys: Key[], selectedRows: T[]) => void;
   selectedRowKeys?: Key[];
 }
@@ -64,6 +68,10 @@ function TableInner<T>(
   const selectedKeys = rowSelection?.selectedRowKeys ?? uncontrolledSelectedKeys;
   const selectionColumnCount = rowSelection ? 1 : 0;
   const columnCount = columns.length + selectionColumnCount;
+  const selectableKeys = dataSource.map((record, index) => getRecordKey(record, index, rowKey));
+  const selectedCount = selectableKeys.filter((key) => selectedKeys.includes(key)).length;
+  const allSelected = selectableKeys.length > 0 && selectedCount === selectableKeys.length;
+  const partiallySelected = selectedCount > 0 && !allSelected;
 
   function toggleRow(record: T, index: number) {
     const key = getRecordKey(record, index, rowKey);
@@ -80,6 +88,13 @@ function TableInner<T>(
     rowSelection?.onChange?.(nextKeys, selectedRows);
   }
 
+  function toggleAll() {
+    const nextKeys = allSelected ? [] : selectableKeys;
+    const selectedRows = allSelected ? [] : dataSource;
+    if (rowSelection?.selectedRowKeys === undefined) setUncontrolledSelectedKeys(nextKeys);
+    rowSelection?.onChange?.(nextKeys, selectedRows);
+  }
+
   return (
     <div className="oxygen-table">
       <table
@@ -90,9 +105,13 @@ function TableInner<T>(
       >
         <thead>
           <tr>
-            {rowSelection ? <th aria-label="选择" className="oxygen-table__selection" scope="col" /> : null}
+            {rowSelection ? <th aria-label="选择" className="oxygen-table__selection" scope="col">
+              {rowSelection.showSelectAll !== false && dataSource.length > 0 ? (
+                <Checkbox aria-label={locale.common.selectAll} checked={allSelected ? true : partiallySelected ? 'indeterminate' : false} onCheckedChange={toggleAll} />
+              ) : null}
+            </th> : null}
             {columns.map((column) => (
-              <th key={column.key} scope="col">
+              <th key={column.key} scope="col" style={{ width: column.width, textAlign: column.align }}>
                 {column.title}
               </th>
             ))}
@@ -129,8 +148,8 @@ function TableInner<T>(
                       ? undefined
                       : record[column.dataIndex];
                     return (
-                      <td key={column.key}>
-                        {column.render ? column.render(value, record, index) : String(value ?? '')}
+                      <td key={column.key} style={{ width: column.width, textAlign: column.align }} title={column.ellipsis ? String(value ?? '') : undefined}>
+                        <span className={column.ellipsis ? 'oxygen-table__ellipsis' : undefined}>{column.render ? column.render(value, record, index) : String(value ?? '')}</span>
                       </td>
                     );
                   })}
@@ -140,6 +159,7 @@ function TableInner<T>(
           )}
         </tbody>
       </table>
+      {rowSelection && selectedCount > 0 ? <div className="oxygen-table__selection-summary" role="status">{locale.common.selected} {selectedCount} 项</div> : null}
     </div>
   );
 }

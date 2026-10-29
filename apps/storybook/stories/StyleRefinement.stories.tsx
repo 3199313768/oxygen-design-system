@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, ColorPicker, DatePicker, Field, FieldControl, FieldDescription,
+  Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, ColorPicker, ConfigProvider, DatePicker, Field, FieldControl, FieldDescription,
   FieldLabel, Form, Input, InputNumber, RadioGroup, RadioGroupItem, Search, Select,
   SelectContent, SelectItem, SelectTrigger, SelectValue, Steps, Switch, Table,
   Tabs, TabsContent, TabsList, TabsTrigger, Tag, Textarea, TimePicker, Transfer, Tree, Typography, Upload,
@@ -112,5 +112,24 @@ export const NarrowAndLongContent: Story = {
       <Transfer aria-label="窄容器团队" sourceItems={[{ value: 'one', label: '需要保留完整名称的团队成员' }, { value: 'two', label: '停用成员', disabled: true }]} />
       <Steps current={1} items={[{ key: 1, title: '准备阶段', description: '确认所有必填内容已补全' }, { key: 2, title: '正在处理', description: '较长的说明会换行并保留进度连接线' }, { key: 3, title: '处理完成' }]} />
     </section>
+  ),
+};
+
+export const CompactDensity: Story = {
+  name: '紧凑密度',
+  render: () => (
+    <ConfigProvider density="compact">
+      <section className="story-reference story-reference--compact">
+        <h2 className="story-section__title">紧凑密度</h2>
+        <p className="story-section__description">适合高信息密度后台；触屏目标仍由设备指针策略保留。</p>
+        <div className="story-reference__panel">
+          <Form className="story-reference__form">
+            <Form.Item label="项目名称"><Input placeholder="输入名称" /></Form.Item>
+            <Form.Item label="负责人"><Select defaultValue="team"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="team">设计团队</SelectItem></SelectContent></Select></Form.Item>
+          </Form>
+          <div className="story-row"><Button size="sm">查询</Button><Button size="sm" variant="secondary">重置</Button></div>
+        </div>
+      </section>
+    </ConfigProvider>
   ),
 };

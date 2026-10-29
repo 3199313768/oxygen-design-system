@@ -184,7 +184,7 @@
 
   .oxygen-navigation-menu__chevron {
     height: 14px;
-    transition: transform 150ms ease;
+    transition: transform var(--oxygen-motion-base) ease;
     width: 14px;
   }
 
@@ -193,7 +193,7 @@
   }
 
   .oxygen-navigation-menu__content {
-    animation-duration: 150ms;
+    animation-duration: var(--oxygen-motion-base);
     animation-name: oxygen-navigation-menu-enter;
     background: var(--oxygen-color-surface);
     border: 1px solid var(--oxygen-color-border-subtle);
@@ -572,8 +572,8 @@
     padding: 6px 16px;
     text-align: center;
     text-decoration: none;
-    transition: background-color 150ms ease, border-color 150ms ease,
-      color 150ms ease;
+    transition: background-color var(--oxygen-motion-base) ease, border-color var(--oxygen-motion-base) ease,
+      color var(--oxygen-motion-base) ease;
   }
 
   .oxygen-button:focus-visible,
@@ -1145,8 +1145,8 @@
   }
 
   .oxygen-typography__title[data-level='1'] {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: var(--oxygen-font-size-display);
+    line-height: var(--oxygen-line-height-display);
   }
 
   .oxygen-typography__title[data-level='2'] {
@@ -1155,8 +1155,8 @@
   }
 
   .oxygen-typography__title[data-level='3'] {
-    font-size: 20px;
-    line-height: 28px;
+    font-size: var(--oxygen-font-size-heading);
+    line-height: var(--oxygen-line-height-heading);
   }
 
   .oxygen-typography__title[data-level='4'] {
@@ -1354,6 +1354,20 @@
 
   .oxygen-table__selection .oxygen-checkbox {
     vertical-align: middle;
+  }
+
+  .oxygen-table__selection-summary {
+    color: var(--oxygen-color-text-muted);
+    font-size: var(--oxygen-font-size-caption);
+    line-height: var(--oxygen-line-height-caption);
+    padding-block: var(--oxygen-space-2) 0;
+  }
+
+  .oxygen-table__ellipsis {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .oxygen-pagination {
@@ -1624,7 +1638,7 @@
     border-radius: inherit;
     display: block;
     height: 100%;
-    transition: width 150ms ease;
+    transition: width var(--oxygen-motion-base) ease;
   }
 
   .oxygen-progress[data-status='success'] .oxygen-progress__bar {
@@ -1798,7 +1812,7 @@
     display: inline-flex;
     height: 24px;
     padding: 2px;
-    transition: background-color 150ms ease;
+    transition: background-color var(--oxygen-motion-base) ease;
     width: 44px;
   }
 
@@ -1818,7 +1832,7 @@
     display: block;
     height: 20px;
     transform: translateX(0);
-    transition: transform 150ms ease;
+    transition: transform var(--oxygen-motion-base) ease;
     width: 20px;
   }
 
@@ -2438,16 +2452,16 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .oxygen-overlay[data-state='open'] {
-    animation: oxygen-fade-in 150ms ease-out;
+    animation: oxygen-fade-in var(--oxygen-motion-base) ease-out;
   }
 
   .oxygen-overlay[data-state='closed'] {
-    animation: oxygen-fade-out 120ms ease-in;
+    animation: oxygen-fade-out var(--oxygen-motion-fast) ease-in;
   }
 
   .oxygen-alert-dialog[data-state='open'],
   .oxygen-dialog[data-state='open'] {
-    animation: oxygen-dialog-in 150ms ease-out;
+    animation: oxygen-dialog-in var(--oxygen-motion-base) ease-out;
   }
 
   .oxygen-menu__content[data-state='open'],
@@ -2455,7 +2469,7 @@
   .oxygen-tooltip[data-state='delayed-open'],
   .oxygen-tooltip[data-state='instant-open'],
   .oxygen-toast[data-state='open'] {
-    animation: oxygen-popover-in 150ms ease-out;
+    animation: oxygen-popover-in var(--oxygen-motion-base) ease-out;
   }
 
   .oxygen-skeleton {

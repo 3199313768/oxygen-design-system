@@ -46,7 +46,7 @@ describe('UI refinement semantics', () => {
     const onChange = vi.fn(); const ref = createRef<HTMLTableElement>();
     const record = { key: 'a', name: 'Alpha' };
     render(<Table ref={ref} columns={[{ key: 'name', dataIndex: 'name', title: 'Name' }]} dataSource={[record]} rowSelection={{ onChange }} />);
-    const checkbox = screen.getByRole('checkbox');
+    const checkbox = screen.getByRole('checkbox', { name: '选择第 1 行' });
     expect(checkbox.tagName).toBe('BUTTON');
     fireEvent.click(checkbox);
     expect(checkbox).toBeChecked();
@@ -60,11 +60,11 @@ describe('UI refinement semantics', () => {
     const record = { key: 'a', name: 'Alpha' };
     const columns = [{ key: 'name', dataIndex: 'name' as const, title: 'Name' }];
     const { rerender } = render(<Table columns={columns} dataSource={[record]} rowSelection={{ selectedRowKeys: [], onChange }} />);
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('checkbox', { name: '选择第 1 行' }));
     expect(onChange).toHaveBeenLastCalledWith(['a'], [record]);
-    expect(screen.getByRole('checkbox')).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '选择第 1 行' })).not.toBeChecked();
     rerender(<Table columns={columns} dataSource={[record]} rowSelection={{ selectedRowKeys: ['a'], onChange }} />);
-    expect(screen.getByRole('checkbox')).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '选择第 1 行' })).toBeChecked();
   });
   it('renders semantic result and step SVGs and a radio dot', () => {
     const { container } = render(<><Result status="success" title="Saved" /><Result status="404" title="Missing" /><RadioGroup defaultValue="a"><RadioGroupItem value="a" aria-label="A" /></RadioGroup><Steps items={[{ key: 'a', title: 'Done', status: 'finish' }, { key: 'b', title: 'Error', status: 'error' }]} /></>);
@@ -74,3 +74,26 @@ describe('UI refinement semantics', () => {
     expect(container.querySelectorAll('.oxygen-steps__indicator svg')).toHaveLength(2);
   });
 });
+
+  it('selects all table rows and reports mixed state with a summary', () => {
+    const onChange = vi.fn();
+    const records = [{ id: 'one', label: '第一项' }, { id: 'two', label: '第二项' }];
+    render(<Table columns={[{ key: 'label', dataIndex: 'label', title: '标签' }]} dataSource={records} rowKey="id" rowSelection={{ onChange }} />);
+    const selectAll = screen.getByRole('checkbox', { name: '选择全部' });
+    expect(selectAll).not.toBeChecked();
+    fireEvent.click(screen.getByRole('checkbox', { name: '选择第 1 行' }));
+    expect(selectAll).toHaveAttribute('aria-checked', 'mixed');
+    expect(screen.getByText('已选择 1 项')).toBeInTheDocument();
+    fireEvent.click(selectAll);
+    expect(onChange).toHaveBeenLastCalledWith(['one', 'two'], records);
+    expect(screen.getByText('已选择 2 项')).toBeInTheDocument();
+  });
+
+  it('exposes column alignment and compact density through public contracts', () => {
+    const { rerender } = render(<Table columns={[{ key: 'value', dataIndex: 'value', title: '金额', width: 120, align: 'right', ellipsis: true }]} dataSource={[{ value: '123456789' }]} />);
+    const cell = screen.getByRole('cell', { name: '123456789' });
+    expect(cell).toHaveStyle({ width: '120px', textAlign: 'right' });
+    expect(cell).toHaveAttribute('title', '123456789');
+    rerender(<ConfigProvider density="compact"><Table columns={[{ key: 'value', dataIndex: 'value', title: '值' }]} dataSource={[{ value: '内容' }]} /></ConfigProvider>);
+    expect(document.querySelector('[data-oxygen-density="compact"]')).toBeInTheDocument();
+  });

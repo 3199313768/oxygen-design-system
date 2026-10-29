@@ -56,10 +56,26 @@
   --oxygen-line-height-section: 26px;
   --oxygen-font-size-title: 24px;
   --oxygen-line-height-title: 32px;
+  --oxygen-font-size-display: 28px;
+  --oxygen-line-height-display: 36px;
+  --oxygen-font-size-heading: 20px;
+  --oxygen-line-height-heading: 28px;
+  --oxygen-motion-fast: 120ms;
+  --oxygen-motion-base: 150ms;
+  --oxygen-z-dropdown: 30;
+  --oxygen-z-popup: 50;
+  --oxygen-z-modal: 70;
   --oxygen-shadow-surface: 0 1px 2px oklch(0.2 0.02 255 / 8%);
   --oxygen-shadow-popup: 0 4px 16px oklch(0.18 0.02 255 / 10%), 0 1px 4px oklch(0.18 0.02 255 / 5%);
   --oxygen-shadow-modal: 0 16px 48px oklch(0.18 0.02 255 / 16%), 0 4px 12px oklch(0.18 0.02 255 / 6%);
   --oxygen-field-label-gap: 6px;
   --oxygen-field-help-gap: 4px;
   --oxygen-form-gap: 24px;
+}
+
+[data-oxygen-density='compact'] {
+  --oxygen-control-height: 32px;
+  --oxygen-form-gap: 16px;
+  --oxygen-space-4: 12px;
+  --oxygen-space-6: 16px;
 }
