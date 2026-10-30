@@ -60,9 +60,8 @@ jobs:
 
       - name: Publish versioned packages
         if: steps.changesets.outputs.pending == 'false'
-        uses: changesets/action@v1
+        uses: changesets/action/publish@v2.1.2
         with:
-          publish: pnpm release
+          script: pnpm release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

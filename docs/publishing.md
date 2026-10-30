@@ -90,6 +90,7 @@ npm publish "$oxygen_bootstrap_dir"/oxygen-design-patterns-*.tgz --access public
 3. 维护者创建的版本 PR 正常触发 `check`、`browser`。必要时可在 Actions → Check →
    Run workflow 中选择版本 PR 的分支重试。若 main 又有变更，先更新版本分支，再重新检查。
 4. 合并检查通过的版本 PR，Release 使用 npm 11.5.1 的 OIDC 支持发布对应版本。
+   使用 `changesets/action/publish@v2.1.2` 读取 Changesets 3 的发布事件并创建 GitHub Release。
    Changesets 负责发布计划、依赖顺序及 tarball；发布脚本校验每个归档的 SHA-256，再逐个
    调用 npm CLI。某次发布失败即停止，不继续发布其后依赖包；全部成功后创建 Git tag。
 5. 在 npm 后台核对版本、MIT 许可证和 provenance。需要重试时，在 Actions → Release →
