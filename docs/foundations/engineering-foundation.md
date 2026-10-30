@@ -107,7 +107,7 @@
 - 对外可感知的库变更应提供 changeset：兼容修复用 patch，兼容的新公开功能用 minor，破坏性 API 变更用 major。此为项目约定，不能借 `0.x` 静默破坏已有接口。
 - 导出、类型、默认行为、样式契约和 Token 变动都应评估兼容性；必要时提供迁移说明，并检查 patterns 对 UI 的 peer 范围。
 - `pnpm verify:release` 在临时副本预演全部 workspace 的实际升级计划并核对结果，不改变工作区版本；旧 `verify:initial-release` 兼容转发。
-- 版本 PR 更新版本和 changelog；当前 Release 工作流在 main push 后运行验证，再通过 Changesets 创建版本 PR 或发布。真实发布需要用户明确授权及已配置的发布身份。
+- 版本 PR 由维护者更新版本和 changelog 并按正常 PR 流程合并；Release 在 main push 后运行验证，有待处理 changeset 时提示维护者创建版本 PR，没有待处理 changeset 时通过 Changesets 3 pack 和 OIDC 发布已定版产物。具体流程见[公开发布指南](../publishing.md)。真实发布需要用户明确授权及已配置的发布身份。
 - 软件包以 public 权限发布到 npm；优先采用 Trusted Publishing，其他凭据在仓库之外配置，不写入源码、日志或聊天。
 - 发布前检查类型、测试、构建、真实打包消费和受影响的页面流程。发布后核对 registry 版本、产物与独立安装结果，不以工作流配置存在作为发布成功证据。
 

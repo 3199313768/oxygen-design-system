@@ -3,7 +3,8 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "paths": {
-      "@oxygen-design/ui": ["../../packages/ui/src/index.ts"]
+      "@oxygen-design/ui": ["../../packages/ui/src/index.ts"],
+      "@oxygen-design/patterns": ["../../packages/patterns/src/index.ts"]
     },
     "types": ["node", "vite/client"]
   },

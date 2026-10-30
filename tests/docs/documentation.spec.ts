@@ -163,7 +163,7 @@ test('date input resets and color drafts validate, cancel and confirm', async ({
   await page.getByRole('button', { name: '恢复默认', exact: true }).click();
   await expect(date).toHaveValue('');
   await page.goto('/iframe.html?id=components-colorpicker--playground&viewMode=story');
-  const trigger = page.getByRole('button', { name: '主题色', exact: true });
+  const trigger = page.getByRole('button', { name: /^主题色 #[0-9A-F]{6}$/i });
   await trigger.click();
   const editor = page.getByRole('textbox', { name: '主题色', exact: true });
   await editor.fill('invalid');

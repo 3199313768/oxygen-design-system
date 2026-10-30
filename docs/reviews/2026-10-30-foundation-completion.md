@@ -64,3 +64,11 @@
 人工 Safari + VoiceOver、NVDA、实体 iOS/Android + VoiceOver/TalkBack、系统原生色板/日期/文件选择器、真实扫码和业务宿主接入未执行。WebKit 与移动视口模拟不替代这些验收。按人工清单记录设备/版本、操作、实际播报、截图与结果；缺设备/未执行保持待验收。
 
 本轮新增 CI 配置和能力尚在本地工作区，后续远端运行与正式发版必须以各自实际结果为准。当前 npm 0.1.1 不包含本轮未发布修改。
+
+## 推送前同步补充
+
+用户随后授权提交与推送。工作分支同步远端 main 的 9 个后续提交，保留 0.1.1 版本、仓库元数据、维护者版本 PR、OIDC 发布与干净检出类型修复；本轮规范、预演和预算门禁共同保留。同步后两包当前版本均为 0.1.1，当前 changeset 的预演目标仍为 0.2.0。前文未提交/未推送及 NPM_TOKEN 路径描述属于同步前快照；当前 Release 工作流不引用 NPM_TOKEN，使用已合入 main 的 OIDC 流程。仍未执行正式版本更新、npm 发布或主分支合并。
+
+同步后的干净检出回归发现：临时 Storybook fixture 原来只复制 stories，现有 stories 已依赖新增 docs 目录。补齐 fixture 的 docs 复制，保留“不构建 dist 直接类型检查”的原断言；修复前真实失败，修复后定向用例通过。
+
+同步后最终验证：`pnpm verify` 通过（44 项工具测试、260 项 UI 与 8 项 Patterns 测试、类型/lint/文档/覆盖率/两包及 Storybook 构建）；`pnpm verify:package` 与 `pnpm verify:release` 通过；文档浏览器 73/73 通过。文档中的 ColorPicker 定位断言同步包含可见 HEX 值的新按钮名称；对应失败复现后修正并完整复验。

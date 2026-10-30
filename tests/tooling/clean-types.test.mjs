@@ -8,7 +8,7 @@ import test from 'node:test';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
-test('patterns typecheck works before any package dist has been built', async () => {
+test('patterns and Storybook typechecks work before any package dist has been built', async () => {
   const temporaryRoot = await mkdtemp(join(tmpdir(), 'oxygen-clean-types-'));
   try {
     await cp(join(root, 'tsconfig.base.json'), join(temporaryRoot, 'tsconfig.base.json'));
@@ -30,6 +30,27 @@ test('patterns typecheck works before any package dist has been built', async ()
     { cwd: temporaryRoot, encoding: 'utf8', timeout: 60000 });
     assert.ifError(result.error);
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+
+    const storybook = join(temporaryRoot, 'apps/storybook');
+    await mkdir(storybook, { recursive: true });
+    for (const path of ['.storybook', 'stories', 'docs', 'package.json', 'tsconfig.json']) {
+      await cp(join(root, 'apps/storybook', path), join(storybook, path), { recursive: true });
+    }
+    const dependencies = join(storybook, 'node_modules');
+    await mkdir(dependencies);
+    for (const name of ['@storybook', 'storybook', 'react', 'react-dom']) {
+      await symlink(join(root, 'apps/storybook/node_modules', name), join(dependencies, name), 'dir');
+    }
+    const storybookScope = join(dependencies, '@oxygen-design');
+    await mkdir(storybookScope);
+    for (const name of ['ui', 'patterns']) {
+      await symlink(join(temporaryRoot, 'packages', name), join(storybookScope, name), 'dir');
+    }
+    const storybookResult = spawnSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'),
+      '--project', join(storybook, 'tsconfig.json')],
+    { cwd: temporaryRoot, encoding: 'utf8', timeout: 60000 });
+    assert.ifError(storybookResult.error);
+    assert.equal(storybookResult.status, 0, `${storybookResult.stdout}\n${storybookResult.stderr}`);
   } finally {
     await rm(temporaryRoot, { force: true, recursive: true });
   }
