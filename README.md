@@ -70,6 +70,17 @@ pnpm verify:package
 pnpm verify
 ```
 
+完整页面消费示例串联筛选、表格、分页、编辑和模拟上传，并通过安装后的 tarball 运行：
+
+```bash
+pnpm exec playwright install chromium firefox webkit
+pnpm workbench
+pnpm verify:workbench
+```
+
+交互预览地址为 `http://127.0.0.1:4173`。浏览器回归覆盖 Chromium、Firefox、WebKit 和
+390px 触屏模拟；使用方式、行为边界和报告位置见 [完整页面消费验收](docs/consumer-workbench.md)。
+
 ## 使用方安装
 
 安装前请确认 npm 组织和对应版本已经发布。由于该软件包是公开的，使用方无需

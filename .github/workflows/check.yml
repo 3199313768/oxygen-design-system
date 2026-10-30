@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build package
+        run: pnpm build
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -43,11 +46,34 @@ jobs:
       - name: Test coverage surface
         run: pnpm test:coverage
 
-      - name: Build package
-        run: pnpm build
-
       - name: Build Storybook
         run: pnpm storybook:build-only
 
       - name: Verify packed consumer
         run: pnpm verify:package
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22.22.2
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install browser runtimes
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Verify complete packed consumer
+        run: pnpm verify:workbench
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packed-consumer-browser-results
+          path: output/playwright/consumer/
+          retention-days: 14

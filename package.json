@@ -14,13 +14,16 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "node scripts/quality-gate.mjs lint",
     "test:coverage": "node scripts/quality-gate.mjs coverage",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:coverage && pnpm build && pnpm storybook:build-only",
+    "verify": "pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm test:coverage && pnpm storybook:build-only",
     "verify:package": "node scripts/verify-package.mjs && node scripts/verify-patterns-package.mjs",
+    "verify:workbench": "node scripts/verify-workbench.mjs",
+    "workbench": "node scripts/verify-workbench.mjs --preview",
     "verify:initial-release": "node scripts/verify-initial-release.mjs",
     "release": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.3",
+    "@playwright/test": "1.61.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

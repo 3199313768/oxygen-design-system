@@ -1,0 +1,36 @@
+/* Host styles intentionally exercise the precompiled package CSS in an ordinary app. */
+body {
+  margin: 0;
+  background: var(--oxygen-color-background);
+  color: var(--oxygen-color-text);
+  font-family: system-ui, sans-serif;
+}
+
+.workbench, .workbench-editor { box-sizing: border-box; }
+.workbench { max-inline-size: 1120px; margin-inline: auto; padding: 32px 24px; display: grid; gap: 24px; }
+.workbench-panel { min-inline-size: 0; padding: 24px; background: var(--oxygen-color-surface); border: 1px solid var(--oxygen-color-border-subtle); border-radius: 8px; container-type: inline-size; }
+.workbench-filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+.workbench-filters .oxygen-form-item { margin: 0; min-inline-size: 0; }
+.workbench-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.workbench-results { display: grid; gap: 20px; }
+.workbench-result-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.workbench h2, .workbench-editor h2 { margin: 0; font-size: 18px; line-height: 1.5; }
+.workbench-result-heading > span, .workbench-attachments p { color: var(--oxygen-color-text-muted); font-size: 14px; }
+.workbench-table-region { min-inline-size: 0; max-inline-size: 100%; overflow: auto; }
+.workbench-table-region .oxygen-table { overflow: visible; }
+.workbench-table-region table { min-inline-size: 520px; }
+.workbench-table-region td { overflow-wrap: anywhere; }
+.workbench-table-region:focus-visible { outline: 2px solid var(--oxygen-color-primary); outline-offset: 2px; }
+.workbench-editor { max-block-size: calc(100dvh - 32px); overflow: auto; }
+.workbench-attachments { display: grid; gap: 12px; }
+.workbench-attachments p { margin: 0; }
+.workbench-check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+
+@container (inline-size < 640px) {
+  .workbench-filters { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (width < 600px) {
+  .workbench { padding: 20px 12px; gap: 16px; }
+  .workbench-panel { padding: 16px; }
+}
