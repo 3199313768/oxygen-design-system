@@ -35,3 +35,7 @@ Remote settings stay explicitly pending when authentication or connectivity is u
 - GitHub CLI is installed and the user completed login; the authenticated repository API confirms administrator access and private visibility. npm ownership and trusted-publisher settings remain to be configured.
 
 Official npm guidance was retrieved over an approved network-enabled prerequisite check: npm >=11.5.1 and Node >=22.14.0; filename `release.yml`; public source/package for provenance; new trusted publishers require timely validation. Public registry currently lists UI 0.1.0 as UNLICENSED and returns 404 for patterns. The runbook preserves that existing UI version and bootstraps only a missing patterns package before the 0.1.1 version PR is merged.
+
+## Actions permission adjustment
+
+Automatic approval review rejected enabling `can_approve_pull_request_reviews=true`, because it also allows Actions to approve PR reviews. That setting is preserved. Release now reports pending changesets and skips publishing until a maintainer-created version PR consumes them; only a versioned main publishes with OIDC. The publish job no longer requests pull-request write permission. Creating the version PR uses the already-authenticated maintainer account.

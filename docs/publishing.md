@@ -19,8 +19,8 @@ Oxygen 使用 MIT 许可证，GitHub 仓库和两个 npm 包公开。根 workspa
    ```
 
 5. 核实 `main` 的规则仍启用，并要求最新提交通过 `check` 和 `browser`。
-   Settings → Actions → General 中允许 GitHub Actions 创建拉取请求，以便 Changesets
-   创建版本 PR。工作流自身显式申请写权限，不需要给所有工作流默认写权限。
+   保留 Actions 默认只读和审查权限设置。版本 PR 由维护者账号创建；发布 job 仅申请
+   推送版本 tag 所需的 `contents: write` 和 npm OIDC 所需的 `id-token: write`。
 
 仓库公开会使 Git 历史可见。npm 包也包含构建后的 JavaScript、类型、CSS 和携带源码内容的
 sourcemap。MIT 允许在保留许可证声明的条件下使用、修改和商业分发。
@@ -51,7 +51,7 @@ sourcemap。MIT 允许在保留许可证声明的条件下使用、修改和商�
 通过浏览器登录 npm 并完成一次交互式首发，然后立即为两个包配置上述 Trusted Publisher。
 此操作不需要创建长期发布 Token，也不把个人登录信息提供给 CI。
 
-先合并本次带 MIT 的配置 PR，暂不合并它生成的 Changesets 版本 PR。在这个 main 检出中执行：
+先合并本次带 MIT 的配置 PR，暂不合并后续的 Changesets 版本 PR。在这个 main 检出中执行：
 
 ```bash
 npm login --registry=https://registry.npmjs.org/
@@ -83,10 +83,12 @@ npm publish "$oxygen_bootstrap_dir"/oxygen-design-patterns-*.tgz --access public
 ## 日常发布
 
 1. 改动附带 changeset，并通过 PR 的 `check`、`browser`。
-2. 合入 `main` 后，Release 工作流创建或更新 Changesets 版本 PR。
-3. `GITHUB_TOKEN` 创建的 PR 可能不会自动触发新的 Actions 运行。在 Actions → Check →
-   Run workflow 中选择该版本 PR 的分支（通常为 `changeset-release/main`），为它的当前
-   提交运行两个必需检查。若 main 又有变更，先更新版本分支，再重新运行检查。
+2. 合入 `main` 后，Release 工作流发现未处理的 changeset，会在 summary 提示维护者创建
+   版本 PR，并跳过发布。维护者从最新 main 创建 `codex/release-versions` 分支，运行
+   `pnpm changeset version`，提交生成的版本号、changelog 和 changeset 删除，再用自己的
+   GitHub 账号推送分支及创建 PR。工作流不创建或批准 PR。
+3. 维护者创建的版本 PR 正常触发 `check`、`browser`。必要时可在 Actions → Check →
+   Run workflow 中选择版本 PR 的分支重试。若 main 又有变更，先更新版本分支，再重新检查。
 4. 合并检查通过的版本 PR，Release 使用 npm 11.5.1 的 OIDC 支持发布对应版本。
    Changesets 负责发布计划、依赖顺序及 tarball；发布脚本校验每个归档的 SHA-256，再逐个
    调用 npm CLI。某次发布失败即停止，不继续发布其后依赖包；全部成功后创建 Git tag。

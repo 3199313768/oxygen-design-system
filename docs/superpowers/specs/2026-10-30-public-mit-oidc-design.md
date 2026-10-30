@@ -9,7 +9,7 @@ The user selected MIT licensing, a public GitHub repository, public npm packages
 - Keep independent Changesets versions and existing public APIs.
 - Pack with pnpm to resolve workspace references, then publish those exact tarballs using npm CLI 11.5.1, which supports OIDC. The installed Changesets 3.0.3 chooses pnpm's publishing implementation, so invoking `changeset publish` would not select that npm CLI.
 - Retain provenance, remove long-lived npm-token fallback, and allow manual workflow retries.
-- Allow manual Check workflow dispatch so maintainers can run required checks for release PRs created with the ephemeral GITHUB_TOKEN.
+- Create version PRs with the maintainer account and keep Actions review permissions unchanged. When changesets are pending, Release reports that a version PR is needed and skips publication. Allow manual Check workflow retries.
 - Document repository-publication commands, per-package npm trusted-publisher fields, and first-publication bootstrap using an interactive maintainer login where the registry requires an existing package.
 
 ## Validation and remote completion

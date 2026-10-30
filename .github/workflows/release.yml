@@ -17,10 +17,11 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      pull-requests: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -43,11 +44,25 @@ jobs:
       - name: Verify release candidate
         run: pnpm verify && pnpm verify:package
 
-      - name: Create version pull request or publish
+      - name: Check pending changesets
+        id: changesets
+        run: |
+          pnpm changeset status --output output/changesets.json
+          node --input-type=module <<'JS'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const { changesets } = JSON.parse(readFileSync('output/changesets.json', 'utf8'));
+          appendFileSync(process.env.GITHUB_OUTPUT, `pending=${changesets.length > 0}\n`);
+          if (changesets.length > 0) {
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              'Pending changesets: create a maintainer version PR before publishing. See docs/publishing.md.\n');
+          }
+          JS
+
+      - name: Publish versioned packages
+        if: steps.changesets.outputs.pending == 'false'
         uses: changesets/action@v1
         with:
           publish: pnpm release
-          version: pnpm changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

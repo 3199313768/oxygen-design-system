@@ -140,7 +140,8 @@ minor changeset，破坏性 API 变更使用 major changeset。
 npm 上已发布的 UI `0.1.0` 仍标为 `UNLICENSED`；MIT 使用方应等待并安装新的 MIT 版本，
 不能将源码仓库的许可证变更视为旧归档元数据已被修改。
 
-发布工作流会创建版本更新拉取请求，并在合并后运行 `pnpm release`。两个包都使用
+维护者使用 Changesets 创建版本更新拉取请求，发布工作流在合并后运行 `pnpm release`。
+若 main 仍有待处理的 changeset，工作流只提示创建版本 PR。两个包都使用
 npm Trusted Publishing，通过 GitHub Actions OIDC 获取短期发布凭据，并生成 provenance；
 工作流不使用长期 npm token。pnpm 负责生成 Changesets 发布计划和 tarball，npm CLI
 负责发布校验过的 tarball。首次发布、npm 后台配置和版本 PR 检查见
