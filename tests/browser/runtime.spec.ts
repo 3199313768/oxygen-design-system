@@ -12,8 +12,9 @@ test('production consumer loads its assets without runtime errors and filters wi
   const filter = page.getByRole('combobox', { name: '状态筛选' });
   await filter.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('option', { name: '全部状态' })).toBeVisible();
+  await expect(page.getByRole('option', { name: '全部状态' })).toBeFocused();
   await page.keyboard.press('End');
+  await expect(page.getByRole('option', { name: '已停用', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(filter).toContainText('已停用');
   await expect(filter).toBeFocused();
