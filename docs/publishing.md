@@ -43,7 +43,7 @@ sourcemap。MIT 允许在保留许可证声明的条件下使用、修改和商�
 
 ### 尚未存在的包
 
-2026-10-30 核实公开注册表：`@oxygen-design/ui@0.1.0` 已存在且标为 `UNLICENSED`，
+2026-10-30 迁移开始时核实公开注册表：`@oxygen-design/ui@0.1.0` 已存在且标为 `UNLICENSED`，
 不得覆盖它；MIT 许可信息通过后续新版本发布。`@oxygen-design/patterns` 的匿名查询返回
 404，需管理员确认它是否尚未创建，或是否为受限包。
 

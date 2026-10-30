@@ -96,7 +96,7 @@ npm token：
 ```
 
 ```bash
-pnpm add @oxygen-design/ui@0.1.0 @oxygen-design/patterns@0.1.0 --save-exact
+pnpm add @oxygen-design/ui@0.1.1 @oxygen-design/patterns@0.1.1 --save-exact
 ```
 
 在应用入口处一次性导入组件和预编译样式：
@@ -132,12 +132,12 @@ React 和 React DOM 是 peerDependencies。使用方无需安装 Tailwind CSS，
 
 ## 发布流程
 
-当前 `@oxygen-design/ui` 和 `@oxygen-design/patterns` 的版本均为 `0.1.0`，两个
+当前 `@oxygen-design/ui` 和 `@oxygen-design/patterns` 的版本均为 `0.1.1`，两个
 软件包独立版本管理。后续兼容性修复使用 patch changeset，兼容的公开功能新增使用
 minor changeset，破坏性 API 变更使用 major changeset。
 
-本次 MIT 迁移附带两个包的 patch changeset，版本 PR 将更新到 `0.1.1`。
-npm 上已发布的 UI `0.1.0` 仍标为 `UNLICENSED`；MIT 使用方应等待并安装新的 MIT 版本，
+两个包的 MIT 版本从 `0.1.1` 开始。
+npm 上已发布的 UI `0.1.0` 仍标为 `UNLICENSED`；MIT 使用方应安装新的 MIT 版本，
 不能将源码仓库的许可证变更视为旧归档元数据已被修改。
 
 维护者使用 Changesets 创建版本更新拉取请求，发布工作流在合并后运行 `pnpm release`。
