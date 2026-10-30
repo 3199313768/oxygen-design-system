@@ -1,4 +1,11 @@
 @layer components {
+  .oxygen-page-header,
+  .oxygen-empty-state,
+  .oxygen-status-message,
+  .oxygen-app-shell {
+    font-family: var(--oxygen-font-family-body, inherit);
+  }
+
   .oxygen-page-header {
     align-items: flex-start;
     display: flex;

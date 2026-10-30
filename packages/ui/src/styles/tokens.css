@@ -1,4 +1,7 @@
-:root {
+:root,
+[data-oxygen-theme='light'],
+[data-oxygen-theme='system'] {
+  color-scheme: light;
   --oxygen-color-background: oklch(0.97 0.004 250);
   --oxygen-color-surface: oklch(1 0 0);
   --oxygen-color-surface-subtle: oklch(0.985 0.003 250);
@@ -29,6 +32,131 @@
   --oxygen-color-error-border: oklch(0.86 0.075 25);
   --oxygen-color-error-text: oklch(0.48 0.18 25);
   --oxygen-color-focus: oklch(0.62 0.16 250);
+  --oxygen-shadow-surface: 0 1px 2px oklch(0.2 0.02 255 / 8%);
+  --oxygen-shadow-popup: 0 4px 16px oklch(0.18 0.02 255 / 10%), 0 1px 4px oklch(0.18 0.02 255 / 5%);
+  --oxygen-shadow-modal: 0 16px 48px oklch(0.18 0.02 255 / 16%), 0 4px 12px oklch(0.18 0.02 255 / 6%);
+  --oxygen-color-surface-popup: var(--oxygen-color-surface);
+  --oxygen-color-error-foreground: oklch(1 0 0);
+  --oxygen-color-error-hover: color-mix(in oklch, var(--oxygen-color-error) 88%, black);
+  --oxygen-color-primary-fill: color-mix(in oklch, var(--oxygen-color-primary) 12%, white);
+  --oxygen-color-success-fill: color-mix(in oklch, var(--oxygen-color-success) 12%, white);
+  --oxygen-color-warning-fill: color-mix(in oklch, var(--oxygen-color-warning) 12%, white);
+  --oxygen-color-error-fill: color-mix(in oklch, var(--oxygen-color-error) 10%, white);
+  --oxygen-color-overlay: oklch(0.12 0.01 255 / 48%);
+  --oxygen-color-tooltip-background: oklch(0.24 0.018 255);
+  --oxygen-color-tooltip-foreground: oklch(1 0 0);
+  --oxygen-color-control-thumb: oklch(1 0 0);
+}
+
+/* Re-resolve inherited text at each scoped boundary, including display: contents providers. */
+@layer theme {
+  [data-oxygen-theme] {
+    color: var(--oxygen-color-text);
+  }
+}
+
+[data-oxygen-theme='dark'] {
+  color-scheme: dark;
+  --oxygen-color-background: oklch(0.18 0.012 255);
+  --oxygen-color-surface: oklch(0.235 0.014 255);
+  --oxygen-color-surface-popup: oklch(0.28 0.016 255);
+  --oxygen-color-surface-subtle: oklch(0.255 0.014 255);
+  --oxygen-color-text: oklch(0.93 0.008 255);
+  --oxygen-color-text-muted: oklch(0.74 0.014 255);
+  --oxygen-color-border: oklch(0.5 0.018 255);
+  --oxygen-color-border-subtle: oklch(0.355 0.016 255);
+  --oxygen-color-border-strong: oklch(0.62 0.018 255);
+  --oxygen-color-text-placeholder: oklch(0.69 0.014 255);
+  --oxygen-color-text-disabled: oklch(0.5 0.014 255);
+  --oxygen-color-fill-disabled: oklch(0.265 0.012 255);
+  --oxygen-color-fill-hover: oklch(0.33 0.018 255);
+  --oxygen-color-primary: oklch(0.73 0.13 250);
+  --oxygen-color-primary-hover: oklch(0.8 0.1 250);
+  --oxygen-color-primary-foreground: oklch(0.18 0.025 250);
+  --oxygen-color-primary-subtle: oklch(0.285 0.045 250);
+  --oxygen-color-primary-border: oklch(0.5 0.09 250);
+  --oxygen-color-primary-fill: var(--oxygen-color-primary-subtle);
+  --oxygen-color-success: oklch(0.75 0.14 150);
+  --oxygen-color-success-subtle: oklch(0.28 0.04 150);
+  --oxygen-color-success-border: oklch(0.48 0.085 150);
+  --oxygen-color-success-text: oklch(0.81 0.12 150);
+  --oxygen-color-success-fill: var(--oxygen-color-success-subtle);
+  --oxygen-color-warning: oklch(0.81 0.14 80);
+  --oxygen-color-warning-subtle: oklch(0.3 0.04 80);
+  --oxygen-color-warning-border: oklch(0.52 0.085 80);
+  --oxygen-color-warning-text: oklch(0.85 0.12 80);
+  --oxygen-color-warning-fill: var(--oxygen-color-warning-subtle);
+  --oxygen-color-error: oklch(0.73 0.16 25);
+  --oxygen-color-error-subtle: oklch(0.29 0.045 25);
+  --oxygen-color-error-border: oklch(0.5 0.1 25);
+  --oxygen-color-error-text: oklch(0.81 0.12 25);
+  --oxygen-color-error-foreground: oklch(0.18 0.025 25);
+  --oxygen-color-error-hover: oklch(0.8 0.12 25);
+  --oxygen-color-error-fill: var(--oxygen-color-error-subtle);
+  --oxygen-color-focus: oklch(0.78 0.13 250);
+  --oxygen-color-overlay: oklch(0.08 0.01 255 / 68%);
+  --oxygen-color-tooltip-background: oklch(0.24 0.018 255);
+  --oxygen-color-tooltip-foreground: oklch(0.95 0.005 255);
+  --oxygen-color-control-thumb: oklch(0.95 0.005 255);
+  --oxygen-shadow-surface: 0 1px 2px oklch(0.08 0.01 255 / 24%);
+  --oxygen-shadow-popup: 0 4px 16px oklch(0.08 0.01 255 / 32%), 0 1px 4px oklch(0.08 0.01 255 / 24%);
+  --oxygen-shadow-modal: 0 16px 48px oklch(0.08 0.01 255 / 44%), 0 4px 12px oklch(0.08 0.01 255 / 28%);
+}
+
+[data-oxygen-theme='system'] {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-oxygen-theme='system'] {
+    --oxygen-color-background: oklch(0.18 0.012 255);
+    --oxygen-color-surface: oklch(0.235 0.014 255);
+    --oxygen-color-surface-popup: oklch(0.28 0.016 255);
+    --oxygen-color-surface-subtle: oklch(0.255 0.014 255);
+    --oxygen-color-text: oklch(0.93 0.008 255);
+    --oxygen-color-text-muted: oklch(0.74 0.014 255);
+    --oxygen-color-border: oklch(0.5 0.018 255);
+    --oxygen-color-border-subtle: oklch(0.355 0.016 255);
+    --oxygen-color-border-strong: oklch(0.62 0.018 255);
+    --oxygen-color-text-placeholder: oklch(0.69 0.014 255);
+    --oxygen-color-text-disabled: oklch(0.5 0.014 255);
+    --oxygen-color-fill-disabled: oklch(0.265 0.012 255);
+    --oxygen-color-fill-hover: oklch(0.33 0.018 255);
+    --oxygen-color-primary: oklch(0.73 0.13 250);
+    --oxygen-color-primary-hover: oklch(0.8 0.1 250);
+    --oxygen-color-primary-foreground: oklch(0.18 0.025 250);
+    --oxygen-color-primary-subtle: oklch(0.285 0.045 250);
+    --oxygen-color-primary-border: oklch(0.5 0.09 250);
+    --oxygen-color-primary-fill: var(--oxygen-color-primary-subtle);
+    --oxygen-color-success: oklch(0.75 0.14 150);
+    --oxygen-color-success-subtle: oklch(0.28 0.04 150);
+    --oxygen-color-success-border: oklch(0.48 0.085 150);
+    --oxygen-color-success-text: oklch(0.81 0.12 150);
+    --oxygen-color-success-fill: var(--oxygen-color-success-subtle);
+    --oxygen-color-warning: oklch(0.81 0.14 80);
+    --oxygen-color-warning-subtle: oklch(0.3 0.04 80);
+    --oxygen-color-warning-border: oklch(0.52 0.085 80);
+    --oxygen-color-warning-text: oklch(0.85 0.12 80);
+    --oxygen-color-warning-fill: var(--oxygen-color-warning-subtle);
+    --oxygen-color-error: oklch(0.73 0.16 25);
+    --oxygen-color-error-subtle: oklch(0.29 0.045 25);
+    --oxygen-color-error-border: oklch(0.5 0.1 25);
+    --oxygen-color-error-text: oklch(0.81 0.12 25);
+    --oxygen-color-error-foreground: oklch(0.18 0.025 25);
+    --oxygen-color-error-hover: oklch(0.8 0.12 25);
+    --oxygen-color-error-fill: var(--oxygen-color-error-subtle);
+    --oxygen-color-focus: oklch(0.78 0.13 250);
+    --oxygen-color-overlay: oklch(0.08 0.01 255 / 68%);
+    --oxygen-color-tooltip-background: oklch(0.24 0.018 255);
+    --oxygen-color-tooltip-foreground: oklch(0.95 0.005 255);
+    --oxygen-color-control-thumb: oklch(0.95 0.005 255);
+    --oxygen-shadow-surface: 0 1px 2px oklch(0.08 0.01 255 / 24%);
+    --oxygen-shadow-popup: 0 4px 16px oklch(0.08 0.01 255 / 32%), 0 1px 4px oklch(0.08 0.01 255 / 24%);
+    --oxygen-shadow-modal: 0 16px 48px oklch(0.08 0.01 255 / 44%), 0 4px 12px oklch(0.08 0.01 255 / 28%);
+  }
+}
+
+:root {
   --oxygen-space-1: 4px;
   --oxygen-space-2: 8px;
   --oxygen-space-3: 12px;
@@ -41,6 +169,9 @@
   --oxygen-control-height: 36px;
   --oxygen-control-height-touch: 44px;
   --oxygen-icon-size: 16px;
+  /* Body defaults to host inheritance through the consuming property's fallback. */
+  --oxygen-font-family-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --oxygen-font-family-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   --oxygen-font-weight-regular: 400;
   --oxygen-font-weight-medium: 500;
   --oxygen-font-weight-semibold: 600;
@@ -62,12 +193,18 @@
   --oxygen-line-height-heading: 28px;
   --oxygen-motion-fast: 120ms;
   --oxygen-motion-base: 150ms;
+  /* Interaction/exit use consumer fallbacks so scoped legacy overrides still resolve locally. */
+  --oxygen-motion-duration-panel: 180ms;
+  --oxygen-motion-duration-spin: 750ms;
+  --oxygen-motion-duration-pulse: 1200ms;
+  --oxygen-motion-easing-standard: ease;
+  --oxygen-motion-easing-enter: ease-out;
+  --oxygen-motion-easing-exit: ease-in;
+  --oxygen-motion-easing-linear: linear;
+  --oxygen-motion-easing-pulse: ease-in-out;
   --oxygen-z-dropdown: 30;
   --oxygen-z-popup: 50;
   --oxygen-z-modal: 70;
-  --oxygen-shadow-surface: 0 1px 2px oklch(0.2 0.02 255 / 8%);
-  --oxygen-shadow-popup: 0 4px 16px oklch(0.18 0.02 255 / 10%), 0 1px 4px oklch(0.18 0.02 255 / 5%);
-  --oxygen-shadow-modal: 0 16px 48px oklch(0.18 0.02 255 / 16%), 0 4px 12px oklch(0.18 0.02 255 / 6%);
   --oxygen-field-label-gap: 6px;
   --oxygen-field-help-gap: 4px;
   --oxygen-form-gap: 24px;

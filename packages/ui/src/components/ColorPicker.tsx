@@ -22,6 +22,7 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLDivElement>, '
 
 const COLOR_PATTERN = /^#[\da-f]{6}$/i;
 const normalizeColor = (value: string | undefined) => COLOR_PATTERN.test(value ?? '') ? value!.toUpperCase() : '#000000';
+const mergeIds = (...values: (string | undefined)[]) => [...new Set(values.flatMap((value) => value?.split(/\s+/).filter(Boolean) ?? []))].join(' ') || undefined;
 
 export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(function ColorPicker(allProps, ref) {
   const {
@@ -47,6 +48,21 @@ export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(funct
   const field = useFieldContext();
   const ariaLabel = ariaLabelProp ?? locale.colorPicker.label;
   const errorId = useId();
+  const triggerId = id ?? field?.controlId ?? `${errorId}-trigger`;
+  const valueId = `${errorId}-value`;
+  const requiredId = `${errorId}-required`;
+  const invalidId = `${errorId}-invalid`;
+  const required = ariaRequired ?? field?.required;
+  const externalInvalid = ariaInvalid ?? (field?.invalid ? true : undefined);
+  const isRequired = required === true || required === 'true';
+  const isExternallyInvalid = externalInvalid !== undefined && externalInvalid !== false && externalInvalid !== 'false';
+  const needsInvalidDescription = isExternallyInvalid && !field?.hasError;
+  const describedBy = mergeIds(
+    ariaDescribedBy,
+    field?.hasDescription ? field.descriptionId : undefined,
+    field?.hasError ? field.errorId : undefined,
+  );
+  const editorLabelledBy = ariaLabelledBy ?? (field && ariaLabelProp === undefined ? triggerId : undefined);
   const controlled = 'value' in allProps;
   const openControlled = 'open' in allProps;
   const [uncontrolledValue, setUncontrolledValue] = useState(normalizeColor(defaultValue));
@@ -78,31 +94,34 @@ export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(funct
         <PopoverTrigger asChild>
           <button
             aria-label={ariaLabelProp ?? (field ? undefined : ariaLabel)}
-            aria-labelledby={ariaLabelledBy}
-            aria-describedby={ariaDescribedBy}
-            aria-invalid={ariaInvalid}
-            aria-required={ariaRequired}
+            // A self-reference retains aria-label/native FieldLabel naming before the visible value.
+            aria-labelledby={mergeIds(ariaLabelledBy?.trim() || triggerId, valueId)}
+            aria-describedby={mergeIds(describedBy, isRequired ? requiredId : undefined, needsInvalidDescription ? invalidId : undefined)}
             className="oxygen-color-picker__trigger"
+            data-invalid={isExternallyInvalid ? 'true' : undefined}
             data-oxygen-control="true"
             disabled={disabled || loading}
-            id={id}
+            id={triggerId}
             ref={ref}
             type="button"
           >
             <span aria-hidden="true" className="oxygen-color-picker__swatch" style={{ backgroundColor: committed }} />
-            <span>{committed}</span>
+            <span id={valueId}>{committed}</span>
           </button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="oxygen-color-picker__popover">
+        <PopoverContent align="start" aria-label={ariaLabel} aria-labelledby={editorLabelledBy} className="oxygen-color-picker__popover">
           <div className="oxygen-color-picker__fields">
             <Input
-              aria-invalid={invalid || undefined}
-              aria-describedby={invalid ? errorId : undefined}
+              aria-invalid={invalid ? true : externalInvalid}
+              aria-required={required}
+              aria-describedby={mergeIds(describedBy, needsInvalidDescription ? invalidId : undefined, invalid ? errorId : undefined)}
               aria-label={ariaLabel}
+              aria-labelledby={editorLabelledBy}
               onChange={(event) => update(event.currentTarget.value)}
               value={draft}
             />
             <input
+              aria-describedby={describedBy}
               aria-label={`${ariaLabel} ${locale.colorPicker.nativePicker}`}
               className="oxygen-color-picker__native"
               onChange={(event) => update(event.currentTarget.value)}
@@ -126,6 +145,8 @@ export const ColorPicker = forwardRef<HTMLButtonElement, ColorPickerProps>(funct
           </div>
         </PopoverContent>
       </Popover>
+      {isRequired ? <span className="oxygen-visually-hidden" id={requiredId}>{locale.colorPicker.required}</span> : null}
+      {needsInvalidDescription ? <span className="oxygen-visually-hidden" id={invalidId}>{locale.colorPicker.invalidDescription}</span> : null}
     </div>
   );
 });

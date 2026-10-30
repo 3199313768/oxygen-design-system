@@ -6,8 +6,12 @@ import {
 } from 'react';
 import type { PropsBase } from 'react-day-picker';
 
+import { OxygenThemeContext, type OxygenTheme } from './theme-context';
+
+export type { OxygenTheme } from './theme-context';
+
 export interface OxygenLocale {
-  colorPicker?: { label: string; invalid: string; nativePicker: string; cancel: string; confirm: string };
+  colorPicker?: { label: string; invalid: string; nativePicker: string; cancel: string; confirm: string; required?: string; invalidDescription?: string };
   upload?: { dragHint?: string; pending: string; uploading: string; done: string; error: string };
   transfer?: { label?: string; noMatch?: string; selectAll?: string; source?: string; target?: string; toTarget: string; toSource: string };
   steps: {
@@ -74,7 +78,7 @@ type ResolvedOxygenLocale = Omit<OxygenLocale, 'colorPicker' | 'upload' | 'trans
 };
 
 export const defaultLocale: ResolvedOxygenLocale = {
-  colorPicker: { label: '颜色', invalid: '请输入有效的六位十六进制颜色，例如 #1677FF', nativePicker: '颜色选择器', cancel: '取消', confirm: '确定' },
+  colorPicker: { label: '颜色', invalid: '请输入有效的六位十六进制颜色，例如 #1677FF', nativePicker: '颜色选择器', cancel: '取消', confirm: '确定', required: '必填', invalidDescription: '所选颜色无效' },
   upload: { dragHint: '点击或拖拽文件到此处上传', pending: '待上传', uploading: '上传中', done: '已完成', error: '上传失败' },
   transfer: { label: '穿梭框', noMatch: '无匹配项', selectAll: '全选', source: '源列表', target: '目标列表', toTarget: '移至目标列表', toSource: '移至源列表' },
   steps: { wait: '等待中', process: '进行中', finish: '已完成', error: '错误' },
@@ -133,11 +137,14 @@ export interface ConfigProviderProps {
   children: ReactNode;
   density?: 'default' | 'compact';
   locale?: OxygenLocaleConfig;
+  theme?: OxygenTheme;
 }
 
 const LocaleContext = createContext<ResolvedOxygenLocale>(defaultLocale);
 
-export function ConfigProvider({ children, density = 'default', locale }: ConfigProviderProps) {
+export function ConfigProvider({ children, density = 'default', locale, theme }: ConfigProviderProps) {
+  const inheritedTheme = useContext(OxygenThemeContext);
+  const resolvedTheme = theme ?? inheritedTheme;
   const resolvedLocale = useMemo<ResolvedOxygenLocale>(
     () => ({
       ...defaultLocale,
@@ -158,7 +165,9 @@ export function ConfigProvider({ children, density = 'default', locale }: Config
 
   return (
     <LocaleContext.Provider value={resolvedLocale}>
-      <div data-oxygen-density={density} style={{ display: 'contents' }}>{children}</div>
+      <OxygenThemeContext.Provider value={resolvedTheme}>
+        <div data-oxygen-density={density} data-oxygen-theme={theme} style={{ display: 'contents' }}>{children}</div>
+      </OxygenThemeContext.Provider>
     </LocaleContext.Provider>
   );
 }

@@ -3,6 +3,7 @@ import { type VariantProps } from 'class-variance-authority';
 import { forwardRef, type HTMLAttributes } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 import { buttonVariants } from './Button';
 
 export const AlertDialog = AlertDialogPrimitive.Root;
@@ -12,28 +13,36 @@ export const AlertDialogPortal = AlertDialogPrimitive.Portal;
 export const AlertDialogOverlay = forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Overlay
-    className={cn('oxygen-overlay', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <AlertDialogPrimitive.Overlay
+      {...themeAttributes}
+      className={cn('oxygen-overlay', className)}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 
 export const AlertDialogContent = forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <AlertDialogPortal>
-    <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
-      className={cn('oxygen-alert-dialog', className)}
-      ref={ref}
-      {...props}
-    />
-  </AlertDialogPortal>
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <AlertDialogPortal>
+      <AlertDialogOverlay />
+      <AlertDialogPrimitive.Content
+        {...themeAttributes}
+        className={cn('oxygen-alert-dialog', className)}
+        ref={ref}
+        {...props}
+      />
+    </AlertDialogPortal>
+  );
+});
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
 export const AlertDialogHeader = ({

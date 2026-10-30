@@ -33,7 +33,7 @@ test('patterns and Storybook typechecks work before any package dist has been bu
 
     const storybook = join(temporaryRoot, 'apps/storybook');
     await mkdir(storybook, { recursive: true });
-    for (const path of ['.storybook', 'stories', 'package.json', 'tsconfig.json']) {
+    for (const path of ['.storybook', 'stories', 'docs', 'package.json', 'tsconfig.json']) {
       await cp(join(root, 'apps/storybook', path), join(storybook, path), { recursive: true });
     }
     const dependencies = join(storybook, 'node_modules');

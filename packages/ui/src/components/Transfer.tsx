@@ -262,7 +262,7 @@ function TransferInner<T>({
   }
 
   return (
-    <div {...props} aria-label={ariaLabelText} className={cn('oxygen-transfer', className)} data-disabled={disabled || loading ? 'true' : undefined} ref={ref}>
+    <div {...props} aria-label={ariaLabelText} className={cn('oxygen-transfer', className)} data-disabled={disabled || loading ? 'true' : undefined} ref={ref} role={props.role ?? 'group'}>
       {list('right', sourceLabel, sourceOptions, visibleSource, sourceSelectedKeys, sourceSearch)}
       <div className="oxygen-transfer__actions">
         <Button aria-label={locale.transfer.toTarget} disabled={disabled || loading || sourceSelectedKeys.length === 0} onClick={() => move('right')} size="sm"><ArrowRight aria-hidden="true" className="oxygen-transfer__arrow" size={16} /></Button>

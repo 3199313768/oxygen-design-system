@@ -5,12 +5,13 @@ import a11y from 'eslint-plugin-jsx-a11y';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
-const typescriptFiles = ['packages/*/{src,tests}/**/*.{ts,tsx}', 'tests/{browser,workbench}/**/*.{ts,tsx}', 'playwright.config.ts'];
+const typescriptFiles = ['packages/*/{src,tests}/**/*.{ts,tsx}', 'tests/{browser,workbench}/**/*.{ts,tsx}', 'playwright.config.ts', 'playwright.docs.config.ts', 'playwright.foundation.config.ts', 'tests/{docs,foundation}/**/*.ts',
+  'apps/storybook/docs/**/*.{ts,tsx}', 'apps/storybook/stories/components/**/*.tsx'];
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', 'output/**', 'apps/storybook/**'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', 'output/**', '**/storybook-static/**', 'apps/storybook/.storybook/**', 'apps/storybook/stories/*.stories.tsx'] },
   {
-    files: ['*.mjs', 'scripts/**/*.mjs', 'tests/tooling/**/*.mjs'],
+    files: ['*.mjs', 'scripts/**/*.mjs', 'tests/tooling/**/*.mjs', 'apps/storybook/docs/*.mjs'],
     extends: [js.configs.recommended],
     languageOptions: {
       globals: { process: 'readonly', console: 'readonly', Buffer: 'readonly', URL: 'readonly',
@@ -35,7 +36,7 @@ export default tseslint.config(
       }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
-      'jsx-a11y/label-has-associated-control': ['error', { controlComponents: ['Checkbox'] }],
+      'jsx-a11y/label-has-associated-control': ['error', { controlComponents: ['Checkbox', 'RadioGroupItem', 'Switch'] }],
       // Named scroll regions need keyboard access even though they are not controls.
       'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'] }],
     },
@@ -48,14 +49,6 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
-    },
-  },
-  {
-    files: ['packages/ui/src/components/ColorPicker.tsx'],
-    rules: {
-      // Preserve the existing Field button ARIA contract during this tooling change.
-      // Its value-control semantics need a separate accessibility/API migration.
-      'jsx-a11y/role-supports-aria-props': 'off',
     },
   },
 );

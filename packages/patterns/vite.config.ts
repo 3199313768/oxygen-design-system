@@ -29,6 +29,12 @@ export default defineConfig({
         'react/jsx-runtime',
         '@oxygen-design/ui',
       ],
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: resolve(packageRoot, 'src'),
+        entryFileNames: '[name].js',
+        banner: "'use client';",
+      },
     },
     sourcemap: true,
   },

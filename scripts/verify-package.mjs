@@ -12,10 +12,12 @@ import { basename, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { isMeasurementOnly, verifyPackageArtifacts, verifyPackedLicense } from './package-budgets.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 const packageRoot = resolve(repositoryRoot, 'packages/ui');
 const fixtureRoot = resolve(repositoryRoot, 'tests/consumer');
+isMeasurementOnly();
 const requiredPublicExports = [
   'Accordion',
   'Alert',
@@ -161,6 +163,7 @@ function validateArchiveEntries(entries) {
     'package/dist/styles.css',
     'package/dist/tokens.css',
     'package/package.json',
+    'package/LICENSE',
   ];
 
   for (const expected of required) {
@@ -205,7 +208,6 @@ async function validatePublicSurface(extractRoot) {
   );
   const entry = await readFile(join(packageDist, 'index.js'), 'utf8');
   const declarations = await readFile(join(packageDist, 'index.d.ts'), 'utf8');
-  const sourceMap = JSON.parse(await readFile(join(packageDist, 'index.js.map'), 'utf8'));
   const styles = await readFile(join(packageDist, 'styles.css'), 'utf8');
   const tokens = await readFile(join(packageDist, 'tokens.css'), 'utf8');
 
@@ -231,15 +233,25 @@ async function validatePublicSurface(extractRoot) {
     }
   }
 
-  const importSpecifiers = collectImportSpecifiers(entry);
+  const outputFiles = await readdir(packageDist, { recursive: true });
+  const javascript = await Promise.all(outputFiles.filter((file) => file.endsWith('.js'))
+    .map((file) => readFile(join(packageDist, file), 'utf8')));
+  for (const source of javascript) {
+    if (!/^\s*(['"])use client\1;/.test(source)) {
+      throw new Error('Packed UI module lost its use client boundary');
+    }
+  }
+  const sourceMaps = await Promise.all(outputFiles.filter((file) => file.endsWith('.js.map'))
+    .map(async (file) => JSON.parse(await readFile(join(packageDist, file), 'utf8'))));
+  const importSpecifiers = new Set(javascript.flatMap((source) => [...collectImportSpecifiers(source)]));
   for (const dependency of ['qrcode.react', 'react-day-picker']) {
     if (![...importSpecifiers].some(
       (specifier) => specifier === dependency || specifier.startsWith(`${dependency}/`),
     )) {
       throw new Error(`Packed UI entry bundled or omitted external dependency ${dependency}`);
     }
-    if (sourceMap.sources.some((source) =>
-      source.includes(`/node_modules/${dependency}/`))) {
+    if (sourceMaps.some((sourceMap) => sourceMap.sources.some((source) =>
+      source.includes(`/node_modules/${dependency}/`)))) {
       throw new Error(`Packed UI source map contains bundled dependency ${dependency}`);
     }
   }
@@ -276,6 +288,7 @@ try {
 
   run('tar', ['-xzf', tarball, '-C', extractRoot], repositoryRoot);
   await validateExtractedContents(extractRoot);
+  await verifyPackedLicense(join(extractRoot, 'package'));
   await validatePublicSurface(extractRoot);
 
   await cp(fixtureRoot, consumerRoot, {
@@ -291,6 +304,13 @@ try {
   run('pnpm', ['install', '--prefer-offline', '--no-frozen-lockfile'], consumerRoot);
   run('pnpm', ['typecheck'], consumerRoot);
   run('pnpm', ['build'], consumerRoot);
+
+  await verifyPackageArtifacts({
+    name: 'ui',
+    packageRoot: join(extractRoot, 'package'),
+    consumerRoot,
+    exportName: 'Button',
+  });
 
   console.log('Verified @oxygen-design/ui from a packed tarball.');
 } finally {

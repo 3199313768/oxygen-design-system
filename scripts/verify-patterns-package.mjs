@@ -11,11 +11,13 @@ import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { isMeasurementOnly, verifyPackageArtifacts, verifyPackedLicense } from './package-budgets.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 const uiPackageRoot = resolve(repositoryRoot, 'packages/ui');
 const patternsPackageRoot = resolve(repositoryRoot, 'packages/patterns');
 const fixtureRoot = resolve(repositoryRoot, 'tests/consumer');
+isMeasurementOnly();
 
 function run(command, args, cwd, capture = false) {
   const result = spawnSync(command, args, {
@@ -42,6 +44,7 @@ function validateArchiveEntries(entries) {
     'package/dist/index.js',
     'package/dist/styles.css',
     'package/package.json',
+    'package/LICENSE',
   ];
 
   for (const expected of required) {
@@ -118,6 +121,7 @@ try {
 
   run('tar', ['-xzf', patternsTarballPath, '-C', extractRoot], repositoryRoot);
   await validateExtractedContents(extractRoot);
+  await verifyPackedLicense(join(extractRoot, 'package'));
 
   await cp(fixtureRoot, consumerRoot, {
     filter: shouldCopyFixture,
@@ -150,6 +154,17 @@ try {
   run('pnpm', ['install', '--prefer-offline', '--no-frozen-lockfile'], consumerRoot);
   run('pnpm', ['typecheck'], consumerRoot);
   run('pnpm', ['build'], consumerRoot);
+
+  // Keep the multi-component smoke above, then verify the smallest Pattern consumer.
+  await cp(join(fixtureRoot, 'fixtures/pattern-only.tsx'), sourcePath);
+  run('pnpm', ['typecheck'], consumerRoot);
+  run('pnpm', ['build'], consumerRoot);
+  await verifyPackageArtifacts({
+    name: 'patterns',
+    packageRoot: join(extractRoot, 'package'),
+    consumerRoot,
+    exportName: 'EmptyState',
+  });
 
   console.log('Verified @oxygen-design/patterns with its UI peer from packed tarballs.');
 } finally {

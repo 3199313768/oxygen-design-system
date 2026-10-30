@@ -105,3 +105,53 @@ body {
 }
 
 .story-reference > p { margin: 0; }
+
+/* Documentation owns its layout; examples continue using the component tokens. */
+.sbdocs-wrapper { background: var(--oxygen-color-background) !important; color: var(--oxygen-color-text) !important; }
+/* Storybook sets light-theme colors directly on prose instead of inheriting them. */
+.sbdocs-wrapper .sbdocs-content :is(h1,h2,h3,h4,p,li,td,th):not(.docs-story *, .oxygen-docs-controls *) { color: var(--oxygen-color-text); }
+.sbdocs-wrapper .sbdocs-content :not(pre) > code:not(.docs-story *, .oxygen-docs-controls *) { background: var(--oxygen-color-surface-subtle); color: var(--oxygen-color-text); }
+.sbdocs-wrapper .sbdocs-content .oxygen-docs-eyebrow { color: var(--oxygen-color-text-muted); }
+.oxygen-component-docs { color: var(--oxygen-color-text); min-width: 0; overflow-wrap: anywhere; }
+.oxygen-component-docs header { border-bottom: 1px solid var(--oxygen-color-border-subtle); padding-block-end: var(--oxygen-space-6); }
+.oxygen-docs-eyebrow { color: var(--oxygen-color-text-muted); font-size: var(--oxygen-font-size-caption); }
+.oxygen-component-docs h1 { font-size: var(--oxygen-font-size-title); line-height: var(--oxygen-line-height-title); }
+.oxygen-component-docs h2 { border-bottom: 1px solid var(--oxygen-color-border-subtle); padding-block-end: var(--oxygen-space-2); margin-block-start: var(--oxygen-space-8); }
+.oxygen-component-docs h3 { font-size: var(--oxygen-font-size-section); }
+.oxygen-component-docs p, .oxygen-component-docs li { line-height: var(--oxygen-line-height-body); }
+.oxygen-component-docs nav ol { display: flex; flex-wrap: wrap; gap: var(--oxygen-space-2) var(--oxygen-space-6); padding-inline-start: var(--oxygen-space-6); }
+.oxygen-component-docs a { color: var(--oxygen-color-primary-hover); }
+.oxygen-component-docs section { min-width: 0; scroll-margin-top: var(--oxygen-space-4); }
+.oxygen-docs-table { max-width: 100%; overflow: auto; border: 1px solid var(--oxygen-color-border); border-radius: var(--oxygen-radius-control); margin-block: var(--oxygen-space-3); }
+.oxygen-docs-table table { border-collapse: collapse; min-width: 760px; width: 100%; font-size: var(--oxygen-font-size-caption); }
+.oxygen-docs-table caption { text-align: start; padding: var(--oxygen-space-3); color: var(--oxygen-color-text-muted); }
+.oxygen-docs-table :is(th,td) { border-top: 1px solid var(--oxygen-color-border-subtle); padding: var(--oxygen-space-3); text-align: start; vertical-align: top; }
+.oxygen-docs-table thead { background: var(--oxygen-color-surface-subtle); }
+.oxygen-docs-table th[scope='row'] { font-weight: var(--oxygen-font-weight-medium); }
+.oxygen-docs-table td:nth-child(2) { width: 32%; max-width: 360px; }
+.oxygen-docs-table code { white-space: normal; overflow-wrap: anywhere; }
+.oxygen-component-docs details { border: 1px solid var(--oxygen-color-border-subtle); border-radius: var(--oxygen-radius-control); margin-block: var(--oxygen-space-3); padding: var(--oxygen-space-3); }
+.oxygen-component-docs summary { cursor: pointer; min-height: 32px; }
+.oxygen-docs-playground { display: grid; gap: var(--oxygen-space-3); min-width: 0; color: var(--oxygen-color-text); }
+.oxygen-docs-preview { background: var(--oxygen-color-surface); border: 1px solid var(--oxygen-color-border-subtle); border-radius: var(--oxygen-radius-surface); padding: var(--oxygen-space-4); min-width: 0; overflow: auto; }
+.oxygen-docs-preview > div { max-width: 100%; }
+.oxygen-docs-code { min-width: 0; }
+.oxygen-docs-code__toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--oxygen-space-3); }
+.oxygen-docs-code__toolbar span { color: var(--oxygen-color-text-muted); font-size: var(--oxygen-font-size-caption); }
+.oxygen-docs-playground button:not([class]), .oxygen-docs-code__toolbar button { justify-self: start; background: var(--oxygen-color-surface); border: 1px solid var(--oxygen-color-border); border-radius: var(--oxygen-radius-control); color: var(--oxygen-color-text); font: inherit; padding: var(--oxygen-space-2) var(--oxygen-space-3); cursor: pointer; }
+.oxygen-docs-playground > button { justify-self: start; }
+.oxygen-component-docs pre, .oxygen-docs-code pre { background: var(--oxygen-color-surface-subtle); color: var(--oxygen-color-text); border: 1px solid var(--oxygen-color-border-subtle); border-radius: var(--oxygen-radius-control); max-width: 100%; overflow: auto; padding: var(--oxygen-space-4); font-size: var(--oxygen-font-size-caption); line-height: var(--oxygen-line-height-caption); white-space: pre; }
+.oxygen-component-docs :is(a,button,summary,[tabindex]):focus-visible, .oxygen-docs-playground :is(button,pre):focus-visible { outline: 2px solid var(--oxygen-color-focus); outline-offset: 3px; }
+.oxygen-component-docs .sbdocs-preview { min-width: 0; max-width: 100%; }
+@media (max-width: 600px) {
+  .sbdocs-wrapper { padding: var(--oxygen-space-4) !important; }
+  .sbdocs-content { min-width: 0; max-width: 100% !important; }
+  .oxygen-docs-preview { padding: var(--oxygen-space-3); }
+  .oxygen-component-docs nav ol { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .oxygen-component-docs .docblock-argstable { table-layout: fixed; width: 100%; overflow-wrap: anywhere; }
+  .oxygen-docs-playground > button, .oxygen-docs-code__toolbar button, .oxygen-component-docs summary { min-height: 44px; }
+}
+.oxygen-docs-controls { max-width: 100%; overflow-x: auto; }
+@media (max-width: 600px) {
+  .oxygen-docs-controls .docblock-argstable { min-width: 680px; table-layout: auto; }
+}

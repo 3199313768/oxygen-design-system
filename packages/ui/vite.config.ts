@@ -40,6 +40,12 @@ export default defineConfig({
     },
     rollupOptions: {
       external: isExternalDependency,
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: resolve(packageRoot, 'src'),
+        entryFileNames: '[name].js',
+        banner: "'use client';",
+      },
     },
     sourcemap: true,
   },

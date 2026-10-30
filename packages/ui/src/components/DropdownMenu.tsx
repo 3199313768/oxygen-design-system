@@ -3,6 +3,7 @@ import { Check, ChevronRight, Circle } from 'lucide-react';
 import { forwardRef, type HTMLAttributes } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 
 export const DropdownMenu = DropdownMenuPrimitive.Root;
 export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
@@ -31,28 +32,36 @@ DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayNam
 export const DropdownMenuSubContent = forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
-  <DropdownMenuPrimitive.SubContent
-    className={cn('oxygen-menu__content', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <DropdownMenuPrimitive.SubContent
+      {...themeAttributes}
+      className={cn('oxygen-menu__content', className)}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 export const DropdownMenuContent = forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <DropdownMenuPortal>
-    <DropdownMenuPrimitive.Content
-      className={cn('oxygen-menu__content', className)}
-      ref={ref}
-      sideOffset={sideOffset}
-      {...props}
-    />
-  </DropdownMenuPortal>
-));
+>(({ className, sideOffset = 4, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <DropdownMenuPortal>
+      <DropdownMenuPrimitive.Content
+        {...themeAttributes}
+        className={cn('oxygen-menu__content', className)}
+        ref={ref}
+        sideOffset={sideOffset}
+        {...props}
+      />
+    </DropdownMenuPortal>
+  );
+});
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 export const DropdownMenuItem = forwardRef<

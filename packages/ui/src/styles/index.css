@@ -44,7 +44,7 @@
   }
 
   .oxygen-button--destructive:hover:not(:disabled, [aria-disabled='true']) {
-    background: color-mix(in oklch, var(--oxygen-color-error) 88%, black);
+    background: var(--oxygen-color-error-hover);
   }
 
   .oxygen-navigation-menu__link[aria-disabled='true'] {
@@ -96,7 +96,7 @@
 
   .oxygen-result__icon svg { height: 24px; width: 24px; }
   .oxygen-result[data-status='warning'] .oxygen-result__icon {
-    background: color-mix(in oklch, var(--oxygen-color-warning) 12%, white);
+    background: var(--oxygen-color-warning-fill);
     color: var(--oxygen-color-warning);
   }
   .oxygen-transfer__arrow { height: var(--oxygen-icon-size); width: var(--oxygen-icon-size); }
@@ -184,7 +184,7 @@
 
   .oxygen-navigation-menu__chevron {
     height: 14px;
-    transition: transform var(--oxygen-motion-base) ease;
+    transition: transform var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
     width: 14px;
   }
 
@@ -193,9 +193,10 @@
   }
 
   .oxygen-navigation-menu__content {
-    animation-duration: var(--oxygen-motion-base);
+    animation-duration: var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base));
+    animation-timing-function: var(--oxygen-motion-easing-standard);
     animation-name: oxygen-navigation-menu-enter;
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border-subtle);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -215,7 +216,7 @@
   }
 
   .oxygen-navigation-menu__viewport {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border-subtle);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -500,7 +501,7 @@
   .oxygen-calendar .rdp-weekday {
     color: var(--oxygen-color-text-muted);
     font-size: var(--oxygen-font-size-caption);
-    font-weight: 400;
+    font-weight: var(--oxygen-font-weight-regular);
     height: 32px;
   }
 
@@ -540,9 +541,12 @@
     color: var(--oxygen-color-primary-foreground);
   }
 
-  .oxygen-calendar button:disabled,
-  .oxygen-calendar .rdp-outside {
+  .oxygen-calendar button:disabled {
     opacity: 0.4;
+  }
+
+  .oxygen-calendar .rdp-outside:not(.rdp-selected) {
+    color: var(--oxygen-color-text-muted);
   }
 
   .oxygen-calendar button:disabled {
@@ -572,8 +576,8 @@
     padding: 6px 16px;
     text-align: center;
     text-decoration: none;
-    transition: background-color var(--oxygen-motion-base) ease, border-color var(--oxygen-motion-base) ease,
-      color var(--oxygen-motion-base) ease;
+    transition: background-color var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard), border-color var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard),
+      color var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
   }
 
   .oxygen-button:focus-visible,
@@ -603,7 +607,7 @@
   }
 
   .oxygen-button__loading-indicator {
-    animation: oxygen-spin 0.75s linear infinite;
+    animation: oxygen-spin var(--oxygen-motion-duration-spin) var(--oxygen-motion-easing-linear) infinite;
     border: 2px solid currentColor;
     border-right-color: transparent;
     border-radius: 50%;
@@ -681,7 +685,7 @@
 
   .oxygen-button--destructive {
     background: var(--oxygen-color-error);
-    color: white;
+    color: var(--oxygen-color-error-foreground);
   }
 
   .oxygen-input {
@@ -854,7 +858,7 @@
   }
 
   .oxygen-combobox__menu {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -1151,8 +1155,8 @@
   }
 
   .oxygen-typography__title[data-level='2'] {
-    font-size: 24px;
-    line-height: 32px;
+    font-size: var(--oxygen-font-size-title);
+    line-height: var(--oxygen-line-height-title);
   }
 
   .oxygen-typography__title[data-level='3'] {
@@ -1161,8 +1165,8 @@
   }
 
   .oxygen-typography__title[data-level='4'] {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: var(--oxygen-font-size-group);
+    line-height: var(--oxygen-line-height-group);
   }
 
   .oxygen-typography__title[data-level='5'] {
@@ -1179,7 +1183,7 @@
   .oxygen-typography__paragraph code {
     background: var(--oxygen-color-surface-subtle);
     border-radius: var(--oxygen-radius-control);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--oxygen-font-family-mono);
     padding: 2px 4px;
   }
 
@@ -1527,7 +1531,7 @@
   }
 
   .oxygen-badge--default {
-    background: color-mix(in oklch, var(--oxygen-color-primary) 12%, white);
+    background: var(--oxygen-color-primary-fill);
     color: var(--oxygen-color-primary-hover);
   }
 
@@ -1622,7 +1626,7 @@
   }
 
   .oxygen-spin__dot {
-    animation: oxygen-spin 0.75s linear infinite;
+    animation: oxygen-spin var(--oxygen-motion-duration-spin) var(--oxygen-motion-easing-linear) infinite;
     border: 2px solid var(--oxygen-color-primary);
     border-right-color: transparent;
     border-radius: 50%;
@@ -1652,7 +1656,7 @@
     border-radius: inherit;
     display: block;
     height: 100%;
-    transition: width var(--oxygen-motion-base) ease;
+    transition: width var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
   }
 
   .oxygen-progress[data-status='success'] .oxygen-progress__bar {
@@ -1682,11 +1686,11 @@
 
   .oxygen-result__icon {
     align-items: center;
-    background: color-mix(in oklch, var(--oxygen-color-primary) 12%, white);
+    background: var(--oxygen-color-primary-fill);
     border-radius: 50%;
     color: var(--oxygen-color-primary);
     display: inline-flex;
-    font-size: 18px;
+    font-size: var(--oxygen-font-size-section);
     font-weight: var(--oxygen-font-weight-semibold);
     height: 48px;
     justify-content: center;
@@ -1694,7 +1698,7 @@
   }
 
   .oxygen-result[data-status='success'] .oxygen-result__icon {
-    background: color-mix(in oklch, var(--oxygen-color-success) 12%, white);
+    background: var(--oxygen-color-success-fill);
     color: var(--oxygen-color-success);
   }
 
@@ -1702,7 +1706,7 @@
   .oxygen-result[data-status='403'] .oxygen-result__icon,
   .oxygen-result[data-status='404'] .oxygen-result__icon,
   .oxygen-result[data-status='500'] .oxygen-result__icon {
-    background: color-mix(in oklch, var(--oxygen-color-error) 10%, white);
+    background: var(--oxygen-color-error-fill);
     color: var(--oxygen-color-error);
   }
 
@@ -1826,7 +1830,7 @@
     display: inline-flex;
     height: 24px;
     padding: 2px;
-    transition: background-color var(--oxygen-motion-base) ease;
+    transition: background-color var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
     width: 44px;
   }
 
@@ -1840,17 +1844,18 @@
   }
 
   .oxygen-switch__thumb {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-control-thumb);
     border-radius: 999px;
     box-shadow: var(--oxygen-shadow-surface);
     display: block;
     height: 20px;
     transform: translateX(0);
-    transition: transform var(--oxygen-motion-base) ease;
+    transition: transform var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
     width: 20px;
   }
 
   .oxygen-switch[data-state='checked'] .oxygen-switch__thumb {
+    background: var(--oxygen-color-primary-foreground);
     transform: translateX(20px);
   }
 
@@ -1889,7 +1894,7 @@
   }
 
   .oxygen-select__content {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border-subtle);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -1959,14 +1964,14 @@
   }
 
   .oxygen-overlay {
-    background: oklch(0.12 0.01 255 / 48%);
+    background: var(--oxygen-color-overlay);
     inset: 0;
     position: fixed;
     z-index: 50;
   }
 
   .oxygen-alert-dialog {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border);
     border-radius: var(--oxygen-radius-surface);
     box-shadow: var(--oxygen-shadow-modal);
@@ -1986,7 +1991,7 @@
   }
 
   .oxygen-dialog {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border);
     border-radius: var(--oxygen-radius-surface);
     box-shadow: var(--oxygen-shadow-modal);
@@ -2065,7 +2070,7 @@
   }
 
   .oxygen-menu__content {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border-subtle);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -2079,7 +2084,7 @@
   }
 
   .oxygen-popover {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border-subtle);
     border-radius: var(--oxygen-radius-control);
     box-shadow: var(--oxygen-shadow-popup);
@@ -2111,7 +2116,7 @@
   }
 
   .oxygen-toast {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 1px solid var(--oxygen-color-border);
     border-left: 4px solid var(--oxygen-color-primary);
     border-radius: var(--oxygen-radius-control);
@@ -2330,7 +2335,7 @@
   }
 
   .oxygen-sheet {
-    background: var(--oxygen-color-surface);
+    background: var(--oxygen-color-surface-popup);
     border: 0 solid var(--oxygen-color-border);
     box-shadow: var(--oxygen-shadow-modal);
     color: var(--oxygen-color-text);
@@ -2403,9 +2408,9 @@
   }
 
   .oxygen-tooltip {
-    background: var(--oxygen-color-text);
+    background: var(--oxygen-color-tooltip-background);
     border-radius: 4px;
-    color: var(--oxygen-color-surface);
+    color: var(--oxygen-color-tooltip-foreground);
     font-size: var(--oxygen-font-size-caption);
     line-height: var(--oxygen-line-height-caption);
     max-width: min(280px, calc(100vw - 24px));
@@ -2466,16 +2471,16 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .oxygen-overlay[data-state='open'] {
-    animation: oxygen-fade-in var(--oxygen-motion-base) ease-out;
+    animation: oxygen-fade-in var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-overlay[data-state='closed'] {
-    animation: oxygen-fade-out var(--oxygen-motion-fast) ease-in;
+    animation: oxygen-fade-out var(--oxygen-motion-duration-exit, var(--oxygen-motion-fast)) var(--oxygen-motion-easing-exit);
   }
 
   .oxygen-alert-dialog[data-state='open'],
   .oxygen-dialog[data-state='open'] {
-    animation: oxygen-dialog-in var(--oxygen-motion-base) ease-out;
+    animation: oxygen-dialog-in var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-menu__content[data-state='open'],
@@ -2483,27 +2488,27 @@
   .oxygen-tooltip[data-state='delayed-open'],
   .oxygen-tooltip[data-state='instant-open'],
   .oxygen-toast[data-state='open'] {
-    animation: oxygen-popover-in var(--oxygen-motion-base) ease-out;
+    animation: oxygen-popover-in var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-skeleton {
-    animation: oxygen-skeleton-pulse 1200ms ease-in-out infinite alternate;
+    animation: oxygen-skeleton-pulse var(--oxygen-motion-duration-pulse) var(--oxygen-motion-easing-pulse) infinite alternate;
   }
 
   .oxygen-sheet--right[data-state='open'] {
-    animation: oxygen-slide-from-right 180ms ease-out;
+    animation: oxygen-slide-from-right var(--oxygen-motion-duration-panel) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-sheet--left[data-state='open'] {
-    animation: oxygen-slide-from-left 180ms ease-out;
+    animation: oxygen-slide-from-left var(--oxygen-motion-duration-panel) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-sheet--top[data-state='open'] {
-    animation: oxygen-slide-from-top 180ms ease-out;
+    animation: oxygen-slide-from-top var(--oxygen-motion-duration-panel) var(--oxygen-motion-easing-enter);
   }
 
   .oxygen-sheet--bottom[data-state='open'] {
-    animation: oxygen-slide-from-bottom 180ms ease-out;
+    animation: oxygen-slide-from-bottom var(--oxygen-motion-duration-panel) var(--oxygen-motion-easing-enter);
   }
 }
 
@@ -2785,7 +2790,7 @@
   .oxygen-transfer__header > span:last-child {
     color: var(--oxygen-color-text-muted);
     font-size: var(--oxygen-font-size-caption);
-    font-weight: 400;
+    font-weight: var(--oxygen-font-weight-regular);
   }
 
   .oxygen-transfer__panel > .oxygen-input {
@@ -2869,7 +2874,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .oxygen-button, .oxygen-switch, .oxygen-switch__thumb, .oxygen-navigation-menu__chevron { transition: none; }
+  .oxygen-button, .oxygen-switch, .oxygen-switch__thumb, .oxygen-progress__bar, .oxygen-navigation-menu__chevron { transition: none; }
   .oxygen-button__loading-indicator, .oxygen-spin__dot { animation: none; }
   .oxygen-navigation-menu__content { animation: none; }
+}
+
+@layer components {
+  /* Class specificity and source order preserve font: inherit resets above.
+     Code retains its more specific monospace rule; host elements are untouched. */
+  :is([class^='oxygen-'], [class*=' oxygen-']) {
+    font-family: var(--oxygen-font-family-body, inherit);
+  }
+
+  .oxygen-color-picker__trigger[data-invalid='true'] {
+    border-color: var(--oxygen-color-error);
+  }
 }

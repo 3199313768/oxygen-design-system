@@ -38,11 +38,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Set up npm for OIDC publishing
+      # Trusted publishing requires npm >=11.5.1; Node 22 bundles an older CLI.
+      - name: Set up npm for trusted publishing
         run: npm install --global npm@11.5.1
 
       - name: Verify release candidate
-        run: pnpm verify && pnpm verify:package
+        run: pnpm verify && pnpm verify:package && pnpm verify:release
 
       - name: Check pending changesets
         id: changesets

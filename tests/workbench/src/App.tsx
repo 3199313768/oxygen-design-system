@@ -1,11 +1,13 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert, Badge, Button, ConfigProvider, Form, Input, Pagination, Select,
   SelectContent, SelectItem, SelectTrigger, SelectValue, Table,
-  type TableColumn,
+  type OxygenTheme, type TableColumn,
 } from '@oxygen-design/ui';
 import { EmptyState, PageHeader } from '@oxygen-design/patterns';
 import { RecordEditor, type DemoRecord } from './RecordEditor';
+import { ThemeExamples } from './ThemeExamples';
+import { FoundationExamples } from './FoundationExamples';
 
 const initialRecords: DemoRecord[] = Array.from({ length: 12 }, (_, index) => ({
   id: index + 1,
@@ -15,6 +17,15 @@ const initialRecords: DemoRecord[] = Array.from({ length: 12 }, (_, index) => ({
 }));
 
 export function App() {
+  const [theme, setTheme] = useState<OxygenTheme>('light');
+  useEffect(() => {
+    const previous = document.documentElement.getAttribute('data-oxygen-theme');
+    document.documentElement.setAttribute('data-oxygen-theme', theme);
+    return () => {
+      if (previous === null) document.documentElement.removeAttribute('data-oxygen-theme');
+      else document.documentElement.setAttribute('data-oxygen-theme', previous);
+    };
+  }, [theme]);
   const [records, setRecords] = useState(initialRecords);
   const [keyword, setKeyword] = useState('');
   const [status, setStatus] = useState('all');
@@ -56,8 +67,16 @@ export function App() {
   ];
 
   return (
-    <ConfigProvider>
+    <ConfigProvider theme={theme}>
       <main className="workbench">
+        <label className="workbench-theme-picker">
+          页面主题
+          <select value={theme} onChange={(event) => setTheme(event.target.value as OxygenTheme)}>
+            <option value="light">浅色</option>
+            <option value="dark">深色</option>
+            <option value="system">跟随系统</option>
+          </select>
+        </label>
         <PageHeader title="记录管理" description="查询、编辑和附件管理的完整页面示例。演示数据仅在本次页面会话中保留。" />
         <section className="workbench-panel" aria-label="筛选记录">
           <Form className="workbench-filters" onSubmit={(event) => {
@@ -101,6 +120,8 @@ export function App() {
               setPageSize(size);
             }} />
         </section>
+        <ThemeExamples theme={theme === 'dark' ? 'light' : 'dark'} />
+        <FoundationExamples />
       </main>
       {editing ? <RecordEditor key={editing.id} record={editing} onClose={() => setEditing(null)}
         restoreFocus={() => {

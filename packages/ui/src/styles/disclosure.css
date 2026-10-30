@@ -71,7 +71,7 @@
   .oxygen-collapsible__icon {
     flex-shrink: 0;
     height: 18px;
-    transition: transform var(--oxygen-motion-base) ease;
+    transition: transform var(--oxygen-motion-duration-interaction, var(--oxygen-motion-base)) var(--oxygen-motion-easing-standard);
     width: 18px;
   }
 

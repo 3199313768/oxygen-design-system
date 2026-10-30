@@ -2,6 +2,7 @@ import * as ToastPrimitive from '@radix-ui/react-toast';
 import { forwardRef } from 'react';
 
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 import { X } from '../Icons';
 import { useOxygenLocale } from './ConfigProvider';
 
@@ -10,13 +11,17 @@ export const ToastProvider = ToastPrimitive.Provider;
 export const ToastViewport = forwardRef<
   React.ElementRef<typeof ToastPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <ToastPrimitive.Viewport
-    className={cn('oxygen-toast__viewport', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <ToastPrimitive.Viewport
+      {...themeAttributes}
+      className={cn('oxygen-toast__viewport', className)}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 ToastViewport.displayName = ToastPrimitive.Viewport.displayName;
 
 export type ToastTone = 'default' | 'success' | 'warning' | 'error';
@@ -30,14 +35,18 @@ export type ToastProps = React.ComponentPropsWithoutRef<
 export const Toast = forwardRef<
   React.ElementRef<typeof ToastPrimitive.Root>,
   ToastProps
->(({ className, tone = 'default', ...props }, ref) => (
-  <ToastPrimitive.Root
-    className={cn('oxygen-toast', className)}
-    data-tone={tone}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, tone = 'default', ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <ToastPrimitive.Root
+      {...themeAttributes}
+      className={cn('oxygen-toast', className)}
+      data-tone={tone}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 Toast.displayName = ToastPrimitive.Root.displayName;
 
 export const ToastTitle = forwardRef<
