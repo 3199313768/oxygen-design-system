@@ -1,0 +1,52 @@
+{
+  "_measurement": {
+    "compression": "gzip level 9, sum per emitted file",
+    "growthAllowance": 0.15,
+    "roundingBytes": 1024,
+    "css": "Complete package stylesheets; consumer includes ReactDOM runtime."
+  },
+  "ui": {
+    "package": {
+      "js": {
+        "raw": 155648,
+        "gzip": 63488
+      },
+      "css": {
+        "raw": 115712,
+        "gzip": 16384
+      }
+    },
+    "consumer": {
+      "js": {
+        "raw": 291840,
+        "gzip": 91136
+      },
+      "css": {
+        "raw": 114688,
+        "gzip": 16384
+      }
+    }
+  },
+  "patterns": {
+    "package": {
+      "js": {
+        "raw": 6144,
+        "gzip": 3072
+      },
+      "css": {
+        "raw": 5120,
+        "gzip": 1024
+      }
+    },
+    "consumer": {
+      "js": {
+        "raw": 253952,
+        "gzip": 78848
+      },
+      "css": {
+        "raw": 118784,
+        "gzip": 16384
+      }
+    }
+  }
+}

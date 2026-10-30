@@ -4,6 +4,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 
 import { X } from '../Icons';
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 import { useOxygenLocale } from './ConfigProvider';
 
 export const Sheet = DialogPrimitive.Root;
@@ -14,13 +15,17 @@ export const SheetPortal = DialogPrimitive.Portal;
 export const SheetOverlay = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    className={cn('oxygen-overlay', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <DialogPrimitive.Overlay
+      {...themeAttributes}
+      className={cn('oxygen-overlay', className)}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const sheetVariants = cva('oxygen-sheet', {
@@ -45,6 +50,7 @@ export const SheetContent = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   SheetContentProps
 >(({ children, className, closeLabel, side, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
   const { common } = useOxygenLocale();
   const accessibleCloseLabel = closeLabel || common.close;
 
@@ -52,6 +58,7 @@ export const SheetContent = forwardRef<
     <SheetPortal>
       <SheetOverlay />
       <DialogPrimitive.Content
+        {...themeAttributes}
         className={cn(sheetVariants({ side }), className)}
         ref={ref}
         {...props}

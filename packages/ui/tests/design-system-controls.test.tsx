@@ -24,9 +24,11 @@ describe('design system control accessibility', () => {
 
   it('associates a Form.Item ColorPicker trigger with its label and error', () => {
     render(<Form.Item help="Choose a valid color" label="Brand" name="brand" validateStatus="error"><ColorPicker /></Form.Item>);
-    const trigger = screen.getByRole('button', { name: 'Brand' });
+    const trigger = screen.getByRole('button', { name: 'Brand #000000' });
     expect(trigger).toHaveAccessibleDescription('Choose a valid color');
-    expect(trigger).toHaveAttribute('aria-invalid', 'true');
+    expect(trigger).not.toHaveAttribute('aria-invalid');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('textbox', { name: 'Brand' })).toHaveAttribute('aria-invalid', 'true');
   });
 
   it('forwards form label and descriptions to the interactive slider thumb', () => {

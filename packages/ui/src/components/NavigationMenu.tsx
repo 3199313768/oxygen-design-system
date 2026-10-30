@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { forwardRef } from 'react';
 
 import { cn } from '../lib/cn';
+import { OxygenThemeContext, useOxygenThemeAttributes } from './theme-context';
 
 export const NavigationMenu = forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -77,13 +78,22 @@ NavigationMenuTrigger.displayName = NavigationMenuPrimitive.Trigger.displayName;
 export const NavigationMenuContent = forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <NavigationMenuPrimitive.Content
-    className={cn('oxygen-navigation-menu__content', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ children, className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <NavigationMenuPrimitive.Content
+      {...themeAttributes}
+      className={cn('oxygen-navigation-menu__content', className)}
+      ref={ref}
+      {...props}
+    >
+      {/* Radix relocates these children into a shared Viewport; retain their React origin. */}
+      <OxygenThemeContext.Provider value={themeAttributes['data-oxygen-theme']}>
+        {children}
+      </OxygenThemeContext.Provider>
+    </NavigationMenuPrimitive.Content>
+  );
+});
 NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName;
 
 export interface NavigationMenuLinkProps

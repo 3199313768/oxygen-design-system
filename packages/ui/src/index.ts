@@ -29,6 +29,7 @@ export type {
   ConfigProviderProps,
   OxygenLocale,
   OxygenLocaleConfig,
+  OxygenTheme,
 } from './components/ConfigProvider';
 export {
   AlertDialog,

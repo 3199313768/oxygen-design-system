@@ -3,6 +3,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 
 import { Check, ChevronDown } from '../Icons';
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 import { useFieldContext } from './field-context';
 
 export const Select = SelectPrimitive.Root;
@@ -50,20 +51,24 @@ export type SelectContentProps = React.ComponentPropsWithoutRef<
 export const SelectContent = forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   SelectContentProps
->(({ className, children, position = 'popper', ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      className={cn('oxygen-select__content', className)}
-      position={position}
-      ref={ref}
-      {...props}
-    >
-      <SelectPrimitive.Viewport className="oxygen-select__viewport">
-        {children}
-      </SelectPrimitive.Viewport>
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-));
+>(({ className, children, position = 'popper', ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        {...themeAttributes}
+        className={cn('oxygen-select__content', className)}
+        position={position}
+        ref={ref}
+        {...props}
+      >
+        <SelectPrimitive.Viewport className="oxygen-select__viewport">
+          {children}
+        </SelectPrimitive.Viewport>
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  );
+});
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 
 export type SelectItemProps = React.ComponentPropsWithoutRef<

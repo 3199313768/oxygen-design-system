@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DayPicker, type DayPickerProps, type PropsBase } from 'react-day-picker';
+import { DayPicker, Root, type DayPickerProps, type PropsBase, type RootProps } from 'react-day-picker';
 import { zhCN } from 'react-day-picker/locale';
 
 import { cn } from '../lib/cn';
@@ -18,13 +18,18 @@ export interface CalendarProps extends Omit<PropsBase, 'mode' | 'required' | 'ti
   selected?: Date;
 }
 
+function CalendarRoot(props: RootProps) {
+  return <Root {...props} role={props.role ?? (props['aria-label'] || props['aria-labelledby'] ? 'group' : undefined)} />;
+}
+
 // Shared presentation keeps single-day and range calendars visually consistent.
-export function CalendarView({ className, labels, locale, ...props }: DayPickerProps) {
+export function CalendarView({ className, components, labels, locale, ...props }: DayPickerProps) {
   const oxygenLocale = useOxygenLocale();
   return (
     <DayPicker
       {...props}
       className={cn('oxygen-calendar', className)}
+      components={{ Root: CalendarRoot, ...components }}
       labels={{ ...oxygenLocale.calendar.labels, ...labels }}
       locale={locale ?? oxygenLocale.calendar.locale ?? zhCN}
     />

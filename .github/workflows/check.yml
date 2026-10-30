@@ -37,6 +37,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Check component documentation and copyable examples
+        run: pnpm docs:check
+
       - name: Lint
         run: pnpm lint
 
@@ -63,8 +66,23 @@ jobs:
       - name: Build Storybook
         run: pnpm storybook:build-only
 
+      - name: Upload static component documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-site
+          path: apps/storybook/storybook-static/
+          retention-days: 14
+
       - name: Verify packed consumer
         run: pnpm verify:package
+
+      - name: Upload package size and tree-shaking evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-size-and-tree-shaking
+          path: output/package-budgets/
+          retention-days: 14
 
   browser:
     name: browser
@@ -84,6 +102,17 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install browser runtimes
         run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Build static component documentation
+        run: pnpm storybook:build
+      - name: Verify component documentation in the browser
+        run: pnpm verify:docs
+      - name: Upload documentation browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-documentation-browser-results
+          path: output/playwright/docs/
+          retention-days: 14
       - name: Verify complete packed consumer
         run: pnpm verify:workbench
       - name: Upload browser evidence
@@ -92,4 +121,13 @@ jobs:
         with:
           name: packed-consumer-browser-results
           path: output/playwright/consumer/
+          retention-days: 14
+      - name: Verify Foundation component states in both themes
+        run: pnpm verify:foundation
+      - name: Upload Foundation state and accessibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundation-state-browser-results
+          path: output/playwright/foundation/
           retention-days: 14

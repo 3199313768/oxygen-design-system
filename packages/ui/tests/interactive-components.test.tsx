@@ -183,7 +183,7 @@ describe('interactive components', () => {
   it('handles color draft validation and cancel', () => {
     const onChange = vi.fn();
     render(<ColorPicker aria-label="主题色" defaultValue="#336699" onChange={onChange} />);
-    fireEvent.click(screen.getByRole('button', { name: '主题色' }));
+    fireEvent.click(screen.getByRole('button', { name: '主题色 #336699' }));
     const input = screen.getByRole('textbox', { name: '主题色' });
     fireEvent.change(input, { target: { value: 'invalid' } });
     expect(onChange).not.toHaveBeenCalled();
@@ -193,7 +193,7 @@ describe('interactive components', () => {
     expect(onChange).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: '取消' }));
     expect(screen.queryByRole('textbox', { name: '主题色' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '主题色' })).toHaveTextContent('#336699');
+    expect(screen.getByRole('button', { name: '主题色 #336699' })).toHaveTextContent('#336699');
   });
 
   it('discards a valid draft when a controlled color picker is cancelled', () => {
@@ -203,23 +203,23 @@ describe('interactive components', () => {
     }
 
     render(<ControlledColorPicker />);
-    fireEvent.click(screen.getByRole('button', { name: '受控取消颜色' }));
+    fireEvent.click(screen.getByRole('button', { name: '受控取消颜色 #112233' }));
     fireEvent.change(screen.getByRole('textbox', { name: '受控取消颜色' }), {
       target: { value: '#abcdef' },
     });
     fireEvent.click(screen.getByRole('button', { name: '取消' }));
 
-    expect(screen.getByRole('button', { name: '受控取消颜色' })).toHaveTextContent('#112233');
+    expect(screen.getByRole('button', { name: '受控取消颜色 #112233' })).toHaveTextContent('#112233');
   });
 
   it('keeps a controlled color picker source of truth until the parent updates it', () => {
     const onChange = vi.fn();
     render(<ColorPicker aria-label="受控颜色" onChange={onChange} value="#112233" />);
-    fireEvent.click(screen.getByRole('button', { name: '受控颜色' }));
+    fireEvent.click(screen.getByRole('button', { name: '受控颜色 #112233' }));
     fireEvent.change(screen.getByRole('textbox', { name: '受控颜色' }), { target: { value: '#abcdef' } });
     fireEvent.click(screen.getByRole('button', { name: '确定' }));
     expect(onChange).toHaveBeenLastCalledWith('#ABCDEF');
-    expect(screen.getByRole('button', { name: '受控颜色' })).toHaveTextContent('#112233');
+    expect(screen.getByRole('button', { name: '受控颜色 #112233' })).toHaveTextContent('#112233');
   });
 
   it('moves numeric transfer options without conflating string keys', () => {

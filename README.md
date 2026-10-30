@@ -1,7 +1,17 @@
 # Oxygen 设计系统
 
-面向 Oxygen 项目的 React 设计系统。GitHub 仓库和 Storybook 保持私有；可发布的
-软件包是公开的作用域包 `@oxygen-design/ui` 和 `@oxygen-design/patterns`。
+Oxygen 是一套清晰、克制、可靠的企业级工作台设计系统，面向复杂信息与高频操作，
+让用户准确理解、顺畅完成工作。采用 React 实现，按 [MIT](LICENSE) 授权。Storybook 文档站
+支持构建为静态网站；可发布的软件包是公开的作用域包 `@oxygen-design/ui` 和 `@oxygen-design/patterns`。
+
+## 基础规范
+
+- [Engineering Foundation · 工程基础规范](docs/foundations/engineering-foundation.md)：包职责、依赖、组件与类型、样式隔离、构建导出、测试、CI、版本与发布。
+- [Design Foundation · 设计基础规范](docs/foundations/design-foundation.md)：品牌定位、色彩、排版、尺寸、视觉层级、主题、组件状态、交互与无障碍。
+
+品牌定位和主题契约已落实：支持浅色、深色及显式跟随系统，默认保持浅色，尺寸、圆角和排版沿用现有基线。使用 `ConfigProvider theme="dark"` 配置应用或局部区域，浮层跟随来源主题；接入与首次加载约定见 [主题接入](docs/themes.md)。
+
+字体、动效、Tree Shaking 与体积预算、MIT 授权及远端门禁的收尾结果见 [Foundation 收尾验收](docs/reviews/2026-10-30-foundation-completion.md)。组件适用状态见 [状态矩阵](docs/foundations/component-state-matrix.md)，人工辅助技术与实体设备见 [验收清单](docs/foundations/manual-accessibility-checklist.md)。
 
 ## 软件包内容
 
@@ -85,6 +95,20 @@ pnpm verify:workbench
 交互预览地址为 `http://127.0.0.1:4173`。浏览器回归覆盖 Chromium、Firefox、WebKit 和
 390px 触屏模拟；使用方式、行为边界和报告位置见 [完整页面消费验收](docs/consumer-workbench.md)。
 
+## 组件文档站
+
+Storybook 为 67 个组件/组件族提供独立入口：组件介绍、设计规范、API 参数、基础示例、不同状态、交互示例、使用限制、可访问性说明。基础示例支持调整 Props、同步预览与完整代码、复制及恢复默认。
+
+```bash
+pnpm docs:generate
+pnpm docs:check
+pnpm storybook:build
+pnpm docs:preview
+pnpm verify:docs
+```
+
+静态预览位于 `http://127.0.0.1:6016`。公开托管产物是 `apps/storybook/storybook-static/`；目前尚未配置公网平台或域名。内容维护、生成 API、示例校验及部署方法见 [组件文档站](docs/component-documentation.md)。
+
 ## 使用方安装
 
 安装前请确认 npm 组织和对应版本已经发布。由于该软件包是公开的，使用方无需
@@ -95,7 +119,7 @@ npm token：
 ```
 
 ```bash
-pnpm add @oxygen-design/ui@0.1.0 @oxygen-design/patterns@0.1.0 --save-exact
+pnpm add @oxygen-design/ui@0.1.1 @oxygen-design/patterns@0.1.1 --save-exact
 ```
 
 在应用入口处一次性导入组件和预编译样式：

@@ -3,6 +3,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 
 import { X } from '../Icons';
 import { cn } from '../lib/cn';
+import { useOxygenThemeAttributes } from './theme-context';
 import { useOxygenLocale } from './ConfigProvider';
 
 export const Dialog = DialogPrimitive.Root;
@@ -13,13 +14,17 @@ export const DialogPortal = DialogPrimitive.Portal;
 export const DialogOverlay = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    className={cn('oxygen-overlay', className)}
-    ref={ref}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
+  return (
+    <DialogPrimitive.Overlay
+      {...themeAttributes}
+      className={cn('oxygen-overlay', className)}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 export interface DialogContentProps
@@ -31,6 +36,7 @@ export const DialogContent = forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
 >(({ children, className, closeLabel, ...props }, ref) => {
+  const themeAttributes = useOxygenThemeAttributes();
   const { common } = useOxygenLocale();
   const accessibleCloseLabel = closeLabel || common.close;
 
@@ -38,6 +44,7 @@ export const DialogContent = forwardRef<
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
+        {...themeAttributes}
         className={cn('oxygen-dialog', className)}
         ref={ref}
         {...props}

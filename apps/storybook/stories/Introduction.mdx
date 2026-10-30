@@ -1,0 +1,68 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="开始使用/快速开始" />
+
+# Oxygen 组件文档
+
+Oxygen 是一套清晰、克制、可靠的 React 企业级设计系统。本网站按组件提供介绍、设计规范、API、基础示例、状态、交互、限制和可访问性说明。
+
+通过左侧目录搜索组件。在每个组件页面的 **基础示例** 中修改 Controls，预览和完整代码会同步更新；“恢复默认”重置参数与示例内部状态。“复制代码”包含导入、样式、状态管理和组合结构。函数、复杂 ReactNode 和数据结构请参考完整代码。
+
+## 安装与样式
+
+示例使用当前工作区 API。安装前请确认 npm 已发布的版本与本站对应；本地文档构建成功不代表 npm 已发布。
+
+```bash
+pnpm add @oxygen-design/ui @oxygen-design/patterns
+```
+
+```tsx
+import { Button, ConfigProvider } from '@oxygen-design/ui';
+import '@oxygen-design/ui/styles.css';
+// 使用页面模式时再导入：
+import '@oxygen-design/patterns/styles.css';
+
+export default function App() {
+  return (
+    <ConfigProvider theme="light">
+      <Button type="button" onClick={() => window.alert('操作完成')}>开始使用</Button>
+    </ConfigProvider>
+  );
+}
+```
+
+React 与 React DOM 是 peer dependencies；支持范围以所安装包的 package.json 为准。样式已预编译，使用方无需安装 Tailwind。组件库使用 ESM；服务端组件框架中，交互组件应从客户端模块导入。
+
+## 受控与非受控
+
+`value` / `checked` / `open` 及对应回调表示受控模式，由宿主接受并更新状态；只传值、不处理变更会锁定组件。`defaultValue` / `defaultChecked` / `defaultOpen` 表示初始化值，后续由组件维护。并非每个组件都提供同名接口，准确名称及空值契约请查看所属组件 API。
+
+组合式组件按页面示例放置 Trigger、Content、Title、Description 等子组件。不要遗漏可访问标题，也不要在按钮里再放按钮。部分 Content 已内置 Portal，不需要重复添加。
+
+## 主题与配置
+
+文档工具栏提供浅色、深色、跟随系统。`ConfigProvider` 支持局部主题、密度和通用中文文案；用户偏好的保存及初次渲染主题由宿主负责。请在切换主题后测试输入值、焦点以及 Portal 浮层。
+
+- [ConfigProvider 全局配置](./?path=/docs/components-configprovider--docs)
+- [Button 按钮](./?path=/docs/components-button--docs)
+- [Form 表单](./?path=/docs/components-form--docs)
+- [Dialog 对话框](./?path=/docs/components-dialog--docs)
+- [AppShell 应用布局](./?path=/docs/components-appshell--docs)
+
+## 阅读 API
+
+参数表来自当前 TypeScript 源码，并补充人工维护的说明和默认值；复合子组件分别列出。可展开继承属性与公开类型。“—”表示实现没有显式声明默认值，不等于 false、0 或空字符串。Playground 仅开放适合编辑的参数，不代替完整 API。
+
+## 本地运行与公开托管
+
+```bash
+pnpm docs:generate
+pnpm docs:check
+pnpm storybook
+pnpm storybook:build
+pnpm docs:preview
+```
+
+开发入口为 `http://localhost:6006`，静态预览为 `http://127.0.0.1:6016`。构建产物位于 `apps/storybook/storybook-static`，可以整体部署到 HTTPS 静态网站托管服务。无需公开 GitHub 源码仓库，但站点中的组件实现与示例会随静态资源公开。
+
+本站没有内置数据服务、鉴权或真实上传接口。托管平台、域名及自动部署需另行配置；本地构建和预览不表示已经发布到公网。

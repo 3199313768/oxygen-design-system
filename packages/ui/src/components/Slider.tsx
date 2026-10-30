@@ -95,6 +95,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
     <SliderPrimitive.Root
       {...props}
       aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
       className={cn('oxygen-slider', className)}
       data-oxygen-control="true"
       data-oxygen-loading={loading ? 'true' : undefined}
@@ -107,6 +108,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
       onValueChange={(next) => emit(next.map(toActual))}
       onValueCommit={(next) => onValueCommit?.(next.map(toActual))}
       ref={ref}
+      role={props.role ?? (ariaLabel || ariaLabelledBy ? 'group' : undefined)}
       step={1}
       value={values.map(toPosition)}
     >
