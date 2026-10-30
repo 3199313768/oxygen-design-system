@@ -118,10 +118,10 @@ function TransferInner<T>({
 }: TransferProps<T>, ref: React.ForwardedRef<HTMLDivElement>) {
   const locale = useOxygenLocale();
   const ariaLabelText = ariaLabel ?? locale.transfer.label;
-  const options = sourceItems ?? dataSource ?? [];
+  const options = useMemo(() => sourceItems ?? dataSource ?? [], [sourceItems, dataSource]);
   const controlled = targetKeysProp !== undefined;
   const [uncontrolledTargetKeys, setUncontrolledTargetKeys] = useState<T[]>([...defaultTargetKeys]);
-  const targetKeys = controlled ? (targetKeysProp ?? []) : uncontrolledTargetKeys;
+  const targetKeys = targetKeysProp ?? uncontrolledTargetKeys;
   const [sourceSelectedKeys, setSourceSelectedKeys] = useState<T[]>([]);
   const [targetSelectedKeys, setTargetSelectedKeys] = useState<T[]>([]);
   const [sourceSearch, setSourceSearch] = useState('');

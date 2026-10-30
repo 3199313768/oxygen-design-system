@@ -83,14 +83,14 @@ export interface TypographyLinkProps
     TypographyToneProps {}
 
 export const TypographyLink = forwardRef<HTMLAnchorElement, TypographyLinkProps>(
-  ({ className, strong, type, ...props }, ref) => (
+  ({ children, className, strong, type, ...props }, ref) => (
     <a
       className={cn('oxygen-typography', 'oxygen-typography__link', className)}
       data-strong={strong ? 'true' : undefined}
       data-type={type}
       ref={ref}
       {...props}
-    />
+    >{children}</a>
   ),
 );
 TypographyLink.displayName = 'TypographyLink';

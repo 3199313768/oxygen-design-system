@@ -70,6 +70,10 @@ pnpm verify:package
 pnpm verify
 ```
 
+`test:coverage` 运行真实 V8 执行覆盖率及门槛检查；原有组件引用面检查使用
+`pnpm test:surface`。ESLint、覆盖率报告、浏览器 CI 和远端必需检查的配置与边界见
+[质量门禁](docs/quality-gates.md)。
+
 完整页面消费示例串联筛选、表格、分页、编辑和模拟上传，并通过安装后的 tarball 运行：
 
 ```bash

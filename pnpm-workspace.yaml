@@ -2,5 +2,8 @@ packages:
   - apps/*
   - packages/*
 
+# Keep local installs and CI on the same layout; pnpm otherwise changes this default in CI.
+enableGlobalVirtualStore: false
+
 allowBuilds:
   esbuild: true

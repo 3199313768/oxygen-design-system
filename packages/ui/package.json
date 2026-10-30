@@ -31,7 +31,8 @@
   "scripts": {
     "build": "vite build && node scripts/copy-tokens.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --project tsconfig.json"
+    "typecheck": "tsc --project tsconfig.json",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.2.1",

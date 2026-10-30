@@ -221,7 +221,8 @@ describe('declarative Field descriptions', () => {
   });
 
   it('does not reference absent, empty or conditionally removed descriptions', () => {
-    const { rerender } = render(<Field><FieldLabel>Email</FieldLabel><FieldControl><Input /></FieldControl>{false && <FieldDescription>Hidden</FieldDescription>}<FieldDescription>{[]}</FieldDescription><FieldError><></></FieldError></Field>);
+    const showDescription = false;
+    const { rerender } = render(<Field><FieldLabel>Email</FieldLabel><FieldControl><Input /></FieldControl>{showDescription && <FieldDescription>Hidden</FieldDescription>}<FieldDescription>{[]}</FieldDescription><FieldError><></></FieldError></Field>);
     expect(screen.getByRole('textbox', { name: 'Email' })).not.toHaveAttribute('aria-describedby');
     expect(document.querySelector('.oxygen-field-description')).toBeNull();
     expect(document.querySelector('.oxygen-field-error')).toBeNull();

@@ -111,10 +111,11 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
 
     useEffect(() => {
       mounted.current = true;
+      const activeRequests = requests.current;
       return () => {
         mounted.current = false;
-        for (const request of requests.current.values()) request.controller.abort();
-        requests.current.clear();
+        for (const request of activeRequests.values()) request.controller.abort();
+        activeRequests.clear();
       };
     }, []);
 
@@ -184,6 +185,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
           if (beforeUpload && !(await beforeUpload(file))) continue;
           accepted.push(createUploadFile(file));
         } catch (error) {
+          if (!mounted.current) return;
           latest.current.onError?.(
             { ...createUploadFile(file), status: 'error' },
             error instanceof Error ? error : new Error(String(error)),
@@ -212,6 +214,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
         requests.current.delete(file.id);
         updateFiles(latestFiles.current.filter((item) => item.id !== file.id || item.file !== file.file));
       } catch (error) {
+        if (!mounted.current) return;
         latest.current.onError?.(file, error instanceof Error ? error : new Error(String(error)));
       }
     }

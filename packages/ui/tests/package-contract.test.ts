@@ -29,8 +29,6 @@ describe('@oxygen-design/ui package contract', () => {
       'pnpm build && pnpm storybook:build-only',
     );
     expect(rootManifest.scripts.verify).toContain('pnpm storybook:build-only');
-    expect(rootManifest.scripts.lint).toBe('node scripts/quality-gate.mjs lint');
-    expect(rootManifest.scripts['test:coverage']).toBe('node scripts/quality-gate.mjs coverage');
   });
   it('does not expose page patterns from the base entry', async () => {
     expect(publicEntry).not.toHaveProperty('AppShell');

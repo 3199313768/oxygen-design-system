@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -41,9 +42,9 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
       return max !== undefined && Number.isFinite(max) ? Math.min(max, lower) : lower;
     }
 
-    function format(next: number | undefined) {
+    const format = useCallback((next: number | undefined) => {
       return formatter ? formatter(next) : next === undefined ? '' : String(next);
-    }
+    }, [formatter]);
 
     function parse(raw: string) {
       if (raw.trim() === '') return undefined;
@@ -64,7 +65,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
         previousValue.current = value;
         lastEmitted.current = value;
       }
-    }, [value, focused, formatter]);
+    }, [value, focused, format]);
 
     function updateValue(next: number | undefined) {
       const normalized = normalize(next);

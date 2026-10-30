@@ -49,12 +49,6 @@ export function TreeSelect<T extends TreeKey = string>(allProps: TreeSelectProps
     [matches],
   );
 
-  function filter(nodes: TreeNode<T>[]): TreeNode<T>[] {
-    return nodes.filter((node) => visibleKeys.has(node.key)).map((node) => ({
-      ...node, children: node.children ? filter(node.children) : undefined,
-    }));
-  }
-
   function change(next: T | undefined) {
     const entry = entries.find((item) => item.node.key === next);
     if (disabled || entry?.disabled) return;
@@ -64,7 +58,14 @@ export function TreeSelect<T extends TreeKey = string>(allProps: TreeSelectProps
     setQuery('');
   }
 
-  const filteredTreeData = useMemo(() => query ? filter(treeData) : treeData, [query, treeData, visibleKeys]);
+  const filteredTreeData = useMemo(() => {
+    function filter(nodes: TreeNode<T>[]): TreeNode<T>[] {
+      return nodes.filter((node) => visibleKeys.has(node.key)).map((node) => ({
+        ...node, children: node.children ? filter(node.children) : undefined,
+      }));
+    }
+    return query ? filter(treeData) : treeData;
+  }, [query, treeData, visibleKeys]);
 
   return <Popover open={open && !disabled} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(''); }}>
     <div className={cn('oxygen-hierarchy-select', className)}>

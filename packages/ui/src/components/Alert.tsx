@@ -35,8 +35,8 @@ Alert.displayName = 'Alert';
 export const AlertTitle = forwardRef<
   HTMLHeadingElement,
   HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h5 className={cn('oxygen-alert__title', className)} ref={ref} {...props} />
+>(({ children, className, ...props }, ref) => (
+  <h5 className={cn('oxygen-alert__title', className)} ref={ref} {...props}>{children}</h5>
 ));
 AlertTitle.displayName = 'AlertTitle';
 

@@ -188,6 +188,7 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
         <div className="oxygen-combobox__menu" id={listboxId} role="listbox" aria-busy={loading || undefined}>
           {loading ? <div className="oxygen-combobox__empty">{locale.common.loading}</div>
             : filteredOptions.length > 0 ? filteredOptions.map((option, index) => (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- The input handles keyboard selection and retains DOM focus via aria-activedescendant.
               <div
                 aria-disabled={option.disabled || undefined}
                 aria-selected={Object.is(option.value, selectedValue)}

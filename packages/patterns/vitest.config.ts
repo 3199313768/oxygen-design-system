@@ -13,7 +13,16 @@ export default defineConfig({
     },
   },
   test: {
+    fsModuleCachePath: './node_modules/.vitest-cache',
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.d.ts', 'src/index.ts'],
+      reportsDirectory: '../../output/coverage/patterns',
+      reporter: ['text', 'html', 'json-summary', 'lcov'],
+      thresholds: { statements: 100, branches: 77, functions: 100, lines: 100 },
+    },
   },
 });

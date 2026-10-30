@@ -2,6 +2,7 @@ name: Check
 
 on:
   pull_request:
+  merge_group:
   push:
     branches:
       - main
@@ -11,7 +12,9 @@ permissions:
 
 jobs:
   check:
+    name: check
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -31,20 +34,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build package
-        run: pnpm build
-
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
+      - name: Verify lint rule enforcement
+        run: pnpm test:tooling
 
       - name: Test coverage surface
+        run: pnpm test:surface
+
+      - name: Test with execution coverage thresholds
         run: pnpm test:coverage
+
+      - name: Upload execution coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-coverage
+          path: output/coverage/
+          retention-days: 14
+
+      - name: Build package
+        run: pnpm build
 
       - name: Build Storybook
         run: pnpm storybook:build-only
@@ -53,7 +67,9 @@ jobs:
         run: pnpm verify:package
 
   browser:
+    name: browser
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

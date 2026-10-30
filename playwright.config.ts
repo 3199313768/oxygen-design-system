@@ -7,6 +7,7 @@ export default defineConfig({
   outputDir: './output/playwright/consumer/results',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
+  failOnFlakyTests: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
   reporter: [['list'], ['html', { outputFolder: 'output/playwright/consumer/report', open: 'never' }]],
