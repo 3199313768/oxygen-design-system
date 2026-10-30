@@ -6,6 +6,24 @@ import { test } from 'node:test';
 
 const load = () => import('../../scripts/docs-api.mjs');
 
+test('API extraction resolves workspace source types before package dist exists', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'oxygen-docs-workspace-'));
+  try {
+    await mkdir(path.join(root, 'packages/ui/src/components'), { recursive: true });
+    await mkdir(path.join(root, 'packages/patterns/src/components'), { recursive: true });
+    await writeFile(path.join(root, 'packages/ui/src/index.ts'), "export type { SharedProps } from './components/Shared';");
+    await writeFile(path.join(root, 'packages/ui/src/components/Shared.ts'), 'export interface SharedProps { label: string; disabled?: boolean }');
+    await writeFile(path.join(root, 'packages/patterns/src/index.ts'), "export { Sample } from './components/Sample';");
+    await writeFile(path.join(root, 'packages/patterns/src/components/Sample.ts'), "import type { SharedProps } from '@oxygen-design/ui'; export function Sample(props: SharedProps) { return props.label; }");
+    const { extractApi } = await load();
+    const [family] = extractApi(root);
+    const props = family.exports[0].props;
+    assert.equal(family.module, '@oxygen-design/patterns');
+    assert.equal(props.find((prop) => prop.name === 'label').required, true);
+    assert.equal(props.find((prop) => prop.name === 'disabled').type, 'boolean | undefined');
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test('API extraction preserves required, inherited and callback props, defaults and compound exports', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'oxygen-docs-api-'));
   try {

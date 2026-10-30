@@ -12,6 +12,8 @@ export function extractApi(root) {
     target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Bundler, jsx: ts.JsxEmit.ReactJSX,
     esModuleInterop: true, skipLibCheck: true, strict: true,
+    paths: Object.fromEntries(['ui', 'patterns'].map((pkg) =>
+      [`@oxygen-design/${pkg}`, [path.join(root, `packages/${pkg}/src/index.ts`)]])),
   });
   const unresolved = program.getSemanticDiagnostics().filter((diagnostic) => diagnostic.code === 2307 || diagnostic.code === 7016);
   if (unresolved.length) throw new Error(unresolved.map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')).join('\n'));
