@@ -19,7 +19,7 @@
     "verify:workbench": "node scripts/verify-workbench.mjs",
     "workbench": "node scripts/verify-workbench.mjs --preview",
     "verify:initial-release": "node scripts/verify-initial-release.mjs",
-    "release": "pnpm build && pnpm changeset publish",
+    "release": "pnpm build && pnpm changeset pack --out-dir output/release && node scripts/publish-npm.mjs output/release/publish-plan.json && pnpm changeset git-tag",
     "test:surface": "node scripts/quality-gate.mjs coverage",
     "test:tooling": "node --test tests/tooling/*.test.mjs",
     "verify:protection": "node scripts/verify-merge-gate.mjs"

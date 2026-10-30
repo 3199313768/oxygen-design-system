@@ -1,7 +1,8 @@
 # Oxygen 设计系统
 
-面向 Oxygen 项目的 React 设计系统。GitHub 仓库和 Storybook 保持私有；可发布的
-软件包是公开的作用域包 `@oxygen-design/ui` 和 `@oxygen-design/patterns`。
+面向 React 开发者的开源设计系统，采用 [MIT 许可证](LICENSE)。GitHub 仓库公开，
+软件包通过 npm 公开发布：`@oxygen-design/ui` 和 `@oxygen-design/patterns`。
+Storybook 提供组件文档和交互示例。
 
 ## 软件包内容
 
@@ -135,9 +136,18 @@ React 和 React DOM 是 peerDependencies。使用方无需安装 Tailwind CSS，
 软件包独立版本管理。后续兼容性修复使用 patch changeset，兼容的公开功能新增使用
 minor changeset，破坏性 API 变更使用 major changeset。
 
-发布工作流会创建版本更新拉取请求，并在合并后运行 `pnpm release`。优先使用 npm
-Trusted Publishing。如果 npm 账号无法使用 Trusted Publishing，请在本仓库之外配置
-权限范围明确的 `NPM_TOKEN`。软件包将以公开权限发布。
+本次 MIT 迁移附带两个包的 patch changeset，版本 PR 将更新到 `0.1.1`。
+npm 上已发布的 UI `0.1.0` 仍标为 `UNLICENSED`；MIT 使用方应等待并安装新的 MIT 版本，
+不能将源码仓库的许可证变更视为旧归档元数据已被修改。
+
+维护者使用 Changesets 创建版本更新拉取请求，发布工作流在合并后运行 `pnpm release`。
+若 main 仍有待处理的 changeset，工作流只提示创建版本 PR。两个包都使用
+npm Trusted Publishing，通过 GitHub Actions OIDC 获取短期发布凭据，并生成 provenance；
+工作流不使用长期 npm token。pnpm 负责生成 Changesets 发布计划和 tarball，npm CLI
+负责发布校验过的 tarball。首次发布、npm 后台配置和版本 PR 检查见
+[公开发布指南](docs/publishing.md)。
+
+Oxygen 的原创代码采用 MIT；第三方依赖及复用代码仍需遵循各自的许可证和署名要求。
 
 本地脚手架不会自动创建 GitHub remote、npm 组织、Trusted Publisher、token 或软件包
 发布记录。

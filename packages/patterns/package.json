@@ -2,6 +2,16 @@
   "name": "@oxygen-design/patterns",
   "version": "0.1.0",
   "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3199313768/oxygen-design-system.git",
+    "directory": "packages/patterns"
+  },
+  "homepage": "https://github.com/3199313768/oxygen-design-system/tree/main/packages/patterns#readme",
+  "bugs": {
+    "url": "https://github.com/3199313768/oxygen-design-system/issues"
+  },
   "type": "module",
   "files": [
     "dist"
