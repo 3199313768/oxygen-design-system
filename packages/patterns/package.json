@@ -1,6 +1,6 @@
 {
   "name": "@oxygen-design/patterns",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -33,7 +33,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "@oxygen-design/ui": ">=0.1.0 <1.0.0",
+    "@oxygen-design/ui": ">=0.1.1 <1.0.0",
     "react": ">=18",
     "react-dom": ">=18"
   },

@@ -28,7 +28,7 @@ describe('@oxygen-design/patterns package contract', () => {
     });
     expect(manifest.exports['./styles.css']).toBe('./dist/styles.css');
     expect(manifest.peerDependencies).toEqual({
-      '@oxygen-design/ui': '>=0.1.0 <1.0.0',
+      '@oxygen-design/ui': '>=0.1.1 <1.0.0',
       react: '>=18',
       'react-dom': '>=18',
     });
