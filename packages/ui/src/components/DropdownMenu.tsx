@@ -1,4 +1,5 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { Slottable } from '@radix-ui/react-slot';
 import { Check, ChevronRight, Circle } from 'lucide-react';
 import { forwardRef, type HTMLAttributes } from 'react';
 
@@ -23,7 +24,7 @@ export const DropdownMenuSubTrigger = forwardRef<
     ref={ref}
     {...props}
   >
-    {children}
+    <Slottable>{children}</Slottable>
     <ChevronRight aria-hidden="true" className="oxygen-menu__chevron" />
   </DropdownMenuPrimitive.SubTrigger>
 ));
@@ -51,7 +52,7 @@ export const DropdownMenuContent = forwardRef<
 >(({ className, sideOffset = 4, ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
-    <DropdownMenuPortal>
+    <DropdownMenuPortal forceMount={props.forceMount}>
       <DropdownMenuPrimitive.Content
         {...themeAttributes}
         className={cn('oxygen-menu__content', className)}
@@ -93,7 +94,7 @@ export const DropdownMenuCheckboxItem = forwardRef<
         <Check aria-hidden="true" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
-    {children}
+    <Slottable>{children}</Slottable>
   </DropdownMenuPrimitive.CheckboxItem>
 ));
 DropdownMenuCheckboxItem.displayName =
@@ -113,7 +114,7 @@ export const DropdownMenuRadioItem = forwardRef<
         <Circle aria-hidden="true" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
-    {children}
+    <Slottable>{children}</Slottable>
   </DropdownMenuPrimitive.RadioItem>
 ));
 DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName;

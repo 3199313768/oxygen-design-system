@@ -31,12 +31,12 @@ function normalizeFinite(value: number, fallback: number) {
 }
 
 function normalizePositive(value: number, fallback: number) {
-  const normalized = normalizeFinite(value, fallback);
+  const normalized = Math.min(Number.MAX_SAFE_INTEGER, Math.floor(normalizeFinite(value, fallback)));
   return normalized > 0 ? normalized : fallback;
 }
 
 function normalizeNonNegative(value: number) {
-  return Math.max(0, normalizeFinite(value, 0));
+  return clamp(Math.floor(normalizeFinite(value, 0)), 0, Number.MAX_SAFE_INTEGER);
 }
 
 function getPageItems(page: number, pageCount: number): Array<number | 'ellipsis'> {
@@ -78,7 +78,8 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
     const pageCount = Math.max(1, Math.ceil(safeTotal / pageSize));
     const page = clamp(normalizePositive(current ?? uncontrolledCurrent, 1), 1, pageCount);
     const resolvedPageSizeOptions = Array.from(
-      new Set([...(pageSizeOptions ?? [10, 20, 50]), pageSize].filter((option) => Number.isFinite(option) && option > 0)),
+      new Set([...(pageSizeOptions ?? [10, 20, 50]), pageSize]
+        .map((option) => normalizePositive(option, 0)).filter((option) => option > 0)),
     ).sort((a, b) => a - b);
     const pageItems = getPageItems(page, pageCount);
 

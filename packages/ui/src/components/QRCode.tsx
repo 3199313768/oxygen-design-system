@@ -15,6 +15,7 @@ export interface QRCodeProps
   error?: ReactNode;
   /** Accessible name for the generated code. */
   label?: string;
+  ariaLabel?: string;
 }
 
 export function QRCode({
@@ -28,7 +29,7 @@ export function QRCode({
   label,
   value,
   ...props
-}: QRCodeProps & { ariaLabel?: string }) {
+}: QRCodeProps) {
   const locale = useOxygenLocale();
   const accessibleLabel = ariaLabelProp ?? ariaLabel ?? label ?? locale.common.qrcode;
 

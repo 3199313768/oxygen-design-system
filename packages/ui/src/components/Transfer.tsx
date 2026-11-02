@@ -8,6 +8,7 @@ import { Checkbox } from './Checkbox';
 import { useOxygenLocale } from './ConfigProvider';
 import { Input } from './Input';
 import type { Option } from './shared';
+import { treeLabelText } from './tree-utils';
 
 export type TransferDirection = 'left' | 'right';
 
@@ -92,7 +93,7 @@ function equalValues<T>(left: T[], right: T[]) {
 }
 
 function optionText(label: ReactNode) {
-  return typeof label === 'string' || typeof label === 'number' ? String(label) : '';
+  return treeLabelText(label);
 }
 
 function TransferInner<T>({
@@ -153,7 +154,7 @@ function TransferInner<T>({
   function filterOptions(items: Option<T>[], query: string) {
     return items.filter((option) => filterOption
       ? filterOption(query, option)
-      : optionText(option.label).toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+      : (option.textValue ?? optionText(option.label)).toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   }
 
   const visibleSource = filterOptions(sourceOptions, sourceSearch);
@@ -201,6 +202,7 @@ function TransferInner<T>({
     if (!controlled) setUncontrolledTargetKeys(nextKeys);
     if (direction === 'right') setSourceSelectedKeys([]);
     else setTargetSelectedKeys([]);
+    onSelectChange?.(direction === 'right' ? [] : sourceSelectedKeys, direction === 'left' ? [] : targetSelectedKeys);
     onChange?.([...nextKeys], direction, [...moveKeys]);
   }
 
@@ -248,7 +250,7 @@ function TransferInner<T>({
           {loading ? <span className="oxygen-transfer__empty">{locale.common.loading}</span> : visible.length === 0 ? <span className="oxygen-transfer__empty">{items.length === 0 ? renderEmpty ?? locale.common.empty : locale.transfer.noMatch}</span> : visible.map((option, index) => (
             <label className={cn('oxygen-transfer__item', option.disabled && 'oxygen-transfer__item--disabled')} key={optionKey(option, index)}>
               <Checkbox
-                aria-label={optionText(option.label) || undefined}
+                aria-label={(option.textValue ?? optionText(option.label)) || undefined}
                 checked={includes(selected, option.value)}
                 disabled={disabled || loading || option.disabled}
                 onCheckedChange={(checked) => select(direction, option.value, checked === true)}

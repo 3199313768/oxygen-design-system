@@ -45,6 +45,5 @@
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json",
     "test:coverage": "vitest run --coverage"
-  },
-  "license": "MIT"
+  }
 }

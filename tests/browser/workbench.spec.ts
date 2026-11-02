@@ -14,13 +14,14 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('filtering resets pagination and empty results can be reset', async ({ page }) => {
+  const results = page.getByRole('region', { name: '记录列表', exact: true });
   await expect(page.getByRole('table', { name: '记录列表' })).toBeVisible();
-  await page.getByRole('button', { name: '下一页', exact: true }).click();
+  await results.getByRole('button', { name: '下一页', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: '演示记录 06' })).toBeVisible();
   await page.getByRole('textbox', { name: '关键词' }).fill('12');
   await page.getByRole('button', { name: '查询', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: '演示记录 12' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
+  await expect(results.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
   await page.getByRole('textbox', { name: '关键词' }).fill('不存在的记录');
   await page.getByRole('button', { name: '查询', exact: true }).click();
   await expect(page.getByRole('heading', { name: '没有匹配记录' })).toBeVisible();
@@ -113,9 +114,10 @@ test('page and dialog fit the viewport and keyboard focus stays inside the dialo
 });
 
 test('changing page size resets to the first page and renders the requested rows', async ({ page }) => {
-  await page.getByRole('button', { name: '下一页', exact: true }).click();
-  await page.getByLabel('每页条数', { exact: true }).selectOption('10');
-  await expect(page.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
+  const results = page.getByRole('region', { name: '记录列表', exact: true });
+  await results.getByRole('button', { name: '下一页', exact: true }).click();
+  await results.getByLabel('每页条数', { exact: true }).selectOption('10');
+  await expect(results.getByRole('button', { name: '上一页', exact: true })).toBeDisabled();
   await expect(page.getByRole('row')).toHaveCount(11);
   await expect(page.getByRole('row').filter({ hasText: '演示记录 10' })).toBeVisible();
 });

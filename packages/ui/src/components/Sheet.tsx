@@ -1,4 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Slottable } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { forwardRef, type HTMLAttributes } from 'react';
 
@@ -55,7 +56,7 @@ export const SheetContent = forwardRef<
   const accessibleCloseLabel = closeLabel || common.close;
 
   return (
-    <SheetPortal>
+    <SheetPortal forceMount={props.forceMount}>
       <SheetOverlay />
       <DialogPrimitive.Content
         {...themeAttributes}
@@ -63,7 +64,7 @@ export const SheetContent = forwardRef<
         ref={ref}
         {...props}
       >
-        {children}
+        <Slottable>{children}</Slottable>
         <DialogPrimitive.Close
           aria-label={accessibleCloseLabel}
           className="oxygen-sheet__close"

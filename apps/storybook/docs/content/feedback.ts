@@ -54,7 +54,8 @@ export const feedbackDocs: ComponentDoc[] = [
     ],
     "accessibility": [
       "Radix 管理播报、暂停与关闭；Action 必须提供 altText 说明替代动作。",
-      "关闭按钮缺省提供图标和本地化名称，不能只给视觉符号。"
+      "关闭按钮缺省提供图标和本地化名称，不能只给视觉符号。",
+      "打开期间正文更新会补充播报，不重置计时器或焦点；宿主应避免无意义的高频文字更新。"
     ],
     "interaction": "更新 open 展示通知；关闭、超时和滑动通过 onOpenChange 通知宿主。",
     "stateNotes": "支持四种 tone、打开/关闭及 Radix duration/swipe 配置。",
@@ -571,7 +572,7 @@ export const feedbackDocs: ComponentDoc[] = [
         "default": "0"
       },
       "showInfo": {
-        "description": "显示数字和状态图标。",
+        "description": "显示百分比数字；隐藏数字时仍保留成功或异常图标，避免只靠颜色表示结果。",
         "default": "true"
       },
       "status": {
@@ -625,7 +626,7 @@ export const feedbackDocs: ComponentDoc[] = [
     ],
     "restrictions": [
       "所有面板内容保持挂载，仅隐藏；不提供按需请求。",
-      "单项键必须唯一，单选关闭回调为空字符串。"
+      "单项键必须唯一；单选模式将空字符串保留为关闭状态，项键不能使用空字符串。单选关闭回调仍为空字符串。"
     ],
     "accessibility": [
       "标题按钮使用 aria-expanded/controls，面板 role=region。",

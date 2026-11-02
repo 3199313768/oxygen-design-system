@@ -21,13 +21,13 @@ export interface SpaceProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeValues = {
-  large: 24,
-  middle: 16,
-  small: 8,
+  large: 'var(--oxygen-space-6, 24px)',
+  middle: 'var(--oxygen-space-4, 16px)',
+  small: 'var(--oxygen-space-2, 8px)',
 } as const;
 
 function resolveSize(size: SpaceSize) {
-  return typeof size === 'number' ? size : sizeValues[size];
+  return typeof size === 'number' ? `${size}px` : sizeValues[size];
 }
 
 const SpaceImpl = forwardRef<HTMLDivElement, SpaceProps>(
@@ -66,7 +66,7 @@ const SpaceImpl = forwardRef<HTMLDivElement, SpaceProps>(
         style={
           {
             ...style,
-            '--oxygen-space-gap': `${gap}px`,
+            '--oxygen-space-gap': gap,
           } as CSSProperties
         }
         {...props}

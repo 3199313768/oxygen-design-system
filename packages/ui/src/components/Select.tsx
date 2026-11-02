@@ -1,4 +1,5 @@
 import * as SelectPrimitive from '@radix-ui/react-select';
+import { Slottable } from '@radix-ui/react-slot';
 import { forwardRef, type HTMLAttributes } from 'react';
 
 import { Check, ChevronDown } from '../Icons';
@@ -35,7 +36,7 @@ export const SelectTrigger = forwardRef<
     ref={ref}
     {...props}
   >
-    {children}
+    <Slottable>{children}</Slottable>
     <SelectPrimitive.Icon aria-hidden="true" asChild>
       <ChevronDown />
     </SelectPrimitive.Icon>
@@ -51,20 +52,31 @@ export type SelectContentProps = React.ComponentPropsWithoutRef<
 export const SelectContent = forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   SelectContentProps
->(({ className, children, position = 'popper', ...props }, ref) => {
+>(({ asChild, className, children, position = 'popper', ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         {...themeAttributes}
+        asChild={asChild}
         className={cn('oxygen-select__content', className)}
         position={position}
         ref={ref}
         {...props}
       >
-        <SelectPrimitive.Viewport className="oxygen-select__viewport">
-          {children}
-        </SelectPrimitive.Viewport>
+        {asChild ? (
+          <Slottable child={children}>
+            {(content) => (
+              <SelectPrimitive.Viewport className="oxygen-select__viewport">
+                {content}
+              </SelectPrimitive.Viewport>
+            )}
+          </Slottable>
+        ) : (
+          <SelectPrimitive.Viewport className="oxygen-select__viewport">
+            {children}
+          </SelectPrimitive.Viewport>
+        )}
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   );
@@ -78,8 +90,9 @@ export type SelectItemProps = React.ComponentPropsWithoutRef<
 export const SelectItem = forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   SelectItemProps
->(({ className, children, ...props }, ref) => (
+>(({ asChild, className, children, ...props }, ref) => (
   <SelectPrimitive.Item
+    asChild={asChild}
     className={cn('oxygen-select__item', className)}
     ref={ref}
     {...props}
@@ -87,7 +100,15 @@ export const SelectItem = forwardRef<
     <SelectPrimitive.ItemIndicator className="oxygen-select__item-indicator">
       <Check aria-hidden="true" />
     </SelectPrimitive.ItemIndicator>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    {asChild ? (
+      <Slottable child={children}>
+        {(content) => (
+          <SelectPrimitive.ItemText>{content}</SelectPrimitive.ItemText>
+        )}
+      </Slottable>
+    ) : (
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    )}
   </SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;

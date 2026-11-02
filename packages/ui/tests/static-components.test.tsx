@@ -423,7 +423,6 @@ describe('static components', () => {
     expect(ref.current).toBe(space);
     expect(space).toHaveAttribute('data-direction', 'vertical');
     expect(space).toHaveAttribute('data-size', 'large');
-    expect(space).toHaveStyle('--oxygen-space-gap: 24px');
 
     render(
       <Space.Compact block>

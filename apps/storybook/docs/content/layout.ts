@@ -50,7 +50,7 @@ export const layoutDocs: ComponentDoc[] = [
     "category": "布局",
     "description": "以固定间距排列一组控件，适合工具栏和小型操作组。",
     "design": [
-      "small、middle、large 分别对应 8、16、24px。",
+      "small、middle、large 使用 space-2、space-4、space-6 Token；默认密度分别为 8、16、24px，并响应 compact 与宿主 Token 定制。",
       "横向内容较长时启用 wrap，并选择合适的 align。"
     ],
     "restrictions": [
@@ -69,7 +69,7 @@ export const layoutDocs: ComponentDoc[] = [
         "default": "horizontal"
       },
       "size": {
-        "description": "small、middle、large 或像素数字。",
+        "description": "small、middle、large 语义 Token 尺寸，或固定像素数字。",
         "default": "small"
       },
       "align": {

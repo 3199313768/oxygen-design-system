@@ -75,8 +75,8 @@
     width: 18px;
   }
 
-  .oxygen-accordion__item[data-state='open'] .oxygen-accordion__icon,
-  .oxygen-collapsible[data-state='open'] .oxygen-collapsible__icon {
+  .oxygen-accordion__trigger[aria-expanded='true'] > .oxygen-accordion__icon,
+  .oxygen-collapsible__trigger[aria-expanded='true'] > .oxygen-collapsible__icon {
     transform: rotate(180deg);
   }
 

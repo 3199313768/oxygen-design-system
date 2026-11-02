@@ -12,7 +12,8 @@ export const generalDocs: ComponentDoc[] = [
     ],
     "restrictions": [
       "组件不管理请求与重复请求的业务幂等性。",
-      "asChild 必须传入一个可接收属性和 ref 的元素；表单内非提交操作显式设置 type=\"button\"。"
+      "asChild 必须传入一个可接收属性和 ref 的元素；表单内非提交操作显式设置 type=\"button\"。",
+      "asChild 的加载图标使用 CSS 装饰，不改写子内容；input 等不支持伪元素的宿主保留 aria-busy、aria-disabled 与激活拦截，需可见图标时使用普通 Button。"
     ],
     "accessibility": [
       "纯图标按钮必须有 aria-label。",
@@ -34,7 +35,7 @@ export const generalDocs: ComponentDoc[] = [
         "default": "false"
       },
       "loading": {
-        "description": "阻止操作并显示忙碌状态。",
+        "description": "阻止操作并显示加载指示；支持 children 的 asChild 子元素保持相同反馈，状态切换保留子内容。",
         "default": "false"
       },
       "disabled": {

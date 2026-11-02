@@ -176,7 +176,7 @@ export const navigationDocs: ComponentDoc[] = [
         "description": "展开面板变化。"
       },
       "orientation": {
-        "description": "Radix 菜单方向。"
+        "description": "菜单布局与键盘导航方向；vertical 按列排列。"
       },
       "NavigationMenuItem.value": {
         "description": "导航面板键。"
@@ -210,7 +210,7 @@ export const navigationDocs: ComponentDoc[] = [
     "category": "导航",
     "description": "按总条数、页大小和当前页生成分页导航。",
     "design": [
-      "大页数自动显示省略号；窄空间可选 simple。",
+      "大页数自动显示省略号；页码组在窄容器内换行，也可显式选择 simple。",
       "条数摘要与列表实际查询范围保持一致。"
     ],
     "restrictions": [
@@ -228,7 +228,7 @@ export const navigationDocs: ComponentDoc[] = [
         "description": "总记录数，负数或非有限值按 0 处理。"
       },
       "current": {
-        "description": "受控页码，从 1 开始。"
+        "description": "受控整数页码，从 1 开始；非整数向下取整，非有限值和非正值使用安全默认值。"
       },
       "defaultCurrent": {
         "description": "非受控初始页。",

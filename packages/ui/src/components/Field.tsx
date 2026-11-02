@@ -119,6 +119,7 @@ export const FieldControl = forwardRef<HTMLElement, FieldControlProps>(
     {
       'aria-describedby': ariaDescribedBy,
       'aria-invalid': ariaInvalid,
+      'aria-required': ariaRequired,
       children,
       id,
       ...props
@@ -141,6 +142,7 @@ export const FieldControl = forwardRef<HTMLElement, FieldControlProps>(
       <Slot
         aria-describedby={resolvedDescribedBy}
         aria-invalid={ariaInvalid ?? (field?.invalid ? true : undefined)}
+        aria-required={ariaRequired ?? (field?.required ? true : undefined)}
         id={id ?? field?.controlId}
         ref={ref}
         {...props}
