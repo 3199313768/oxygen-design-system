@@ -1,5 +1,5 @@
 import * as ToastPrimitive from '@radix-ui/react-toast';
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 
 import { cn } from '../lib/cn';
 import { useOxygenThemeAttributes } from './theme-context';
@@ -32,17 +32,87 @@ export type ToastProps = React.ComponentPropsWithoutRef<
   tone?: ToastTone;
 };
 
+function getToastUpdateText(root: HTMLElement) {
+  const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const text: string[] = [];
+  while (walker.nextNode()) {
+    const parent = walker.currentNode.parentElement;
+    if (!parent?.closest('.oxygen-toast__title, .oxygen-toast__description')) continue;
+    let element: HTMLElement | null = parent;
+    while (element) {
+      if (element.getAttribute('aria-hidden') === 'true' || element.hidden || element.style.display === 'none' || element.hasAttribute('data-radix-toast-announce-exclude')) break;
+      element = element.parentElement;
+    }
+    if (!element) text.push(walker.currentNode.textContent ?? '');
+  }
+  return text.join(' ').replace(/\s+/g, ' ').trim();
+}
+
 export const Toast = forwardRef<
   React.ElementRef<typeof ToastPrimitive.Root>,
   ToastProps
->(({ className, tone = 'default', ...props }, ref) => {
+>(({ className, tone = 'default', type = 'foreground', ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
+  const [node, setNode] = useState<HTMLLIElement | null>(null);
+  const updateRegion = useRef<HTMLSpanElement | null>(null);
+  const composedRef = useCallback((element: HTMLLIElement | null) => {
+    setNode(element);
+    const cleanup: unknown = typeof ref === 'function' ? ref(element) : undefined;
+    if (ref && typeof ref !== 'function') ref.current = element;
+    return () => {
+      setNode(null);
+      if (typeof cleanup === 'function') cleanup();
+      else if (typeof ref === 'function') ref(null);
+      else if (ref) ref.current = null;
+    };
+  }, [ref]);
+
+  useEffect(() => {
+    if (!node) return;
+    const region = node.ownerDocument.createElement('span');
+    region.className = 'oxygen-visually-hidden';
+    region.setAttribute('role', 'status');
+    region.setAttribute('aria-atomic', 'true');
+    region.setAttribute('data-radix-toast-announce-exclude', '');
+    node.append(region);
+    updateRegion.current = region;
+    let wasOpen = node.dataset.state === 'open';
+    let previousText = getToastUpdateText(node);
+    const observer = new MutationObserver((records) => {
+      if (records.every((record) => region.contains(record.target))) return;
+      const isOpen = node.dataset.state === 'open';
+      const text = getToastUpdateText(node);
+      if (!isOpen) region.textContent = '';
+      else if (!wasOpen || text !== previousText) region.textContent = text;
+      wasOpen = isOpen;
+      previousText = text;
+    });
+    observer.observe(node, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-hidden', 'hidden', 'style', 'data-state'],
+    });
+    return () => {
+      observer.disconnect();
+      region.textContent = '';
+      region.remove();
+      updateRegion.current = null;
+    };
+  }, [node]);
+
+  useEffect(() => {
+    updateRegion.current?.setAttribute('aria-live', type === 'foreground' ? 'assertive' : 'polite');
+  }, [node, type]);
+
   return (
     <ToastPrimitive.Root
       {...themeAttributes}
       className={cn('oxygen-toast', className)}
       data-tone={tone}
-      ref={ref}
+      ref={composedRef}
+      type={type}
       {...props}
     />
   );

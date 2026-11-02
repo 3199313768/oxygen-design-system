@@ -1,4 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Slottable } from '@radix-ui/react-slot';
 import { forwardRef, type HTMLAttributes } from 'react';
 
 import { X } from '../Icons';
@@ -41,7 +42,7 @@ export const DialogContent = forwardRef<
   const accessibleCloseLabel = closeLabel || common.close;
 
   return (
-    <DialogPortal>
+    <DialogPortal forceMount={props.forceMount}>
       <DialogOverlay />
       <DialogPrimitive.Content
         {...themeAttributes}
@@ -49,7 +50,7 @@ export const DialogContent = forwardRef<
         ref={ref}
         {...props}
       >
-        {children}
+        <Slottable>{children}</Slottable>
         <DialogPrimitive.Close
           aria-label={accessibleCloseLabel}
           className="oxygen-dialog__close"

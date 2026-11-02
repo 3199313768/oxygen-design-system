@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   useOxygenLocale,
 } from '@oxygen-design/ui';
 
-export interface AppShellProps {
+export interface AppShellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'title'> {
   children: ReactNode;
   mobileNavigation: ReactNode;
   navigationDescription?: string;
@@ -23,8 +23,9 @@ export interface AppShellProps {
   topbarActions?: ReactNode;
 }
 
-export function AppShell({
+export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(function AppShell({
   children,
+  className,
   mobileNavigation,
   navigationDescription,
   navigationTitle,
@@ -32,7 +33,8 @@ export function AppShell({
   sidebar,
   title,
   topbarActions,
-}: AppShellProps) {
+  ...props
+}, ref) {
   const locale = useOxygenLocale();
   const navigationTitleFormatter = (locale.common as typeof locale.common & {
     navigationTitle?: (value: string) => string;
@@ -42,7 +44,7 @@ export function AppShell({
   const resolvedNavigationTriggerLabel = navigationTriggerLabel ?? locale.common.openNavigation;
 
   return (
-    <div className="oxygen-app-shell">
+    <div {...props} className={['oxygen-app-shell', className].filter(Boolean).join(' ')} ref={ref}>
       <aside className="oxygen-app-shell__sidebar">{sidebar}</aside>
       <div className="oxygen-app-shell__body">
         <header className="oxygen-app-shell__topbar">
@@ -71,4 +73,4 @@ export function AppShell({
       </div>
     </div>
   );
-}
+});

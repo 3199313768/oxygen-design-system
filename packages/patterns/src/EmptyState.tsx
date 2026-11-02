@@ -1,15 +1,15 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 
-export interface EmptyStateProps {
+export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLElement>, 'children' | 'title'> {
   action?: ReactNode;
   description: ReactNode;
   icon?: ReactNode;
   title: ReactNode;
 }
 
-export function EmptyState({ action, description, icon, title }: EmptyStateProps) {
+export const EmptyState = forwardRef<HTMLElement, EmptyStateProps>(function EmptyState({ action, className, description, icon, title, ...props }, ref) {
   return (
-    <section className="oxygen-empty-state">
+    <section {...props} className={['oxygen-empty-state', className].filter(Boolean).join(' ')} ref={ref}>
       {icon ? <div className="oxygen-empty-state__icon">{icon}</div> : null}
       <div className="oxygen-empty-state__copy">
         <h2 className="oxygen-empty-state__title">{title}</h2>
@@ -18,4 +18,4 @@ export function EmptyState({ action, description, icon, title }: EmptyStateProps
       {action ? <div className="oxygen-empty-state__action">{action}</div> : null}
     </section>
   );
-}
+});

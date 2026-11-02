@@ -1,4 +1,5 @@
 import * as SliderPrimitive from '@radix-ui/react-slider';
+import { Slottable } from '@radix-ui/react-slot';
 import { forwardRef, useId, useMemo, useState } from 'react';
 
 import { cn } from '../lib/cn';
@@ -55,6 +56,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
     'aria-describedby': ariaDescribedBy,
     'aria-invalid': ariaInvalid,
     'aria-required': ariaRequired,
+    children,
     className,
     defaultValue,
     disabled = false,
@@ -112,6 +114,7 @@ export const Slider = forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, 
       step={1}
       value={values.map(toPosition)}
     >
+      <Slottable>{children}</Slottable>
       <SliderPrimitive.Track className="oxygen-slider__track">
         <SliderPrimitive.Range className="oxygen-slider__range" />
       </SliderPrimitive.Track>

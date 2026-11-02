@@ -32,30 +32,32 @@ export const buttonVariants = cva('oxygen-button', {
   },
 });
 
-export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+interface ButtonSharedProps
+  extends ButtonHTMLAttributes<HTMLElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
 }
 
-type ButtonDefaultProps = ButtonProps & {
+type ButtonDefaultProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants> & {
   asChild?: false;
+  loading?: boolean;
   ref?: Ref<HTMLButtonElement>;
 };
 
-type ButtonAsChildProps = Omit<ButtonProps, 'asChild'> & {
+type ButtonAsChildProps = Omit<ButtonSharedProps, 'asChild' | 'children'> & {
   asChild: true;
   children: ReactElement;
   ref?: Ref<HTMLElement>;
 };
 
+export type ButtonProps = ButtonDefaultProps | ButtonAsChildProps;
+
 export interface ButtonComponent {
-  (props: ButtonDefaultProps): ReactElement | null;
-  (props: ButtonAsChildProps): ReactElement | null;
+  (props: ButtonProps): ReactElement | null;
 }
 
-const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
+const ButtonImpl = forwardRef<HTMLElement, ButtonSharedProps>(
   ({
     asChild = false,
     children,
@@ -72,6 +74,7 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
     const dataProps = {
       'data-oxygen-control': 'true',
       'data-oxygen-icon-button': size === 'icon' ? 'true' : undefined,
+      'data-oxygen-slotted': asChild ? 'true' : undefined,
       'data-oxygen-loading': loading ? 'true' : undefined,
       'data-size': size ?? 'default',
       'data-variant': variant ?? 'default',
@@ -85,8 +88,15 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
         return;
       }
 
-      onClick?.(event as React.MouseEvent<HTMLButtonElement>);
+      onClick?.(event);
     };
+    const loadingIndicator = loading ? (
+      <span
+        aria-hidden="true"
+        className="oxygen-button__loading-indicator"
+        data-oxygen-loading-indicator="true"
+      />
+    ) : null;
 
     if (asChild) {
       return (
@@ -102,17 +112,17 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
               event.stopPropagation();
               return;
             }
-            onClickCapture?.(event as React.MouseEvent<HTMLButtonElement>);
+            onClickCapture?.(event);
           }}
           tabIndex={disabled || loading ? -1 : props.tabIndex}
           onKeyDownCapture={disabled || loading ? (event) => {
             if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
             event.stopPropagation();
-          } : props.onKeyDownCapture as React.KeyboardEventHandler<HTMLElement>}
+          } : props.onKeyDownCapture}
           onKeyUpCapture={disabled || loading ? (event) => {
             if (event.key === 'Enter' || event.key === ' ') event.preventDefault();
             event.stopPropagation();
-          } : props.onKeyUpCapture as React.KeyboardEventHandler<HTMLElement>}
+          } : props.onKeyUpCapture}
         >
           {(disabled || loading) && isValidElement<React.HTMLAttributes<HTMLElement>>(children)
             ? cloneElement(children, {
@@ -137,13 +147,7 @@ const ButtonImpl = forwardRef<HTMLElement, ButtonProps>(
         {...dataProps}
         {...props}
       >
-        {loading ? (
-          <span
-            aria-hidden="true"
-            className="oxygen-button__loading-indicator"
-            data-oxygen-loading-indicator="true"
-          />
-        ) : null}
+        {loadingIndicator}
         {children}
       </button>
     );

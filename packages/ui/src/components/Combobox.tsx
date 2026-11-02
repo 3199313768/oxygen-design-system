@@ -1,20 +1,22 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useId,
   useMemo,
   useRef,
   useState,
-  type ForwardedRef,
   type InputHTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type Ref,
   type RefAttributes,
 } from 'react';
 
 import { cn } from '../lib/cn';
 import { useOxygenLocale } from './ConfigProvider';
 import type { Option } from './shared';
+import { treeLabelText } from './tree-utils';
 
 export interface ComboboxProps<T = string>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'defaultValue' | 'onChange' | 'value'> {
@@ -29,11 +31,11 @@ export interface ComboboxProps<T = string>
   value?: NoInfer<T>;
 }
 
-function optionText(label: ReactNode) {
-  return typeof label === 'string' || typeof label === 'number' ? String(label) : '';
+function optionText<T>(option?: Option<T>) {
+  return option?.textValue ?? treeLabelText(option?.label);
 }
 
-function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInputElement>) {
+function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: Ref<HTMLInputElement>) {
   const {
     allowClear = true, className, defaultValue, disabled = false, emptyContent,
     filterOption, loading = false, onBlur, onChange, onClick, onFocus, onKeyDown,
@@ -42,23 +44,37 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
   const locale = useOxygenLocale();
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const setInputRef = useCallback((node: HTMLInputElement | null) => {
+    inputRef.current = node;
+    if (typeof ref === 'function') {
+      const cleanup = ref(node);
+      if (typeof cleanup === 'function') {
+        return () => {
+          inputRef.current = null;
+          cleanup();
+        };
+      }
+      return;
+    }
+    if (ref) ref.current = node;
+  }, [ref]);
   const controlled = 'value' in allProps;
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const selectedValue = controlled ? valueProp : uncontrolledValue;
   const selectedOption = options.find((option) => Object.is(option.value, selectedValue));
-  const selectedText = optionText(selectedOption?.label);
-  const [inputValue, setInputValue] = useState(selectedText);
+  const selectedText = optionText(selectedOption);
+  const [inputValue, setInputValue] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-
-  useEffect(() => { setInputValue(selectedText); }, [selectedValue, selectedText]);
 
   function close() {
     setOpen(false);
     setActiveIndex(-1);
     setSearchValue('');
-    setInputValue(selectedText);
+    setInputValue(null);
   }
 
   useEffect(() => {
@@ -67,12 +83,12 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
         setOpen(false);
         setActiveIndex(-1);
         setSearchValue('');
-        setInputValue(selectedText);
+        setInputValue(null);
       }
     }
     document.addEventListener('pointerdown', handleDocumentPointerDown);
     return () => document.removeEventListener('pointerdown', handleDocumentPointerDown);
-  }, [selectedText]);
+  }, []);
 
   useEffect(() => {
     if (disabled || readOnly) {
@@ -84,14 +100,14 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
   const filteredOptions = useMemo(
     () => options.filter((option) => filterOption
       ? filterOption(searchValue, option)
-      : optionText(option.label).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())),
+      : optionText(option).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())),
     [filterOption, searchValue, options],
   );
 
   function selectOption(option: Option<T>) {
     if (disabled || readOnly || loading || option.disabled) return;
     if (!controlled) setUncontrolledValue(option.value);
-    setInputValue(optionText(option.label));
+    setInputValue(null);
     setSearchValue('');
     setOpen(false);
     setActiveIndex(-1);
@@ -111,8 +127,25 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
   const activeId = expanded && !loading && activeIndex >= 0 && filteredOptions[activeIndex]
     ? `${listboxId}-option-${activeIndex}` : undefined;
 
+  useEffect(() => {
+    const list = listRef.current;
+    const option = activeId ? inputRef.current?.ownerDocument.getElementById(activeId) : null;
+    if (!list || !option || !list.contains(option)) return;
+    const listTop = list.getBoundingClientRect().top + list.clientTop;
+    const listBottom = listTop + list.clientHeight;
+    const optionBounds = option.getBoundingClientRect();
+    if (optionBounds.top < listTop) list.scrollTop += optionBounds.top - listTop;
+    else if (optionBounds.bottom > listBottom) list.scrollTop += optionBounds.bottom - listBottom;
+  }, [activeId, filteredOptions]);
+
   return (
-    <div className={cn('oxygen-combobox', className)} ref={rootRef}>
+    <div
+      className={cn('oxygen-combobox', className)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) close();
+      }}
+      ref={rootRef}
+    >
       <div className="oxygen-combobox__control">
         <input
           {...props}
@@ -122,10 +155,7 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
           aria-expanded={expanded}
           className="oxygen-combobox__input"
           disabled={disabled}
-          onBlur={(event) => {
-            if (!rootRef.current?.contains(event.relatedTarget as Node | null)) close();
-            onBlur?.(event);
-          }}
+          onBlur={onBlur}
           onChange={(event) => {
             setInputValue(event.currentTarget.value);
             setSearchValue(event.currentTarget.value);
@@ -163,21 +193,22 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
           }}
           placeholder={placeholder ?? locale.common.search}
           readOnly={readOnly}
-          ref={ref}
+          ref={setInputRef}
           role="combobox"
-          value={inputValue}
+          value={expanded ? inputValue ?? selectedText : selectedText}
         />
-        {allowClear && inputValue ? (
+        {allowClear && (selectedValue !== undefined || inputValue) ? (
           <button
             aria-label={locale.common.clear}
             className="oxygen-combobox__clear"
             disabled={disabled || readOnly}
             onClick={() => {
               if (!controlled) setUncontrolledValue(undefined);
-              setInputValue('');
+              setInputValue(null);
               setSearchValue('');
               setActiveIndex(-1);
               setOpen(true);
+              inputRef.current?.focus({ preventScroll: true });
               onChange?.(undefined);
             }}
             type="button"
@@ -185,7 +216,7 @@ function ComboboxInner<T>(allProps: ComboboxProps<T>, ref: ForwardedRef<HTMLInpu
         ) : null}
       </div>
       {expanded ? (
-        <div className="oxygen-combobox__menu" id={listboxId} role="listbox" aria-busy={loading || undefined}>
+        <div className="oxygen-combobox__menu" id={listboxId} ref={listRef} role="listbox" tabIndex={-1} aria-busy={loading || undefined}>
           {loading ? <div className="oxygen-combobox__empty">{locale.common.loading}</div>
             : filteredOptions.length > 0 ? filteredOptions.map((option, index) => (
               // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- The input handles keyboard selection and retains DOM focus via aria-activedescendant.

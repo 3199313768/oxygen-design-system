@@ -29,7 +29,7 @@ export const formsDocs: ComponentDoc[] = [
         "default": "false"
       },
       "required": {
-        "description": "字段必填语义。",
+        "description": "向 FieldControl 的实际控件传递 aria-required；不执行原生或业务校验，显式控件值优先。",
         "default": "false"
       },
       "description": {
@@ -357,18 +357,18 @@ export const formsDocs: ComponentDoc[] = [
       "loading 与空选项要明确区分。"
     ],
     "restrictions": [
-      "默认过滤只读取字符串/数字标签；复杂标签需 filterOption。",
+      "默认过滤读取 textValue 或标签中的原生文本；自定义组件标签需提供 textValue，filterOption 只定制搜索匹配。",
       "onSearch 只通知查询文字，不发送请求；宿主管理远程请求和竞态。"
     ],
     "accessibility": [
-      "输入保持焦点并通过 aria-activedescendant 指示活动选项。",
+      "输入保持焦点并通过 aria-activedescendant 指示活动选项，键盘活动项同步滚入列表可见区域。",
       "为输入提供名称，禁用项不能通过键盘或点击选中。"
     ],
-    "interaction": "上下键浏览、Enter 选择、Escape 或离开恢复选择文本；清空回调 undefined。",
+    "interaction": "上下键浏览、Enter 选择、Escape 或离开恢复选择文本；清空回调 undefined。受控选择在父级接受新值后更新已提交展示，搜索文字仅作为编辑草稿。",
     "stateNotes": "支持 disabled、readOnly、loading、空项与清空。",
     "propNotes": {
       "options": {
-        "description": "带 value、label、disabled 的候选数组。"
+        "description": "带 value、label、disabled 和可选 textValue 的候选数组；textValue 提供复杂标签的搜索和选中展示文本。"
       },
       "value": {
         "description": "受控选项值，显式 undefined 表示受控空值。"
@@ -655,7 +655,7 @@ export const formsDocs: ComponentDoc[] = [
         "default": "#000000"
       },
       "defaultDraftValue": {
-        "description": "初始草稿，可用于展示非法输入。"
+        "description": "兼容保留的初始草稿，仅用于验证/文档中的非法输入示例；正常接入使用 value/defaultValue，关闭后恢复已提交颜色。"
       },
       "open": {
         "description": "受控浮层状态。"
@@ -776,7 +776,7 @@ export const formsDocs: ComponentDoc[] = [
         "description": "查询文字和方向。"
       },
       "onSelectChange": {
-        "description": "两侧临时勾选值变化。"
+        "description": "两侧临时勾选值变化，包含移动成功后清空对应侧勾选集合的通知。"
       },
       "titles": {
         "description": "左右标题，优先于 sourceTitle/targetTitle。"
@@ -810,7 +810,7 @@ export const formsDocs: ComponentDoc[] = [
       "maxCount 在 beforeUpload 完成后截取列表，保留最新 N 项；超出数量的项不会开始传输，也不触发专门的超限错误回调。"
     ],
     "accessibility": [
-      "按钮支持键盘选择文件；拖放是补充入口。",
+      "可见按钮是文件选择的键盘入口，隐藏输入不参与 Tab 顺序；Field/Form.Item 的标签与错误关联到实际操作控件。",
       "自定义 children 在按钮内，避免嵌套交互元素并提供清楚名称。"
     ],
     "interaction": "先检查 maxSize，再为未被跳过的文件执行 beforeUpload；数量限制随后裁剪列表。customRequest 通过 handlers 报告进度/成功/失败，并响应 signal 取消。移除可由 onRemove=false 阻止。",

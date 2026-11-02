@@ -14,6 +14,7 @@ import { cn } from '../lib/cn';
 import type { UploadFile } from './shared';
 import { useOxygenLocale } from './ConfigProvider';
 import { Progress } from './Progress';
+import { useFieldContext } from './field-context';
 
 export interface UploadRequestHandlers {
   signal: AbortSignal;
@@ -60,6 +61,10 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
     {
       accept,
       'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
+      'aria-describedby': ariaDescribedBy,
+      'aria-invalid': ariaInvalid,
+      'aria-required': ariaRequired,
       beforeUpload,
       children,
       className,
@@ -68,6 +73,7 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
       disabled = false,
       drag = false,
       fileList: fileListProp,
+      id,
       maxCount,
       maxSize,
       multiple = false,
@@ -84,6 +90,21 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
   ) => {
     const locale = useOxygenLocale();
     const hintId = useId();
+    const field = useFieldContext();
+    const triggerId = field ? id ?? field.controlId : `${hintId}-trigger`;
+    const fieldDescription = [
+      field?.hasDescription ? field.descriptionId : undefined,
+      field?.hasError ? field.errorId : undefined,
+    ].filter(Boolean).join(' ');
+    const describedBy = [
+      ariaDescribedBy ?? (fieldDescription || undefined),
+      drag && children == null ? hintId : undefined,
+    ].filter(Boolean).join(' ') || undefined;
+    const invalid = ariaInvalid ?? (field?.invalid ? true : undefined);
+    const controlAria = {
+      'aria-describedby': describedBy,
+      'aria-invalid': invalid,
+    };
     const inputRef = useRef<HTMLInputElement>(null);
     const [uncontrolledFiles, setUncontrolledFiles] = useState(defaultFileList);
     const fileList = fileListProp ?? uncontrolledFiles;
@@ -220,22 +241,28 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(
     }
 
     return (
-      <div className={cn('oxygen-upload', className)} ref={ref} {...props}>
+      <div className={cn('oxygen-upload', className)} id={field ? undefined : id} ref={ref} {...props}>
         <input
           accept={accept}
           aria-label={ariaLabel ?? locale.common.upload}
+          aria-labelledby={ariaLabelledBy ?? (field && ariaLabel === undefined ? triggerId : undefined)}
+          {...controlAria}
+          aria-required={ariaRequired ?? (field?.required ? true : undefined)}
           className="oxygen-visually-hidden"
           disabled={disabled}
           multiple={multiple}
           onChange={handleChange}
           ref={inputRef}
+          tabIndex={-1}
           type="file"
         />
         <button
-          aria-label={children == null ? locale.common.browse : undefined}
-          aria-describedby={drag && children == null ? hintId : undefined}
+          aria-label={field ? ariaLabel : children == null && !ariaLabelledBy ? locale.common.browse : undefined}
+          aria-labelledby={ariaLabelledBy}
+          {...controlAria}
           className={cn('oxygen-upload__trigger', drag && 'oxygen-upload__trigger--drag')}
           disabled={disabled}
+          id={triggerId}
           onClick={() => inputRef.current?.click()}
           onDragOver={(event) => {
             if (!drag) return;

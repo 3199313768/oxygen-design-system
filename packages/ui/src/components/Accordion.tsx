@@ -4,6 +4,7 @@ import { ChevronDown } from '../Icons';
 import { cn } from '../lib/cn';
 
 export interface AccordionItem {
+  /** In single mode, empty string is reserved for the closed value; multiple mode allows empty keys. */
   key: Key;
   title: ReactNode;
   children: ReactNode;
@@ -35,6 +36,10 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
     const openValues = useMemo(() => (controlled ? toValues(value, type) : uncontrolledValue), [controlled, type, uncontrolledValue, value]);
     const id = useId();
     const triggers = useRef<(HTMLButtonElement | null)[]>([]);
+
+    if (type === 'single' && items.some((item) => item.key === '')) {
+      throw new Error('Accordion: empty string item key is reserved for the single-mode closed value. Use a non-empty key.');
+    }
 
     const update = (itemKey: Key) => {
       if (disabled) return;

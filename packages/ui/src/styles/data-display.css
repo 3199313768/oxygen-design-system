@@ -219,7 +219,7 @@
     background: var(--oxygen-color-border);
     bottom: 0;
     content: '';
-    inset-inline-start: 11px;
+    inset-inline-start: calc((var(--oxygen-space-6) - 1px) / 2);
     position: absolute;
     top: var(--oxygen-space-6);
     width: 1px;

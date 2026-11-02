@@ -14,7 +14,7 @@ export const TooltipContent = forwardRef<
 >(({ className, sideOffset = 6, ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal forceMount={props.forceMount}>
       <TooltipPrimitive.Content
         {...themeAttributes}
         className={cn('oxygen-tooltip', className)}

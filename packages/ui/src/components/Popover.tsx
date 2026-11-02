@@ -21,7 +21,7 @@ export const PopoverContent = forwardRef<
 >(({ align = 'center', className, sideOffset = 8, ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
-    <PopoverPortal>
+    <PopoverPortal forceMount={props.forceMount}>
       <PopoverPrimitive.Content
         {...themeAttributes}
         align={align}

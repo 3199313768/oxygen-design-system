@@ -32,7 +32,7 @@ export const AlertDialogContent = forwardRef<
 >(({ className, ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
-    <AlertDialogPortal>
+    <AlertDialogPortal forceMount={props.forceMount}>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Content
         {...themeAttributes}

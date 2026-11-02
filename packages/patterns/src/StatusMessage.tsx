@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 
 import {
   Alert,
@@ -7,21 +7,23 @@ import {
   type AlertTone,
 } from '@oxygen-design/ui';
 
-export interface StatusMessageProps {
+export interface StatusMessageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'title'> {
   action?: ReactNode;
   children: ReactNode;
   title?: ReactNode;
   tone?: AlertTone;
 }
 
-export function StatusMessage({
+export const StatusMessage = forwardRef<HTMLDivElement, StatusMessageProps>(function StatusMessage({
   action,
   children,
+  className,
   title,
   tone = 'info',
-}: StatusMessageProps) {
+  ...props
+}, ref) {
   return (
-    <Alert className="oxygen-status-message" tone={tone}>
+    <Alert {...props} className={['oxygen-status-message', className].filter(Boolean).join(' ')} ref={ref} tone={tone}>
       <div className="oxygen-status-message__copy">
         {title ? <AlertTitle>{title}</AlertTitle> : null}
         <AlertDescription>{children}</AlertDescription>
@@ -29,4 +31,4 @@ export function StatusMessage({
       {action ? <div className="oxygen-status-message__action">{action}</div> : null}
     </Alert>
   );
-}
+});

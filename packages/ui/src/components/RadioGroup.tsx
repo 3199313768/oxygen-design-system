@@ -1,4 +1,5 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { Slottable } from '@radix-ui/react-slot';
 import { forwardRef } from 'react';
 
 import { cn } from '../lib/cn';
@@ -26,13 +27,14 @@ export type RadioGroupItemProps = React.ComponentPropsWithoutRef<
 export const RadioGroupItem = forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
->(({ className, ...props }, ref) => (
+>(({ children, className, ...props }, ref) => (
   <RadioGroupPrimitive.Item
     className={cn('oxygen-radio-group__item', className)}
     data-oxygen-control="true"
     ref={ref}
     {...props}
   >
+    <Slottable>{children}</Slottable>
     <RadioGroupPrimitive.Indicator className="oxygen-radio-group__indicator">
       <span aria-hidden="true" className="oxygen-radio-group__dot" />
     </RadioGroupPrimitive.Indicator>

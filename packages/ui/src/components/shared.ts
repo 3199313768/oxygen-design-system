@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 export interface Option<T = string> {
   disabled?: boolean;
   label: ReactNode;
+  /** Search/accessibility text for custom component labels; ordinary DOM labels and fragments are read automatically. */
+  textValue?: string;
   value: T;
 }
 

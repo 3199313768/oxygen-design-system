@@ -34,10 +34,10 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
         <span className="oxygen-progress__track">
           <span className="oxygen-progress__bar" style={{ width: `${normalizedPercent}%` }} />
         </span>
-        {showInfo ? (
+        {showInfo || status === 'exception' || status === 'success' ? (
           <span className="oxygen-progress__info">
             {status === 'exception' ? <CircleX aria-hidden="true" /> : status === 'success' ? <CircleCheck aria-hidden="true" /> : null}
-            {normalizedPercent}%
+            {showInfo ? `${normalizedPercent}%` : null}
           </span>
         ) : null}
       </div>

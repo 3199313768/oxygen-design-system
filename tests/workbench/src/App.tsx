@@ -8,6 +8,7 @@ import { EmptyState, PageHeader } from '@oxygen-design/patterns';
 import { RecordEditor, type DemoRecord } from './RecordEditor';
 import { ThemeExamples } from './ThemeExamples';
 import { FoundationExamples } from './FoundationExamples';
+import { DesignQualityExamples } from './DesignQualityExamples';
 
 const initialRecords: DemoRecord[] = Array.from({ length: 12 }, (_, index) => ({
   id: index + 1,
@@ -122,6 +123,7 @@ export function App() {
         </section>
         <ThemeExamples theme={theme === 'dark' ? 'light' : 'dark'} />
         <FoundationExamples />
+        <DesignQualityExamples />
       </main>
       {editing ? <RecordEditor key={editing.id} record={editing} onClose={() => setEditing(null)}
         restoreFocus={() => {

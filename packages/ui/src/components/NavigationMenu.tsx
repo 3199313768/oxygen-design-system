@@ -1,4 +1,5 @@
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu';
+import { Slottable } from '@radix-ui/react-slot';
 import { ChevronDown } from 'lucide-react';
 import { forwardRef } from 'react';
 
@@ -68,7 +69,7 @@ export const NavigationMenuTrigger = forwardRef<
       ref={ref}
       {...props}
     >
-      {children}
+      <Slottable>{children}</Slottable>
       <ChevronDown aria-hidden="true" className="oxygen-navigation-menu__chevron" />
     </NavigationMenuPrimitive.Trigger>
   );
@@ -78,19 +79,29 @@ NavigationMenuTrigger.displayName = NavigationMenuPrimitive.Trigger.displayName;
 export const NavigationMenuContent = forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content>
->(({ children, className, ...props }, ref) => {
+>(({ asChild, children, className, ...props }, ref) => {
   const themeAttributes = useOxygenThemeAttributes();
   return (
     <NavigationMenuPrimitive.Content
       {...themeAttributes}
+      asChild={asChild}
       className={cn('oxygen-navigation-menu__content', className)}
       ref={ref}
       {...props}
     >
-      {/* Radix relocates these children into a shared Viewport; retain their React origin. */}
-      <OxygenThemeContext.Provider value={themeAttributes['data-oxygen-theme']}>
-        {children}
-      </OxygenThemeContext.Provider>
+      {asChild ? (
+        <Slottable child={children}>
+          {(content) => (
+            <OxygenThemeContext.Provider value={themeAttributes['data-oxygen-theme']}>
+              {content}
+            </OxygenThemeContext.Provider>
+          )}
+        </Slottable>
+      ) : (
+        <OxygenThemeContext.Provider value={themeAttributes['data-oxygen-theme']}>
+          {children}
+        </OxygenThemeContext.Provider>
+      )}
     </NavigationMenuPrimitive.Content>
   );
 });
