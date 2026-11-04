@@ -119,7 +119,7 @@ npm token：
 ```
 
 ```bash
-pnpm add @oxygen-design/ui@0.1.1 @oxygen-design/patterns@0.1.1 --save-exact
+pnpm add @oxygen-design/ui@0.2.0 @oxygen-design/patterns@0.2.0 --save-exact
 ```
 
 在应用入口处一次性导入组件和预编译样式：
@@ -155,7 +155,7 @@ React 和 React DOM 是 peerDependencies。使用方无需安装 Tailwind CSS，
 
 ## 发布流程
 
-当前 `@oxygen-design/ui` 和 `@oxygen-design/patterns` 的版本均为 `0.1.1`，两个
+当前 `@oxygen-design/ui` 和 `@oxygen-design/patterns` 的版本均为 `0.2.0`，两个
 软件包独立版本管理。后续兼容性修复使用 patch changeset，兼容的公开功能新增使用
 minor changeset，破坏性 API 变更使用 major changeset。
 
