@@ -12,6 +12,7 @@ import { basename, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { isMeasurementOnly, verifyPackageArtifacts, verifyPackedLicense } from './package-budgets.mjs';
+import { assertAttw, assertPackedModules, assertPublint, writeNodeNextProbe } from './check-published-types.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 const uiPackageRoot = resolve(repositoryRoot, 'packages/ui');
@@ -43,6 +44,7 @@ function validateArchiveEntries(entries) {
     'package/dist/index.d.ts',
     'package/dist/index.js',
     'package/dist/styles.css',
+    'package/styles.css.d.ts',
     'package/package.json',
     'package/LICENSE',
   ];
@@ -122,6 +124,16 @@ try {
   run('tar', ['-xzf', patternsTarballPath, '-C', extractRoot], repositoryRoot);
   await validateExtractedContents(extractRoot);
   await verifyPackedLicense(join(extractRoot, 'package'));
+  const packedManifest = JSON.parse(await readFile(join(extractRoot, 'package/package.json'), 'utf8'));
+  if (JSON.stringify(packedManifest.exports) !== JSON.stringify({
+    '.': { types: './dist/index.d.ts', import: './dist/index.js' },
+    './styles.css': { types: './styles.css.d.ts', default: './dist/styles.css' },
+  })) {
+    throw new Error('Packed patterns manifest has an unexpected export surface');
+  }
+  await assertPackedModules(join(extractRoot, 'package'));
+  await assertPublint(join(extractRoot, 'package'));
+  assertAttw(patternsTarballPath);
 
   await cp(fixtureRoot, consumerRoot, {
     filter: shouldCopyFixture,
@@ -152,6 +164,15 @@ try {
   await writeFile(sourcePath, source);
 
   run('pnpm', ['install', '--prefer-offline', '--no-frozen-lockfile'], consumerRoot);
+  await writeNodeNextProbe(consumerRoot, `import { Button } from '@oxygen-design/ui';
+import { EmptyState } from '@oxygen-design/patterns';
+import '@oxygen-design/ui/styles.css';
+import '@oxygen-design/patterns/styles.css';
+
+void Button;
+export const probe: typeof EmptyState = EmptyState;
+`);
+  run('pnpm', ['exec', 'tsc', '--project', 'tsconfig.nodenext.json', '--pretty', 'false'], consumerRoot);
   run('pnpm', ['typecheck'], consumerRoot);
   run('pnpm', ['build'], consumerRoot);
 

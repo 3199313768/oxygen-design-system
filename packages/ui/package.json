@@ -1,6 +1,14 @@
 {
   "name": "@oxygen-design/ui",
   "version": "0.2.0",
+  "description": "Oxygen React 基础组件、预编译样式、设计令牌和图标。提供 ESM 和 TypeScript 声明。",
+  "keywords": [
+    "react",
+    "components",
+    "design-system",
+    "typescript",
+    "ui"
+  ],
   "private": false,
   "license": "MIT",
   "repository": {
@@ -14,7 +22,9 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "styles.css.d.ts",
+    "tokens.css.d.ts"
   ],
   "sideEffects": [
     "**/*.css"
@@ -26,19 +36,25 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css",
-    "./tokens.css": "./dist/tokens.css"
+    "./styles.css": {
+      "types": "./styles.css.d.ts",
+      "default": "./dist/styles.css"
+    },
+    "./tokens.css": {
+      "types": "./tokens.css.d.ts",
+      "default": "./dist/tokens.css"
+    }
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "scripts": {
-    "build": "vite build && node scripts/copy-tokens.mjs",
+    "build": "vite build && node ../../scripts/finalize-package-dist.mjs",
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json",
     "test:coverage": "vitest run --coverage"

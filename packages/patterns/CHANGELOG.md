@@ -13,6 +13,7 @@
 ### Patch Changes
 
 - 根节点接收 className、style、id、事件和 ref。
+- peerDependencies 改为 React 19。发布声明的相对导入带 `.js` 扩展名，样式入口补上类型声明。
 - Updated dependencies [8a39a9d]
 - Updated dependencies [8a39a9d]
 - Updated dependencies

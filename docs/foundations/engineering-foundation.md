@@ -23,7 +23,7 @@
 - 工作区使用 pnpm Workspace、TypeScript、Vite，开发基线为 React 19。环境要求 Node >=22.22.2、pnpm 11.9.0；精确依赖以清单与锁文件为准。
 - 复杂交互优先复用 Radix；变体使用 CVA，图标使用 Lucide；复用现有工具，避免为单个场景新增依赖或抽象。
 - 样式以 CSS Variables 和预编译 CSS 交付。Tailwind v4 参与现有库构建及文档开发，使用方无需安装或编译 Tailwind。
-- React、React DOM 是 peerDependencies；当前声明范围为 `>=18`。开发使用 React 19 不等于已经完成所有 peer 版本的运行验证。
+- React、React DOM 是 peerDependencies，声明范围为 `>=19`。公开组件类型按 React 19 的 ref 模型编写，不声明 React 18 兼容。
 - patterns 将 UI 声明为 peerDependency，开发时通过 workspace 引用。运行时依赖必须在对应包的 dependencies 中声明，不能依赖开发环境偶然安装的包。
 - 构建必须 externalize React 及声明的运行时依赖；新增依赖应说明必要性、体积影响及消费方约束。
 - 网络请求、上传服务、路由、存储和权限策略由宿主提供。Upload 管理选择、校验、状态和取消，通过 `customRequest` 接入上传实现。
@@ -68,7 +68,7 @@
 
 ## 6. 构建、导出和 Tree Shaking
 
-- 使用 Vite 库模式生成 ESM、类型声明与预编译 CSS，当前不提供 CommonJS `require()` 入口。
+- 使用 Vite 库模式生成 ESM、类型声明与预编译 CSS，当前不提供 CommonJS `require()` 入口。发布声明里的相对导入带 `.js` 扩展名，`moduleResolution: NodeNext` 可以解析；源码和测试仍使用 Bundler。样式子路径在 `exports` 中提供 `types`，声明文件放在包根，类型检查不依赖先构建 `dist`。`verify:package` 对 tarball 执行 publint 的 error 级别和 `attw --profile esm-only`。
 - UI 公开入口为包根、`styles.css`、`tokens.css`；patterns 公开入口为包根和 `styles.css`。新增入口应同步清单、声明、文档与契约验证。
 - 发布 `dist`、包元数据与 MIT `LICENSE` 等必要文件；使用方不得依赖仓库源码、Storybook 或开发 alias。先构建 UI，再构建 patterns。
 - React 和运行时依赖保持 external，不把它们重复打进组件库。`sideEffects` 保留 CSS，避免消费构建错误移除样式。

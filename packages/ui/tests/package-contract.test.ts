@@ -113,7 +113,9 @@ describe('@oxygen-design/ui package contract', () => {
     const manifest = JSON.parse(
       await readFile(resolve(packageRoot, 'package.json'), 'utf8'),
     ) as {
+      description: string;
       exports: Record<string, unknown>;
+      keywords: string[];
       name: string;
       peerDependencies: Record<string, string>;
       dependencies: Record<string, string>;
@@ -124,7 +126,21 @@ describe('@oxygen-design/ui package contract', () => {
 
     expect(manifest.name).toBe('@oxygen-design/ui');
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/);
-    expect(manifest.files).toEqual(['dist']);
+    expect(manifest.description).toBe(
+      'Oxygen React 基础组件、预编译样式、设计令牌和图标。提供 ESM 和 TypeScript 声明。',
+    );
+    expect(manifest.keywords).toEqual([
+      'react',
+      'components',
+      'design-system',
+      'typescript',
+      'ui',
+    ]);
+    expect(manifest.files).toEqual([
+      'dist',
+      'styles.css.d.ts',
+      'tokens.css.d.ts',
+    ]);
     expect(Object.keys(manifest.exports)).toEqual([
       '.',
       './styles.css',
@@ -134,11 +150,17 @@ describe('@oxygen-design/ui package contract', () => {
       types: './dist/index.d.ts',
       import: './dist/index.js',
     });
-    expect(manifest.exports['./styles.css']).toBe('./dist/styles.css');
-    expect(manifest.exports['./tokens.css']).toBe('./dist/tokens.css');
+    expect(manifest.exports['./styles.css']).toEqual({
+      types: './styles.css.d.ts',
+      default: './dist/styles.css',
+    });
+    expect(manifest.exports['./tokens.css']).toEqual({
+      types: './tokens.css.d.ts',
+      default: './dist/tokens.css',
+    });
     expect(manifest.peerDependencies).toMatchObject({
-      react: '>=18',
-      'react-dom': '>=18',
+      react: '>=19',
+      'react-dom': '>=19',
     });
     expect(manifest.publishConfig).toEqual({
       access: 'public',
@@ -151,6 +173,18 @@ describe('@oxygen-design/ui package contract', () => {
         'react-day-picker': expect.any(String),
       }),
     );
+  });
+
+  it('builds declarations from source without test types', async () => {
+    const [buildConfig, viteConfig] = await Promise.all([
+      readFile(resolve(packageRoot, 'tsconfig.build.json'), 'utf8'),
+      readFile(resolve(packageRoot, 'vite.config.ts'), 'utf8'),
+    ]);
+    expect(JSON.parse(buildConfig)).toMatchObject({
+      compilerOptions: { types: [] },
+      include: ['src'],
+    });
+    expect(viteConfig).toContain("tsconfigPath: './tsconfig.build.json'");
   });
 
   it('exposes locale fallbacks for new generic labels', () => {

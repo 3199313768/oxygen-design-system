@@ -15,7 +15,7 @@ export function Example() {
 }
 ```
 
-也可单独引入 `@oxygen-design/ui/tokens.css`。无需安装 Tailwind；交互组件在服务端组件
+也可单独引入 `@oxygen-design/ui/tokens.css`。需要 React 19 或更高版本，无需安装 Tailwind。样式使用 `@layer`、`oklch()` 和 `color-mix()`。交互组件在服务端组件
 框架中应从客户端模块使用。
 
 [源码和完整文档](https://github.com/3199313768/oxygen-design-system) ·

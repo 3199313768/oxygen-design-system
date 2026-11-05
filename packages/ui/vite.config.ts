@@ -27,7 +27,7 @@ export default defineConfig({
     tailwindcss(),
     dts({
       include: ['src'],
-      tsconfigPath: './tsconfig.json',
+      tsconfigPath: './tsconfig.build.json',
     }),
   ],
   build: {

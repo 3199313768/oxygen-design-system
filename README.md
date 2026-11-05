@@ -147,8 +147,8 @@ import { ConfigProvider } from '@oxygen-design/ui';
 @import '@oxygen-design/ui/tokens.css';
 ```
 
-React 和 React DOM 是 peerDependencies。使用方无需安装 Tailwind CSS，也无需访问
-本仓库的源文件。
+React 和 React DOM 是 peerDependencies，需要 React 19 或更高版本。使用方无需安装 Tailwind CSS，也无需访问
+本仓库的源文件。组件样式使用 `@layer`、`oklch()` 和 `color-mix()`，不面向缺少这些特性的浏览器。
 
 发布包提供 ESM 入口，使用 `import` 或 bundler 消费；当前不提供 CommonJS `require()`
 入口。组件包包含客户端交互边界，服务端组件框架请从客户端模块引入并按框架规则渲染。

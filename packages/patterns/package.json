@@ -1,6 +1,13 @@
 {
   "name": "@oxygen-design/patterns",
   "version": "0.2.0",
+  "description": "Oxygen 通用页面组合：AppShell、EmptyState、PageHeader 和 StatusMessage。不包含具体业务的数据访问、路由或状态管理。",
+  "keywords": [
+    "react",
+    "design-system",
+    "patterns",
+    "typescript"
+  ],
   "private": false,
   "license": "MIT",
   "repository": {
@@ -14,7 +21,8 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "styles.css.d.ts"
   ],
   "sideEffects": [
     "**/*.css"
@@ -26,7 +34,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": {
+      "types": "./styles.css.d.ts",
+      "default": "./dist/styles.css"
+    }
   },
   "publishConfig": {
     "access": "public",
@@ -34,14 +45,14 @@
   },
   "peerDependencies": {
     "@oxygen-design/ui": ">=0.2.0 <1.0.0",
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "devDependencies": {
     "@oxygen-design/ui": "workspace:*"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && node ../../scripts/finalize-package-dist.mjs",
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json",
     "test:coverage": "vitest run --coverage"
