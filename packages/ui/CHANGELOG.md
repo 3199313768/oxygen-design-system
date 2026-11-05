@@ -14,6 +14,7 @@
 ### Patch Changes
 
 - 修复组合组件的 asChild 插槽、Combobox 受控展示、Transfer 勾选通知，以及 Dialog、Sheet、Popover、Tooltip、DropdownMenu 的 forceMount。Accordion 单选模式拒绝空字符串项键。ButtonProps 改为判别联合，不能再用 interface extends 扩展。
+- peerDependencies 改为 React 19。发布声明的相对导入带 `.js` 扩展名，样式入口补上类型声明。
 
 ## 0.1.1
 

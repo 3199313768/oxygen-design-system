@@ -4,12 +4,75 @@ import { readFile, realpath } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+function compareVersions(left, right) {
+  const parse = (version) => {
+    const parts = version.split('.').map(Number);
+    if (parts.length !== 3 || parts.some((part) => !Number.isInteger(part))) {
+      throw new Error(`Unsupported version: ${version}`);
+    }
+    return parts;
+  };
+  const a = parse(left);
+  const b = parse(right);
+  for (let index = 0; index < 3; index += 1) {
+    if (a[index] !== b[index]) return a[index] - b[index];
+  }
+  return 0;
+}
+
+function satisfiesRange(version, range) {
+  const match = /^>=(\d+\.\d+\.\d+)(?:\s+<(\d+\.\d+\.\d+))?$/.exec(range);
+  if (!match) throw new Error(`Unsupported peer range: ${range}`);
+  if (compareVersions(version, match[1]) < 0) return false;
+  if (match[2] && compareVersions(version, match[2]) >= 0) return false;
+  return true;
+}
+
+function readPackedManifest(archive) {
+  const result = spawnSync('tar', ['-xOzf', archive, 'package/package.json'], { encoding: 'utf8' });
+  if (result.status !== 0 || !result.stdout) return null;
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    return null;
+  }
+}
+
+function publishedVersion(name, env) {
+  const result = spawnSync('npm', [
+    'view', name, 'version', '--registry', 'https://registry.npmjs.org/',
+  ], { encoding: 'utf8', env });
+  if (result.status !== 0) {
+    throw new Error(`Cannot resolve the published version of ${name}.`);
+  }
+  return result.stdout.trim();
+}
+
+async function assertPatternsUiPeer(releases, { resolvePublishedVersion, env }) {
+  const patterns = releases.find((entry) => entry.name === '@oxygen-design/patterns');
+  if (!patterns) return;
+  const range = readPackedManifest(patterns.archive)?.peerDependencies?.['@oxygen-design/ui'];
+  if (typeof range !== 'string') return;
+  const ui = releases.find((entry) => entry.name === '@oxygen-design/ui');
+  if (ui) {
+    if (!satisfiesRange(ui.version, range)) {
+      throw new Error(`@oxygen-design/patterns@${patterns.version} requires @oxygen-design/ui ${range}; this plan publishes ${ui.version}.`);
+    }
+    return;
+  }
+  const published = await resolvePublishedVersion('@oxygen-design/ui', env);
+  if (!satisfiesRange(published, range)) {
+    throw new Error(`@oxygen-design/patterns@${patterns.version} requires @oxygen-design/ui ${range}. Publish @oxygen-design/ui in the same plan; registry latest is ${published}.`);
+  }
+}
+
 const publicPackages = new Set(['@oxygen-design/ui', '@oxygen-design/patterns']);
 
 export async function publishNpmPlan(file, {
   dryRun = false,
   env = process.env,
   execute = (command, args) => spawnSync(command, args, { stdio: 'inherit', env }),
+  resolvePublishedVersion = publishedVersion,
 } = {}) {
   const input = JSON.parse(await readFile(file, 'utf8'));
   if (input.version !== 1 || !Array.isArray(input.plan) ||
@@ -48,6 +111,8 @@ export async function publishNpmPlan(file, {
     }
     releases.push({ ...entry, archive: actual });
   }
+
+  await assertPatternsUiPeer(releases, { resolvePublishedVersion, env });
 
   if (releases.length > 0 && !dryRun) {
     if (env.GITHUB_ACTIONS !== 'true' || !env.ACTIONS_ID_TOKEN_REQUEST_URL ||

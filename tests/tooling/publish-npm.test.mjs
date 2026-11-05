@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import test from 'node:test';
 import { publishNpmPlan } from '../../scripts/publish-npm.mjs';
 
@@ -99,6 +100,96 @@ test('live publication requests provenance and never adds dry-run flags', async 
   } });
   assert.equal(invocations.length, 2);
   assert.ok(invocations.every((args) => args.includes('--provenance') && !args.includes('--dry-run')));
+});
+
+async function packageArchive(root, fileName, manifest) {
+  const stage = join(root, 'stage', fileName);
+  await mkdir(join(stage, 'package'), { recursive: true });
+  await writeFile(join(stage, 'package/package.json'), JSON.stringify(manifest));
+  const archive = join(root, 'packages', fileName);
+  await mkdir(join(root, 'packages'), { recursive: true });
+  const packed = spawnSync('tar', ['-czf', archive, '-C', stage, 'package'], { encoding: 'utf8' });
+  assert.equal(packed.status, 0, packed.stderr);
+  const data = await readFile(archive);
+  return {
+    path: relative(root, archive),
+    integrity: `sha256-${createHash('sha256').update(data).digest('base64')}`,
+  };
+}
+
+function patternsRelease(tarball, version = '0.2.0') {
+  return {
+    kind: 'publish',
+    name: '@oxygen-design/patterns',
+    version,
+    access: 'public',
+    tag: 'latest',
+    tarball,
+  };
+}
+
+test('refuses to publish patterns when no compatible UI is in the plan or registry', async (t) => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'oxygen-publish-peer-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const tarball = await packageArchive(root, 'oxygen-design-patterns-0.2.0.tgz', {
+    name: '@oxygen-design/patterns',
+    version: '0.2.0',
+    peerDependencies: { '@oxygen-design/ui': '>=0.2.0 <1.0.0' },
+  });
+  const file = join(root, 'publish-plan.json');
+  await writeFile(file, JSON.stringify({ version: 1, plan: [[patternsRelease(tarball)]] }));
+  await assert.rejects(publishNpmPlan(file, {
+    dryRun: true,
+    resolvePublishedVersion: async () => '0.1.1',
+    execute: () => assert.fail('must not publish patterns without a compatible UI'),
+  }), /@oxygen-design\/ui/);
+});
+
+test('publishes patterns alone when the registry already has a compatible UI', async (t) => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'oxygen-publish-peer-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const tarball = await packageArchive(root, 'oxygen-design-patterns-0.2.0.tgz', {
+    name: '@oxygen-design/patterns',
+    version: '0.2.0',
+    peerDependencies: { '@oxygen-design/ui': '>=0.2.0 <1.0.0' },
+  });
+  const file = join(root, 'publish-plan.json');
+  await writeFile(file, JSON.stringify({ version: 1, plan: [[patternsRelease(tarball)]] }));
+  const result = await publishNpmPlan(file, {
+    dryRun: true,
+    resolvePublishedVersion: async () => '0.2.0',
+    execute: () => ({ status: 0 }),
+  });
+  assert.deepEqual(result, [{ name: '@oxygen-design/patterns', version: '0.2.0' }]);
+});
+
+test('refuses a same-plan UI version outside the patterns peer range', async (t) => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'oxygen-publish-peer-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const patterns = await packageArchive(root, 'oxygen-design-patterns-0.2.0.tgz', {
+    name: '@oxygen-design/patterns',
+    version: '0.2.0',
+    peerDependencies: { '@oxygen-design/ui': '>=0.2.0 <1.0.0' },
+  });
+  const ui = await packageArchive(root, 'oxygen-design-ui-0.1.1.tgz', {
+    name: '@oxygen-design/ui',
+    version: '0.1.1',
+  });
+  const file = join(root, 'publish-plan.json');
+  await writeFile(file, JSON.stringify({
+    version: 1,
+    plan: [[
+      { kind: 'publish', name: '@oxygen-design/ui', version: '0.1.1', access: 'public', tag: 'latest', tarball: ui },
+      patternsRelease(patterns),
+    ]],
+  }));
+  await assert.rejects(publishNpmPlan(file, {
+    dryRun: true,
+    resolvePublishedVersion: async () => {
+      throw new Error('registry should not be consulted when UI is in the plan');
+    },
+    execute: () => assert.fail('must not publish an incompatible UI peer'),
+  }), /0\.1\.1/);
 });
 
 test('an already-published tag-only plan needs no registry writes', async (t) => {

@@ -13,6 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { isMeasurementOnly, verifyPackageArtifacts, verifyPackedLicense } from './package-budgets.mjs';
+import { assertAttw, assertPackedModules, assertPublint, writeNodeNextProbe } from './check-published-types.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 const packageRoot = resolve(repositoryRoot, 'packages/ui');
@@ -162,6 +163,8 @@ function validateArchiveEntries(entries) {
     'package/dist/index.js',
     'package/dist/styles.css',
     'package/dist/tokens.css',
+    'package/styles.css.d.ts',
+    'package/tokens.css.d.ts',
     'package/package.json',
     'package/LICENSE',
   ];
@@ -213,8 +216,8 @@ async function validatePublicSurface(extractRoot) {
 
   if (JSON.stringify(manifest.exports) !== JSON.stringify({
     '.': { types: './dist/index.d.ts', import: './dist/index.js' },
-    './styles.css': './dist/styles.css',
-    './tokens.css': './dist/tokens.css',
+    './styles.css': { types: './styles.css.d.ts', default: './dist/styles.css' },
+    './tokens.css': { types: './tokens.css.d.ts', default: './dist/tokens.css' },
   })) {
     throw new Error('Packed UI manifest has an unexpected export surface');
   }
@@ -290,6 +293,9 @@ try {
   await validateExtractedContents(extractRoot);
   await verifyPackedLicense(join(extractRoot, 'package'));
   await validatePublicSurface(extractRoot);
+  await assertPackedModules(join(extractRoot, 'package'));
+  await assertPublint(join(extractRoot, 'package'));
+  assertAttw(tarball);
 
   await cp(fixtureRoot, consumerRoot, {
     filter: shouldCopyFixture,
@@ -302,6 +308,13 @@ try {
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
   run('pnpm', ['install', '--prefer-offline', '--no-frozen-lockfile'], consumerRoot);
+  await writeNodeNextProbe(consumerRoot, `import { Button } from '@oxygen-design/ui';
+import '@oxygen-design/ui/styles.css';
+import '@oxygen-design/ui/tokens.css';
+
+export const probe: typeof Button = Button;
+`);
+  run('pnpm', ['exec', 'tsc', '--project', 'tsconfig.nodenext.json', '--pretty', 'false'], consumerRoot);
   run('pnpm', ['typecheck'], consumerRoot);
   run('pnpm', ['build'], consumerRoot);
 
